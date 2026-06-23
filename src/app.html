@@ -1,0 +1,75 @@
+<!doctype html>
+
+<html lang="%paraglide.lang%" dir="%paraglide.dir%">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/png" sizes="32x32" href="%sveltekit.assets%/favicon-32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="%sveltekit.assets%/favicon-16.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<meta name="theme-color" content="#111827" />
+
+		<!-- OGP Metadata -->
+		<meta property="og:title" content="open-nexus" />
+		<meta property="og:description" content="時間割アプリ「open-nexus」" />
+		<meta property="og:image" content="%sveltekit.assets%/ogp.png" />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://open-info.nexus/" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image" content="%sveltekit.assets%/ogp.png" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<meta name="text-scale" content="scale" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sawarabi+Gothic&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- FOUC防止: ローカルストレージからテーマを即座に適用 -->
+		<script>
+			(function () {
+				try {
+					var settingsRaw = localStorage.getItem('open-nexus:user-settings');
+					var themeMode = 'system';
+					var packId = 'default';
+					if (settingsRaw) {
+						var settings = JSON.parse(settingsRaw);
+						themeMode = settings.theme || 'system';
+						packId = settings.themePackId || 'default';
+					}
+					var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					var isDark = themeMode === 'dark' || (themeMode === 'system' && prefersDark);
+					var root = document.documentElement;
+					if (isDark) {
+						root.setAttribute('data-theme', 'dark');
+						root.style.setProperty('--color-surface-page', '#0f172a');
+						root.style.setProperty('--color-surface-card', '#1e293b');
+						root.style.setProperty('--color-surface-border', '#334155');
+						root.style.setProperty('--color-surface-muted', '#1e293b');
+						root.style.setProperty('--color-surface-muted-foreground', '#94a3b8');
+						root.style.setProperty('--color-nav-bg', '#1e293b');
+						root.style.setProperty('--color-nav-active', '#f1f5f9');
+						root.style.setProperty('--color-nav-inactive', '#64748b');
+					} else {
+						root.setAttribute('data-theme', packId === 'dark' ? 'default' : packId);
+						root.style.setProperty('--color-surface-page', '#f9fafb');
+						root.style.setProperty('--color-surface-card', '#ffffff');
+						root.style.setProperty('--color-surface-border', '#e5e7eb');
+						root.style.setProperty('--color-surface-muted', '#f3f4f6');
+						root.style.setProperty('--color-surface-muted-foreground', '#6b7280');
+						root.style.setProperty('--color-nav-bg', '#ffffff');
+						root.style.setProperty('--color-nav-active', '#111827');
+						root.style.setProperty('--color-nav-inactive', '#6b7280');
+					}
+				} catch (e) {}
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

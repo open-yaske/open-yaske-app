@@ -1,0 +1,157 @@
+name: Deploy and Build
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  # Web (GitHub Pages) Deploy
+  deploy-web:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+        env:
+          PUBLIC_DATA_CDN_BASE: '/cdn' # 本番環境に応じたCDNベースURLを指定
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Android APK Build
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web App
+        run: pnpm run build
+
+      - name: Capacitor Sync
+        run: pnpm exec cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: Sign Android APK
+        uses: r0adrunner/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Signed APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-nexus-android-release-apk
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+
+  # iOS IPA Build
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web App
+        run: pnpm run build
+
+      - name: Capacitor Sync
+        run: pnpm exec cap sync ios
+
+      - name: Build iOS App (Archive only, unsigned)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -allowProvisioningUpdates \
+            -destination 'generic/platform=iOS' \
+            clean archive -archivePath ios/App/build/App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Upload iOS Archive Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-nexus-ios-archive
+          path: ios/App/build/App.xcarchive

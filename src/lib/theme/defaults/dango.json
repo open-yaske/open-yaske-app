@@ -1,0 +1,237 @@
+{
+	"id": "dango",
+	"name": "theme_pack_dango",
+	"description": "三色団子テーマ",
+	"version": 1,
+	"builtIn": true,
+	"ui": {
+		"primary": {
+			"50": "#fdf2f8",
+			"100": "#fce7f3",
+			"200": "#fbcfe8",
+			"300": "#f9a8d4",
+			"400": "#db2777",
+			"500": "#047857",
+			"600": "#065f46",
+			"700": "#064e3b",
+			"800": "#022c22",
+			"900": "#011c16"
+		},
+		"surface": {
+			"page": "#ffffff",
+			"card": "#fdf7fa",
+			"border": "#f3c5d9",
+			"muted": "#f9edf3",
+			"mutedForeground": "#52685b"
+		},
+		"nav": {
+			"bg": "#fdf7fa",
+			"active": "#064e3b",
+			"inactive": "#52685b",
+			"hover": "#e8f5ed"
+		},
+		"shadow": {
+			"sheet": "0 -4px 16px rgba(4,120,87,0.10)",
+			"card": "0 1px 3px rgba(4,120,87,0.08), 0 1px 2px rgba(157,23,77,0.05)",
+			"modal": "0 20px 25px -5px rgba(4,120,87,0.14), 0 8px 10px -6px rgba(157,23,77,0.08)"
+		},
+		"radius": {
+			"pill": "9999px",
+			"card": "16px",
+			"chip": "8px"
+		},
+		"secondary": {
+			"50": "#ecfdf5",
+			"100": "#d1fae5",
+			"200": "#a7f3d0",
+			"300": "#6ee7b7",
+			"400": "#34d399",
+			"500": "#047857",
+			"600": "#065f46",
+			"700": "#064e3b",
+			"800": "#022c22",
+			"900": "#011c16"
+		},
+		"success": {
+			"50": "#f0fdf4",
+			"100": "#dcfce7",
+			"200": "#bbf7d0",
+			"300": "#86efac",
+			"400": "#4ade80",
+			"500": "#22c55e",
+			"600": "#16a34a",
+			"700": "#15803d",
+			"800": "#166534",
+			"900": "#14532d"
+		},
+		"warning": {
+			"50": "#fffbeb",
+			"100": "#fef3c7",
+			"200": "#fde68a",
+			"300": "#fcd34d",
+			"400": "#fbbf24",
+			"500": "#f59e0b",
+			"600": "#d97706",
+			"700": "#b45309",
+			"800": "#92400e",
+			"900": "#78350f"
+		},
+		"danger": {
+			"50": "#fef2f2",
+			"100": "#fee2e2",
+			"200": "#fecaca",
+			"300": "#fca5a5",
+			"400": "#f87171",
+			"500": "#ef4444",
+			"600": "#dc2626",
+			"700": "#b91c1c",
+			"800": "#991b1b",
+			"900": "#7f1d1d"
+		}
+	},
+	"palette": {
+		"courseColors": [
+			{
+				"id": "green",
+				"name": "color_green",
+				"hex": "#15803d"
+			},
+			{
+				"id": "emerald",
+				"name": "color_emerald",
+				"hex": "#047857"
+			},
+			{
+				"id": "teal",
+				"name": "color_teal",
+				"hex": "#0f766e"
+			},
+			{
+				"id": "pink",
+				"name": "color_pink",
+				"hex": "#db2777"
+			},
+			{
+				"id": "rose",
+				"name": "color_rose",
+				"hex": "#e11d48"
+			},
+			{
+				"id": "amber",
+				"name": "color_amber",
+				"hex": "#b45309"
+			},
+			{
+				"id": "violet",
+				"name": "color_violet",
+				"hex": "#7c3aed"
+			}
+		],
+		"todoColors": [
+			{
+				"id": "green",
+				"name": "color_green",
+				"hex": "#15803d"
+			},
+			{
+				"id": "emerald",
+				"name": "color_emerald",
+				"hex": "#047857"
+			},
+			{
+				"id": "teal",
+				"name": "color_teal",
+				"hex": "#0f766e"
+			},
+			{
+				"id": "pink",
+				"name": "color_pink",
+				"hex": "#db2777"
+			},
+			{
+				"id": "rose",
+				"name": "color_rose",
+				"hex": "#e11d48"
+			},
+			{
+				"id": "amber",
+				"name": "color_amber",
+				"hex": "#b45309"
+			}
+		],
+		"eventColors": [
+			{
+				"id": "green",
+				"name": "color_green",
+				"hex": "#15803d"
+			},
+			{
+				"id": "emerald",
+				"name": "color_emerald",
+				"hex": "#047857"
+			},
+			{
+				"id": "teal",
+				"name": "color_teal",
+				"hex": "#0f766e"
+			},
+			{
+				"id": "lime",
+				"name": "color_lime",
+				"hex": "#4d7c0f"
+			},
+			{
+				"id": "pink",
+				"name": "color_pink",
+				"hex": "#db2777"
+			},
+			{
+				"id": "rose",
+				"name": "color_rose",
+				"hex": "#e11d48"
+			},
+			{
+				"id": "amber",
+				"name": "color_amber",
+				"hex": "#b45309"
+			},
+			{
+				"id": "sky",
+				"name": "color_sky",
+				"hex": "#0369a1"
+			},
+			{
+				"id": "violet",
+				"name": "color_violet",
+				"hex": "#7c3aed"
+			},
+			{
+				"id": "gray",
+				"name": "color_gray",
+				"hex": "#4b5563"
+			}
+		]
+	},
+	"attendance": {
+		"present": {
+			"fg": "#ffffff",
+			"bg": "#15803d"
+		},
+		"absent": {
+			"fg": "#ffffff",
+			"bg": "#e11d48"
+		},
+		"late": {
+			"fg": "#ffffff",
+			"bg": "#b45309"
+		},
+		"excused": {
+			"fg": "#ffffff",
+			"bg": "#0f766e"
+		},
+		"cancelled": {
+			"fg": "#ffffff",
+			"bg": "#4b5563"
+		}
+	}
+}

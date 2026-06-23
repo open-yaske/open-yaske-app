@@ -1,0 +1,39 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+# Playwright
+test-results
+# Paraglide
+src/lib/paraglide
+project.inlang/cache/
+
+*storybook.log
+storybook-static
+
+# IDE / Agent Temporary Files
+.omo/
+.opencode/
+
+# Android Signing Keys
+open-nexus.jks
+open-nexus-base64.txt

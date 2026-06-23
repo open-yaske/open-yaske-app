@@ -1,0 +1,96 @@
+{
+	"schemaVersion": 1,
+	"generatedAt": "2025-04-01T00:00:00.000Z",
+	"index": {
+		"version": 1,
+		"generatedAt": "2025-04-01T00:00:00.000Z",
+		"count": 3
+	},
+	"courses": [
+		{
+			"id": "uec-linear-algebra-2025",
+			"code": "GA101",
+			"name": "線形代数学I",
+			"teacher": "山田 太郎",
+			"classroom": "西1号館 201",
+			"credits": 2,
+			"type": "required",
+			"semester": "spring",
+			"year": 2025,
+			"descriptionHtml": "<p>行列・行列式・ベクトル空間の基礎を学ぶ。</p>",
+			"references": [
+				{ "title": "教科書", "url": "https://example.com/textbook" }
+			],
+			"topics": ["行列", "行列式", "ベクトル空間", "線形写像"],
+			"dayPeriods": [
+				{ "day": "mon", "period": 1 },
+				{ "day": "wed", "period": 2 }
+			]
+		},
+		{
+			"id": "uec-programming-2025",
+			"code": "CS201",
+			"name": "プログラミング演習II",
+			"teacher": "佐藤 花子",
+			"classroom": "東2号館 305",
+			"credits": 1,
+			"type": "elective",
+			"semester": "spring",
+			"year": 2025,
+			"descriptionHtml": "<p>Python を用いた実践的プログラミング演習。</p>",
+			"topics": ["Python", "アルゴリズム", "データ構造"],
+			"dayPeriods": [
+				{ "day": "tue", "period": 3 },
+				{ "day": "thu", "period": 3 }
+			]
+		},
+		{
+			"id": "uec-electromagnetism-2025",
+			"code": "PH301",
+			"name": "電磁気学",
+			"teacher": "鈴木 一郎",
+			"classroom": "本館 101",
+			"credits": 2,
+			"type": "required",
+			"semester": "fall",
+			"year": 2025,
+			"descriptionHtml": "<p>静電場・磁場・電磁誘導の基礎理論。</p>",
+			"references": [
+				{ "title": "参考書", "url": "https://example.com/reference" }
+			],
+			"topics": ["静電場", "磁場", "電磁誘導", "マクスウェル方程式"],
+			"dayPeriods": [
+				{ "day": "fri", "period": 1 }
+			]
+		}
+	],
+	"dashboardCards": [
+		{
+			"type": "html-internal",
+			"id": "uec-news",
+			"title": "学務情報",
+			"icon": "megaphone",
+			"layout": "card",
+			"htmlUrl": "https://example.com/news.html",
+			"order": 1
+		},
+		{
+			"type": "external-url",
+			"id": "uec-portal",
+			"title": "UECポータル",
+			"icon": "external-link",
+			"url": "https://portal.uec.ac.jp",
+			"openInApp": true,
+			"order": 2
+		},
+		{
+			"type": "webview-popup",
+			"id": "uec-cafeteria",
+			"title": "学食メニュー",
+			"icon": "utensils",
+			"htmlUrl": "https://example.com/cafeteria.html",
+			"externalUrl": "https://example.com/cafeteria-full",
+			"order": 3
+		}
+	]
+}
