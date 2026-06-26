@@ -208,6 +208,10 @@ export type UserSettings = {
 	bgImageAllPages: boolean;
 	/** カスタムマークダウンメモ */
 	customMemo: string;
+	/** カスタマイズ：アプリの表示名 */
+	customAppName?: string;
+	/** カスタマイズ：アプリのロゴ（Base64形式の画像データ） */
+	customLogoData?: string;
 };
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
@@ -265,5 +269,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 	emojiStyle: 'native',
 	fontFamily: 'system',
 	bgImageAllPages: false,
-	customMemo: ''
+	customMemo: '',
+	customAppName: '',
+	customLogoData: ''
 };

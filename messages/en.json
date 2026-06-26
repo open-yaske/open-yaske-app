@@ -370,5 +370,12 @@
 	"settings_minutes": "{minutes} min",
 	"settings_minutes_before": "{minutes} mins before",
 	"settings_minutes_after": "{minutes} mins after",
-	"settings_at_end": "At Class End"
+	"settings_at_end": "At Class End",
+	"settings_customization_title": "App Customization",
+	"settings_custom_app_name": "Custom App Name",
+	"settings_custom_app_name_placeholder": "Default: OpenYASKE",
+	"settings_custom_logo": "Custom Logo Image",
+	"settings_custom_logo_desc": "Automatically resized and compressed to 128x128 pixels",
+	"settings_custom_logo_upload": "Upload Image",
+	"settings_custom_logo_reset": "Reset to Default"
 }

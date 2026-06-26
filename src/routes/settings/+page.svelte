@@ -24,6 +24,8 @@
 	import { Search, Download, Upload, Trash2, Cloud, CloudOff, Info, Link2 } from '@lucide/svelte';
 	import { Capacitor } from '@capacitor/core';
 
+	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
+
 	const appVersion = '2026.06.26';
 
 	// ----- Cmd+K ショートカット -----
@@ -106,7 +108,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'open-yaske-settings.json';
+		a.download = `${PUBLIC_APP_NAME.toLowerCase()}-settings.json`;
 		a.click();
 		URL.revokeObjectURL(url);
 		uiStore.toast(m.toast_saved(), 'success');
@@ -126,6 +128,49 @@
 			}
 		});
 		input.value = '';
+	}
+
+	function handleLogoUpload(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = (event) => {
+			const img = new Image();
+			img.onload = () => {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d');
+				if (!ctx) return;
+
+				const size = 128;
+				canvas.width = size;
+				canvas.height = size;
+
+				const minDim = Math.min(img.width, img.height);
+				const sx = (img.width - minDim) / 2;
+				const sy = (img.height - minDim) / 2;
+
+				ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+				try {
+					const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+					settingsStore.update({ customLogoData: compressedData });
+					uiStore.toast(m.toast_saved(), 'success');
+				} catch (error) {
+					console.error('Failed to compress image:', error);
+					uiStore.toast(m.toast_error(), 'error');
+				}
+			};
+			img.src = event.target?.result as string;
+		};
+		reader.readAsDataURL(file);
+		input.value = '';
+	}
+
+	function handleLogoReset() {
+		settingsStore.update({ customLogoData: '' });
+		uiStore.toast(m.toast_saved(), 'success');
 	}
 
 	// ----- 検索インデックス -----
@@ -528,6 +573,69 @@
 				}}
 				options={fontFamilyOptions}
 			/>
+		</div>
+	</SettingsSection>
+
+	<!-- ===== App Customization ===== -->
+	<SettingsSection id="settings-customization" title={m.settings_customization_title()}>
+		<div class="border-b border-[var(--color-surface-border)] px-4 py-3">
+			<TextField
+				type="text"
+				label={m.settings_custom_app_name()}
+				placeholder={m.settings_custom_app_name_placeholder()}
+				value={settingsStore.settings.customAppName}
+				oninput={(e) => {
+					const target = e.currentTarget as HTMLInputElement;
+					settingsStore.update({ customAppName: target.value });
+				}}
+			/>
+		</div>
+
+		<div class="px-4 py-3 space-y-3">
+			<div class="flex flex-col gap-1">
+				<span class="text-sm font-medium text-[var(--color-nav-active)]">
+					{m.settings_custom_logo()}
+				</span>
+				<span class="text-xs text-[var(--color-nav-inactive)]">
+					{m.settings_custom_logo_desc()}
+				</span>
+			</div>
+			
+			<div class="flex items-center gap-4">
+				<div class="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] flex items-center justify-center">
+					<img
+						src={settingsStore.settings.customLogoData || '/favicon.png'}
+						alt="App Logo"
+						class="h-full w-full object-cover"
+					/>
+				</div>
+				<div class="flex flex-col gap-2">
+					<div class="flex items-center gap-2">
+						<label class="cursor-pointer">
+							<span class="inline-flex items-center gap-1.5 rounded-chip bg-[var(--color-primary-500)] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--color-primary-600)]">
+								<Upload size={14} />
+								{m.settings_custom_logo_upload()}
+							</span>
+							<input
+								type="file"
+								accept="image/*"
+								class="hidden"
+								onchange={handleLogoUpload}
+							/>
+						</label>
+						{#if settingsStore.settings.customLogoData}
+							<button
+								type="button"
+								onclick={handleLogoReset}
+								class="inline-flex items-center gap-1.5 rounded-chip border border-[var(--color-surface-border)] px-3 py-1.5 text-xs font-semibold text-[var(--color-nav-inactive)] transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]"
+							>
+								<Trash2 size={14} />
+								{m.settings_custom_logo_reset()}
+							</button>
+						{/if}
+					</div>
+				</div>
+			</div>
 		</div>
 	</SettingsSection>
 
@@ -1130,7 +1238,7 @@
 			>
 		</div>
 		<a
-			href="https://github.com/open-yaske/open-yaske-app"
+			href={SOURCE_URL}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="flex items-center justify-between px-4 py-3 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"

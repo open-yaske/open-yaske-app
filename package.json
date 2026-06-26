@@ -4,6 +4,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
+		"prebuild": "node tools/update-project-name.cjs && node tools/generate-assets.cjs",
+		"predev": "node tools/update-project-name.cjs",
 		"dev": "concurrently -k -n vite,mock-cdn -c blue,magenta \"pnpm dev:vite\" \"pnpm dev:mock-cdn\"",
 		"dev:vite": "PUBLIC_DATA_CDN_BASE=/cdn vite dev",
 		"dev:mock-cdn": "tsx tools/mock-cdn/server.ts",
@@ -19,7 +21,7 @@
 		"test:e2e": "playwright install && playwright test",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build",
-		"assets:generate": "capacitor-assets generate"
+		"assets:generate": "node tools/generate-assets.cjs"
 	},
 	"devDependencies": {
 		"@capacitor/android": "^8.4.1",

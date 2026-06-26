@@ -11,8 +11,10 @@
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { PUBLIC_DATA_SCHEMA_VERSION, type PublicData } from './types/public';
 
-const DEFAULT_CDN_BASE = 'https://cdn.jsdelivr.net/gh/ueckoken/open-yaske-data@main';
-const CACHE_KEY = 'open-yaske:public-data';
+import { STORAGE_KEY_PREFIX, PUBLIC_DATA_CDN_BASE } from './constants';
+
+const DEFAULT_CDN_BASE = PUBLIC_DATA_CDN_BASE;
+const CACHE_KEY = STORAGE_KEY_PREFIX + 'public-data';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 type CachedPublic = {

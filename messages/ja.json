@@ -370,5 +370,12 @@
 	"settings_minutes": "{minutes}分",
 	"settings_minutes_before": "{minutes}分前",
 	"settings_minutes_after": "{minutes}分後",
-	"settings_at_end": "終了時"
+	"settings_at_end": "終了時",
+	"settings_customization_title": "アプリのカスタマイズ",
+	"settings_custom_app_name": "カスタムアプリ名",
+	"settings_custom_app_name_placeholder": "デフォルト: OpenYASKE",
+	"settings_custom_logo": "カスタムロゴ画像",
+	"settings_custom_logo_desc": "128x128ピクセル以下に自動縮小・圧縮されます",
+	"settings_custom_logo_upload": "画像をアップロード",
+	"settings_custom_logo_reset": "デフォルトに戻す"
 }

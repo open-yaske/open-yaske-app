@@ -145,6 +145,8 @@
 				items={navItems}
 				collapsed={sideNavCollapsed}
 				ontoggle={() => (sideNavCollapsed = !sideNavCollapsed)}
+				appName={settingsStore.settings.customAppName}
+				logoData={settingsStore.settings.customLogoData}
 			/>
 
 			<main class="min-w-0 flex-1 pb-20 md:pb-0">

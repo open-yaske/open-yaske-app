@@ -8,8 +8,10 @@ import { applyTheme, BUILTIN_PACKS, getBuiltinPack } from '$lib/theme';
 import type { ThemePack } from '$lib/theme';
 import * as remoteStorage from '$lib/remotestorage';
 
-const STORAGE_KEY = 'open-yaske:active-theme';
-const CUSTOM_PACKS_KEY = 'open-yaske:custom-packs';
+import { STORAGE_KEY_PREFIX } from '$lib/constants';
+
+const STORAGE_KEY = STORAGE_KEY_PREFIX + 'active-theme';
+const CUSTOM_PACKS_KEY = STORAGE_KEY_PREFIX + 'custom-packs';
 
 class ThemeStore {
 	pack = $state<ThemePack>(BUILTIN_PACKS[0]);

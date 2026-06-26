@@ -370,5 +370,12 @@
 	"settings_minutes": "{minutes}분",
 	"settings_minutes_before": "{minutes}분 전",
 	"settings_minutes_after": "{minutes}분 후",
-	"settings_at_end": "수업 종료 시"
+	"settings_at_end": "수업 종료 시",
+	"settings_customization_title": "앱 사용자 정의",
+	"settings_custom_app_name": "사용자 정의 앱 이름",
+	"settings_custom_app_name_placeholder": "기본값: OpenYASKE",
+	"settings_custom_logo": "사용자 정의 로고 이미지",
+	"settings_custom_logo_desc": "128x128 픽셀 이하로 자동 축소 및 압축됩니다",
+	"settings_custom_logo_upload": "이미지 업로드",
+	"settings_custom_logo_reset": "기본값으로 재설정"
 }

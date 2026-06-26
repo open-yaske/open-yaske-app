@@ -10,17 +10,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **アプリの動的カスタマイズ（ブランディング）機能**:
+  - 設定（Settings）画面から、ユーザーがアプリの表示名（`customAppName`）を自由に変更できるテキスト入力を追加
+  - 設定（Settings）画面から、カスタムロゴ画像（`customLogoData`）をアップロードできる画像アップローダーを追加。画像は Canvas を用いて 128x128 ピクセルにトリミング＆JPEG（画質0.7）圧縮され、Base64 形式で settingsStore に保存される
+  - カスタマイズされたアプリ名とロゴをデスクトップ用サイドバー（`SideNav.svelte`）のヘッダーに動的に適用する仕組みを実装
 - **OpenYASKEアイコン**: `OpenYASKE.png` をベースにした新しいアプリ・ファビコンアセットの追加（Android/iOS/Web/SVG）
 
 ### Changed
 
+- **UserSettingsスキーマと初期値の拡張**: `src/lib/types.ts` 内の `UserSettings` および `DEFAULT_USER_SETTINGS` に `customAppName` と `customLogoData` を追加
+- **多言語メッセージの追加**: 各言語（ja, en, zh, ko）のメッセージファイルにアプリカスタマイズ機能に関連するローカライズ文字列を追加し、Paraglide.js によるコンパイルを実行
+- **レイアウトのデータ連携**: `src/routes/+layout.svelte` から `SideNav` に動的なカスタムアプリ名とカスタムロゴ画像を Props 経由で渡すように更新
 - **プロジェクト名の変更**: プロジェクト名を「open-nexus」から「OpenYASKE」（小文字: `open-yaske`）へ変更し、コードベース、テスト、マニフェスト、およびGit設定（`.git/config`）のすべての出現箇所を更新
 - **署名鍵とCIワークフローの更新**: Androidのリリース署名鍵 `open-nexus.jks` を `open-yaske.jks` にリネームし、`.github/workflows/deploy.yml` 内の署名・ビルドアセット参照を更新
-- **バージョン表記とソースリンクの更新**: アプリについて（About）に表示されるバージョン情報を日付ベース（`2026.06.26`）に変更し、ソースコードのリンク先を `https://github.com/open-yaske/open-yaske-app` に更新（`more` ページおよび `settings` ページ）
+- **バージョン表記とソースリンクの更新**: アプリについて（About）に表示されるバージョン情報を日付ベース（`2026.06.26`）に変更し、ソースコードのリンク先 to `https://github.com/open-yaske/open-yaske-app` に更新（`more` ページおよび `settings` ページ）
 
 ### Removed
 
 - **古いアイコン**: 旧ロゴアイコン `opennexus.png` の削除
+
+### Fixed
+
+- **カスタムアプリ名入力欄のフリーズ問題**: 設定画面でカスタムアプリ名（`customAppName`）を入力する際、フォールバック値（`|| ''`）の評価によってリネームがクリアされる不具合と、入力イベントハンドラ（`onchange` から `oninput` への変更）を修正しました。
 
 ## [Unreleased] - 2026-06-25
 

@@ -370,5 +370,12 @@
 	"settings_minutes": "{minutes}分钟",
 	"settings_minutes_before": "{minutes}分钟前",
 	"settings_minutes_after": "{minutes}分钟后",
-	"settings_at_end": "下课时"
+	"settings_at_end": "下课时",
+	"settings_customization_title": "应用自定义",
+	"settings_custom_app_name": "自定义应用名称",
+	"settings_custom_app_name_placeholder": "默认: OpenYASKE",
+	"settings_custom_logo": "自定义徽标图片",
+	"settings_custom_logo_desc": "自动缩小并压缩至 128x128 像素以内",
+	"settings_custom_logo_upload": "上传图片",
+	"settings_custom_logo_reset": "恢复默认"
 }

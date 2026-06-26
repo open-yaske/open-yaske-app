@@ -8,10 +8,11 @@ import type { UserSettings } from '$lib/types';
 import { applyTheme, getBuiltinPack } from '$lib/theme';
 import * as remoteStorage from '$lib/remotestorage';
 import { setPublicDataCdnBase } from '$lib/publicData';
+import { STORAGE_KEY_PREFIX } from '$lib/constants';
 import { themeStore } from './theme.svelte';
 
-const STORAGE_KEY = 'open-yaske:user-settings';
-const ACTIVE_THEME_KEY = 'open-yaske:active-theme';
+const STORAGE_KEY = STORAGE_KEY_PREFIX + 'user-settings';
+const ACTIVE_THEME_KEY = STORAGE_KEY_PREFIX + 'active-theme';
 
 function resolveThemePackId(settings: UserSettings) {
 	const themePackIdLight = settings.themePackIdLight || 'default';

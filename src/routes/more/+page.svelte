@@ -26,6 +26,8 @@
 		Laptop
 	} from '@lucide/svelte';
 
+	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
+
 	const appVersion = '2026.06.26';
 	let showClearConfirm = $state(false);
 
@@ -40,7 +42,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'open-yaske-data.json';
+		a.download = `${PUBLIC_APP_NAME.toLowerCase()}-data.json`;
 		a.click();
 		URL.revokeObjectURL(url);
 		uiStore.toast('データを書き出しました', 'success');
@@ -212,7 +214,7 @@
 		iconColor="var(--color-primary-500)"
 	/>
 	<ListItem
-		href="https://github.com/open-yaske/open-yaske-app"
+		href={SOURCE_URL}
 		title={m.settings_about_source()}
 		icon={Link2}
 		iconColor="var(--color-primary-500)"

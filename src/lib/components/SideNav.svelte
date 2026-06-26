@@ -9,6 +9,7 @@
 	import { page } from '$app/state';
 	import { PanelLeftClose, PanelLeftOpen } from '@lucide/svelte';
 	import type { RouteId } from '$app/types';
+	import { m } from '$lib/paraglide/messages';
 
 	interface NavItem {
 		href: RouteId;
@@ -21,9 +22,11 @@
 		footer?: Snippet;
 		collapsed?: boolean;
 		ontoggle?: () => void;
+		appName?: string;
+		logoData?: string;
 	}
 
-	let { items, footer, collapsed = false, ontoggle }: Props = $props();
+	let { items, footer, collapsed = false, ontoggle, appName, logoData }: Props = $props();
 
 	function isActive(href: string): boolean {
 		const pathname = page.url.pathname;
@@ -39,13 +42,25 @@
 >
 	<div
 		class="flex h-14 items-center border-b border-[var(--color-surface-border)] p-3"
+		class:justify-between={!collapsed}
 		class:justify-center={collapsed}
-		class:justify-end={!collapsed}
 	>
+		{#if !collapsed}
+			<div class="flex items-center gap-2 overflow-hidden">
+				<img
+					src={logoData || resolve('/favicon.png')}
+					alt="Logo"
+					class="h-8 w-8 rounded-md shrink-0 object-cover"
+				/>
+				<span class="truncate font-semibold text-[var(--color-nav-active)]">
+					{appName || m.app_name()}
+				</span>
+			</div>
+		{/if}
 		<button
 			type="button"
 			onclick={ontoggle}
-			class="flex h-9 w-9 items-center justify-center rounded-chip text-[var(--color-nav-inactive)] transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]"
+			class="flex h-9 w-9 shrink-0 items-center justify-center rounded-chip text-[var(--color-nav-inactive)] transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]"
 			aria-label={collapsed ? 'サイドバーを展開' : 'サイドバーをたたむ'}
 		>
 			{#if collapsed}

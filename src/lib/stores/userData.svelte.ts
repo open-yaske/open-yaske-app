@@ -11,7 +11,9 @@ import { browser } from '$app/environment';
 import * as remoteStorage from '$lib/remotestorage';
 import type { Course, Todo, CalendarEvent, AttendanceRecord } from '$lib/types';
 
-const STORAGE_KEY_PREFIX = 'open-yaske:userdata:';
+import { STORAGE_KEY_PREFIX as GLOBAL_PREFIX } from '$lib/constants';
+
+const STORAGE_KEY_PREFIX = GLOBAL_PREFIX + 'userdata:';
 
 class UserDataStore {
 	initialized = $state(false);
