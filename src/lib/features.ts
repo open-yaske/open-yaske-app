@@ -7,8 +7,8 @@ import {
 	FileText,
 	Calculator,
 	Globe,
-	Database,
 	SlidersHorizontal,
+	Palette,
 	Settings
 } from '@lucide/svelte';
 import * as m from '$lib/paraglide/messages';
@@ -30,7 +30,13 @@ export const APP_FEATURES: AppFeature[] = [
 	{ id: 'pdf', nameKey: 'more_pdf', icon: FileText, href: '/pdf' },
 	{ id: 'gpa', nameKey: 'more_gpa', icon: Calculator, href: '/gpa' },
 	{ id: 'syllabus', nameKey: 'more_syllabus', icon: Globe, href: '/syllabus' },
-	{ id: 'data-management', nameKey: 'more_data_management', icon: SlidersHorizontal, href: '/data-management' },
+	{
+		id: 'data-management',
+		nameKey: 'more_data_management',
+		icon: SlidersHorizontal,
+		href: '/data-management'
+	},
+	{ id: 'theme-editor', nameKey: 'theme_editor_title', icon: Palette, href: '/theme-editor' },
 	{ id: 'settings', nameKey: 'settings_title', icon: Settings, href: '/settings' }
 ];
 

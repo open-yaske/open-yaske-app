@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [Unreleased] - 2026-06-29
+
+### Added
+
+- **テーマエディターへのアクセス導線の追加**:
+  - 設定画面の「テーマパック」設定欄の末尾に、テーマエディター（`/theme-editor`）への直接遷移リンクを追加しました。
+  - モジュラー機能配置システムに「テーマエディター（`theme-editor`）」を新規追加し、「その他」画面の機能一覧からアクセス可能にしました。また、ホーム画面のボタンやナビゲーションバーに配置できるようになりました。
+
+### Removed
+
+- **不要となった旧機能定義のクリーンアップ**:
+  - 過去に削除された学校データ閲覧機能（`data-browser`）の古い定義がデフォルトのユーザー設定（`homeFeatures`, `homeFeatureLayouts`）に残っていたため、完全に削除しました。
 
 ## [Unreleased] - 2026-06-28
 

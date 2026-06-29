@@ -283,7 +283,17 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 	dashboardCardOrder: [],
 	hiddenDashboardCards: [],
 	barFeatures: ['timetable', 'todo', 'calendar', 'attendance'],
-	homeFeatures: ['timetable', 'todo', 'calendar', 'attendance', 'gpa', 'pdf', 'syllabus', 'data-browser', 'data-management'],
+	homeFeatures: [
+		'timetable',
+		'todo',
+		'calendar',
+		'attendance',
+		'gpa',
+		'pdf',
+		'syllabus',
+		'data-management',
+		'theme-editor'
+	],
 	homeFeatureLayouts: {
 		timetable: 'widget',
 		todo: 'widget',
@@ -292,8 +302,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 		gpa: 'button',
 		pdf: 'button',
 		syllabus: 'button',
-		'data-browser': 'button',
-		'data-management': 'button'
+		'data-management': 'button',
+		'theme-editor': 'button'
 	},
 	widgetUseSystemTheme: true,
 	widgetThemeColor: '#17288B',

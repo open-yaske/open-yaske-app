@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { localizeHref } from '$lib/paraglide/runtime';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -20,15 +21,29 @@
 	} from '$lib/remotestorage';
 	import type { Period, SearchProviderId, UserSettings } from '$lib/types';
 	import { m } from '$lib/paraglide/messages';
-	import { Download, Upload, Trash2, Cloud, CloudOff, Info, Link2, ChevronUp, ChevronDown, Plus, X, Search, GripVertical } from '@lucide/svelte';
+	import {
+		Download,
+		Upload,
+		Trash2,
+		Cloud,
+		CloudOff,
+		Info,
+		Link2,
+		ChevronUp,
+		ChevronDown,
+		Plus,
+		X,
+		Search,
+		GripVertical,
+		Palette,
+		ChevronRight
+	} from '@lucide/svelte';
 	import { Capacitor } from '@capacitor/core';
 	import { APP_FEATURES, getFeatureName } from '$lib/features';
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
 	const appVersion = '2026.06.28';
-
-
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -507,7 +522,9 @@
 	});
 
 	const unselectedBar = $derived(APP_FEATURES.filter((f) => !tempBarFeatures.includes(f.id)));
-	const unselectedHome = $derived(APP_FEATURES.filter((f) => f.id !== 'dashboard' && !tempHomeFeatures.includes(f.id)));
+	const unselectedHome = $derived(
+		APP_FEATURES.filter((f) => f.id !== 'dashboard' && !tempHomeFeatures.includes(f.id))
+	);
 
 	let draggingBarIndex = $state<number | null>(null);
 	let draggingHomeIndex = $state<number | null>(null);
@@ -605,15 +622,15 @@
 <Container size="narrow" class="space-y-6 py-4">
 	<!-- ===== Inline Search ===== -->
 	<div class="px-1">
-		<TextField
-			bind:value={searchQuery}
-			placeholder={m.action_search()}
-			leadingIcon={Search}
-		/>
+		<TextField bind:value={searchQuery} placeholder={m.action_search()} leadingIcon={Search} />
 	</div>
 
 	<!-- ===== Language ===== -->
-	<SettingsSection id="settings-language" title={m.settings_locale()} class={visibleSections['settings-language'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-language"
+		title={m.settings_locale()}
+		class={visibleSections['settings-language'] ? '' : 'hidden'}
+	>
 		<div class="px-4 py-3">
 			<div class="grid grid-cols-4 gap-2">
 				{#each localeOptions as opt (opt.value)}
@@ -633,8 +650,14 @@
 	</SettingsSection>
 
 	<!-- ===== Theme Pack ===== -->
-	<SettingsSection id="settings-theme" title={m.settings_theme_pack()} class={visibleSections['settings-theme'] ? '' : 'hidden'}>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+	<SettingsSection
+		id="settings-theme"
+		title={m.settings_theme_pack()}
+		class={visibleSections['settings-theme'] ? '' : 'hidden'}
+	>
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_theme_light()}
 			</span>
@@ -653,7 +676,9 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
@@ -677,15 +702,31 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
+		<a
+			href={resolve(localizeHref('/theme-editor'))}
+			class="flex items-center justify-between border-t border-[var(--color-surface-border)] px-4 py-3.5 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"
+		>
+			<span class="flex items-center gap-2 font-medium text-[var(--color-nav-active)]">
+				<Palette size={14} class="text-[var(--color-nav-inactive)]" />
+				{m.theme_editor_title()}
+			</span>
+			<ChevronRight size={14} class="text-[var(--color-nav-inactive)]" />
+		</a>
 	</SettingsSection>
 
 	<!-- ===== Appearance ===== -->
-	<SettingsSection id="settings-appearance" title={m.settings_theme()} class={visibleSections['settings-appearance'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-appearance"
+		title={m.settings_theme()}
+		class={visibleSections['settings-appearance'] ? '' : 'hidden'}
+	>
 		<!-- テーマ選択 -->
 		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5 space-y-2">
 			<div class="text-sm font-medium text-[var(--color-nav-active)]">
@@ -747,7 +788,9 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
@@ -755,7 +798,11 @@
 	</SettingsSection>
 
 	<!-- ===== App Customization ===== -->
-	<SettingsSection id="settings-customization" title={m.settings_customization_title()} class={visibleSections['settings-customization'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-customization"
+		title={m.settings_customization_title()}
+		class={visibleSections['settings-customization'] ? '' : 'hidden'}
+	>
 		<div class="border-b border-[var(--color-surface-border)] px-4 py-3">
 			<TextField
 				type="text"
@@ -778,9 +825,11 @@
 					{m.settings_custom_logo_desc()}
 				</span>
 			</div>
-			
+
 			<div class="flex items-center gap-4">
-				<div class="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] flex items-center justify-center">
+				<div
+					class="relative h-16 w-16 overflow-hidden rounded-md border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] flex items-center justify-center"
+				>
 					<img
 						src={settingsStore.settings.customLogoData || '/favicon.png'}
 						alt="App Logo"
@@ -790,16 +839,13 @@
 				<div class="flex flex-col gap-2">
 					<div class="flex items-center gap-2">
 						<label class="cursor-pointer">
-							<span class="inline-flex items-center gap-1.5 rounded-chip bg-[var(--color-primary-500)] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--color-primary-600)]">
+							<span
+								class="inline-flex items-center gap-1.5 rounded-chip bg-[var(--color-primary-500)] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--color-primary-600)]"
+							>
 								<Upload size={14} />
 								{m.settings_custom_logo_upload()}
 							</span>
-							<input
-								type="file"
-								accept="image/*"
-								class="hidden"
-								onchange={handleLogoUpload}
-							/>
+							<input type="file" accept="image/*" class="hidden" onchange={handleLogoUpload} />
 						</label>
 						{#if settingsStore.settings.customLogoData}
 							<button
@@ -818,7 +864,11 @@
 	</SettingsSection>
 
 	<!-- ===== Semester ===== -->
-	<SettingsSection id="settings-semester" title={m.settings_semester()} class={visibleSections['settings-semester'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-semester"
+		title={m.settings_semester()}
+		class={visibleSections['settings-semester'] ? '' : 'hidden'}
+	>
 		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5">
 			<div class="grid grid-cols-3 gap-2">
 				{#each semesterOptions as opt (opt.value)}
@@ -853,7 +903,9 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
@@ -861,7 +913,11 @@
 	</SettingsSection>
 
 	<!-- ===== Location ===== -->
-	<SettingsSection id="settings-location" title={m.settings_location()} class={visibleSections['settings-location'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-location"
+		title={m.settings_location()}
+		class={visibleSections['settings-location'] ? '' : 'hidden'}
+	>
 		<div class="space-y-3.5 px-4 py-3.5">
 			<TextField
 				type="text"
@@ -896,11 +952,17 @@
 	</SettingsSection>
 
 	<!-- ===== Home ===== -->
-	<SettingsSection id="settings-home" title={m.settings_home()} class={visibleSections['settings-home'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-home"
+		title={m.settings_home()}
+		class={visibleSections['settings-home'] ? '' : 'hidden'}
+	>
 		<div
 			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
 		>
-			<span class="text-sm font-medium text-[var(--color-nav-active)]">{m.settings_home_weather()}</span>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"
+				>{m.settings_home_weather()}</span
+			>
 			<Switch
 				checked={settingsStore.settings.homeShowWeather}
 				onchange={(v) => settingsStore.update({ homeShowWeather: v })}
@@ -909,7 +971,9 @@
 		<div
 			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
 		>
-			<span class="text-sm font-medium text-[var(--color-nav-active)]">{m.settings_home_tools()}</span>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"
+				>{m.settings_home_tools()}</span
+			>
 			<Switch
 				checked={settingsStore.settings.homeShowTools}
 				onchange={(v) => settingsStore.update({ homeShowTools: v })}
@@ -918,16 +982,18 @@
 		<div
 			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
 		>
-			<span class="text-sm font-medium text-[var(--color-nav-active)]">{m.settings_home_external_links()}</span>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"
+				>{m.settings_home_external_links()}</span
+			>
 			<Switch
 				checked={settingsStore.settings.homeShowExternalLinks}
 				onchange={(v) => settingsStore.update({ homeShowExternalLinks: v })}
 			/>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
-			<span class="text-sm font-medium text-[var(--color-nav-active)]">
-				検索エンジン
-			</span>
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"> 検索エンジン </span>
 			<label class="relative inline-flex items-center">
 				<select
 					id="settings-home-search-provider"
@@ -943,12 +1009,16 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_weather_temp_unit()}
 			</span>
@@ -963,19 +1033,20 @@
 					class="h-8 min-w-[7.5rem] cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 pl-3 pr-8 text-right text-xs font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
 					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 				>
-					{#each [
-						{ value: 'celsius', label: m.settings_weather_temp_unit_celsius() },
-						{ value: 'fahrenheit', label: m.settings_weather_temp_unit_fahrenheit() }
-					] as opt}
+					{#each [{ value: 'celsius', label: m.settings_weather_temp_unit_celsius() }, { value: 'fahrenheit', label: m.settings_weather_temp_unit_fahrenheit() }] as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_weather_time_format()}
 			</span>
@@ -990,19 +1061,20 @@
 					class="h-8 min-w-[7.5rem] cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 pl-3 pr-8 text-right text-xs font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
 					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 				>
-					{#each [
-						{ value: 'minute', label: m.settings_weather_time_format_minute() },
-						{ value: 'second', label: m.settings_weather_time_format_second() }
-					] as opt}
+					{#each [{ value: 'minute', label: m.settings_weather_time_format_minute() }, { value: 'second', label: m.settings_weather_time_format_second() }] as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_time_format()}
 			</span>
@@ -1017,21 +1089,22 @@
 					class="h-8 min-w-[7.5rem] cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 pl-3 pr-8 text-right text-xs font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
 					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 				>
-					{#each [
-						{ value: '12h', label: m.settings_time_format_12h() },
-						{ value: '24h', label: m.settings_time_format_24h() }
-					] as opt}
+					{#each [{ value: '12h', label: m.settings_time_format_12h() }, { value: '24h', label: m.settings_time_format_24h() }] as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
 		{#if Capacitor.isNativePlatform()}
 			<div class="flex items-center justify-between px-4 py-3.5">
-				<span class="text-sm font-medium text-[var(--color-nav-active)]">{m.settings_open_links_in_app()}</span>
+				<span class="text-sm font-medium text-[var(--color-nav-active)]"
+					>{m.settings_open_links_in_app()}</span
+				>
 				<Switch
 					checked={settingsStore.settings.openLinksInApp}
 					onchange={(v) => settingsStore.update({ openLinksInApp: v })}
@@ -1041,8 +1114,14 @@
 	</SettingsSection>
 
 	<!-- ===== Timetable ===== -->
-	<SettingsSection id="settings-timetable" title={m.settings_timetable()} class={visibleSections['settings-timetable'] ? '' : 'hidden'}>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+	<SettingsSection
+		id="settings-timetable"
+		title={m.settings_timetable()}
+		class={visibleSections['settings-timetable'] ? '' : 'hidden'}
+	>
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_timetable_day_range()}
 			</span>
@@ -1060,12 +1139,16 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_timetable_period_range()}
 			</span>
@@ -1083,12 +1166,16 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_timetable_ondemand_cols()}
 			</span>
@@ -1106,12 +1193,16 @@
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
 				</select>
-				<span class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]">
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
 					<ChevronDown size={12} />
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_timetable_transparent()}
 			</span>
@@ -1121,7 +1212,9 @@
 			/>
 		</div>
 		<div class="flex items-center justify-between px-4 py-3.5">
-			<span class="text-sm font-medium text-[var(--color-nav-active)]">{m.settings_bg_image_all_pages()}</span>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"
+				>{m.settings_bg_image_all_pages()}</span
+			>
 			<Switch
 				checked={settingsStore.settings.bgImageAllPages}
 				onchange={(v) => settingsStore.update({ bgImageAllPages: v })}
@@ -1222,7 +1315,11 @@
 	</SettingsSection>
 
 	<!-- ===== Calendar ===== -->
-	<SettingsSection id="settings-calendar" title={m.settings_calendar()} class={visibleSections['settings-calendar'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-calendar"
+		title={m.settings_calendar()}
+		class={visibleSections['settings-calendar'] ? '' : 'hidden'}
+	>
 		<div class="border-b border-[var(--color-surface-border)] px-4 py-3">
 			<div class="mb-2 text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_calendar_week_start()}
@@ -1308,7 +1405,11 @@
 	</SettingsSection>
 
 	<!-- ===== Attendance ===== -->
-	<SettingsSection id="settings-attendance" title={m.settings_attendance()} class={visibleSections['settings-attendance'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-attendance"
+		title={m.settings_attendance()}
+		class={visibleSections['settings-attendance'] ? '' : 'hidden'}
+	>
 		<div class="px-4 py-3">
 			<Slider
 				label={m.settings_attendance_max_absences()}
@@ -1415,7 +1516,11 @@
 	</SettingsSection>
 
 	<!-- ===== Modular Feature Configuration ===== -->
-	<SettingsSection id="settings-features" title="アプリの機能配置設定" class={visibleSections['settings-features'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-features"
+		title="アプリの機能配置設定"
+		class={visibleSections['settings-features'] ? '' : 'hidden'}
+	>
 		<!-- バーの配置 -->
 		<div class="border-b border-[var(--color-surface-border)] px-4 py-3 space-y-3">
 			<h4 class="text-xs font-bold text-[var(--color-nav-active)]">
@@ -1425,7 +1530,11 @@
 			<!-- 選択済み（順序あり）-->
 			{#if tempBarFeatures.length > 0}
 				<div class="space-y-1.5">
-					<p class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide">バーの順番（左→右）</p>
+					<p
+						class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide"
+					>
+						バーの順番（左→右）
+					</p>
 					{#each tempBarFeatures as id, i (id)}
 						{@const f = APP_FEATURES.find((f) => f.id === id)}
 						{#if f}
@@ -1435,12 +1544,20 @@
 								ondragstart={() => handleBarDragStart(i)}
 								ondragover={(e) => handleBarDragOver(e, i)}
 								ondragend={handleBarDragEnd}
-								class="flex items-center gap-2 rounded-chip border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2 cursor-move transition-opacity {draggingBarIndex === i ? 'opacity-40' : ''}"
+								class="flex items-center gap-2 rounded-chip border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2 cursor-move transition-opacity {draggingBarIndex ===
+								i
+									? 'opacity-40'
+									: ''}"
 							>
 								<GripVertical size={14} class="text-[var(--color-nav-inactive)] shrink-0" />
-								<span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-[10px] font-black text-white">{i + 1}</span>
+								<span
+									class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-[10px] font-black text-white"
+									>{i + 1}</span
+								>
 								<span class="text-[var(--color-nav-inactive)] shrink-0"><f.icon size={14} /></span>
-								<span class="flex-1 text-xs font-bold text-[var(--color-nav-active)] truncate">{getFeatureName(f.id)}</span>
+								<span class="flex-1 text-xs font-bold text-[var(--color-nav-active)] truncate"
+									>{getFeatureName(f.id)}</span
+								>
 								<div class="flex gap-1 shrink-0">
 									<button
 										type="button"
@@ -1478,11 +1595,19 @@
 			<!-- 未選択（追加候補）-->
 			{#if unselectedBar.length > 0}
 				<div class="space-y-1.5">
-					<p class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide">追加できる機能 {tempBarFeatures.length >= 5 ? '（上限5つ）' : ''}</p>
+					<p
+						class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide"
+					>
+						追加できる機能 {tempBarFeatures.length >= 5 ? '（上限5つ）' : ''}
+					</p>
 					{#each unselectedBar as f (f.id)}
-						<div class="flex items-center gap-2 rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)]/40 px-3 py-2">
+						<div
+							class="flex items-center gap-2 rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)]/40 px-3 py-2"
+						>
 							<span class="text-[var(--color-nav-inactive)] shrink-0"><f.icon size={14} /></span>
-							<span class="flex-1 text-xs font-bold text-[var(--color-nav-inactive)] truncate">{getFeatureName(f.id)}</span>
+							<span class="flex-1 text-xs font-bold text-[var(--color-nav-inactive)] truncate"
+								>{getFeatureName(f.id)}</span
+							>
 							<button
 								type="button"
 								onclick={() => toggleBarFeature(f.id, true)}
@@ -1506,7 +1631,11 @@
 			<!-- 選択済み（順序あり）-->
 			{#if tempHomeFeatures.length > 0}
 				<div class="space-y-1.5">
-					<p class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide">ホームの表示順</p>
+					<p
+						class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide"
+					>
+						ホームの表示順
+					</p>
 					{#each tempHomeFeatures as id, i (id)}
 						{@const f = APP_FEATURES.find((f) => f.id === id && f.id !== 'dashboard')}
 						{#if f}
@@ -1518,13 +1647,22 @@
 								ondragstart={() => handleHomeDragStart(i)}
 								ondragover={(e) => handleHomeDragOver(e, i)}
 								ondragend={handleHomeDragEnd}
-								class="rounded-chip border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2 space-y-1.5 cursor-move transition-opacity {draggingHomeIndex === i ? 'opacity-40' : ''}"
+								class="rounded-chip border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2 space-y-1.5 cursor-move transition-opacity {draggingHomeIndex ===
+								i
+									? 'opacity-40'
+									: ''}"
 							>
 								<div class="flex items-center gap-2">
 									<GripVertical size={14} class="text-[var(--color-nav-inactive)] shrink-0" />
-									<span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-[10px] font-black text-white">{i + 1}</span>
-									<span class="text-[var(--color-nav-inactive)] shrink-0"><f.icon size={14} /></span>
-									<span class="flex-1 text-xs font-bold text-[var(--color-nav-active)] truncate">{getFeatureName(f.id)}</span>
+									<span
+										class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-[10px] font-black text-white"
+										>{i + 1}</span
+									>
+									<span class="text-[var(--color-nav-inactive)] shrink-0"><f.icon size={14} /></span
+									>
+									<span class="flex-1 text-xs font-bold text-[var(--color-nav-active)] truncate"
+										>{getFeatureName(f.id)}</span
+									>
 									<div class="flex gap-1 shrink-0">
 										<button
 											type="button"
@@ -1556,13 +1694,17 @@
 								</div>
 								{#if isWidget}
 									<div class="flex items-center gap-2 pl-7">
-										<span class="text-[10px] text-[var(--color-nav-inactive)] font-semibold">表示形式:</span>
+										<span class="text-[10px] text-[var(--color-nav-inactive)] font-semibold"
+											>表示形式:</span
+										>
 										<button
 											type="button"
 											onclick={() => toggleHomeLayout(f.id)}
 											class="rounded border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-primary-700)] hover:bg-[var(--color-surface-muted)] transition-colors"
 										>
-											{layout === 'widget' ? m.settings_feature_layout_widget() : m.settings_feature_layout_button()}
+											{layout === 'widget'
+												? m.settings_feature_layout_widget()
+												: m.settings_feature_layout_button()}
 										</button>
 									</div>
 								{/if}
@@ -1575,11 +1717,19 @@
 			<!-- 未選択（追加候補）-->
 			{#if unselectedHome.length > 0}
 				<div class="space-y-1.5">
-					<p class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide">追加できる機能</p>
+					<p
+						class="text-[10px] font-semibold text-[var(--color-nav-inactive)] uppercase tracking-wide"
+					>
+						追加できる機能
+					</p>
 					{#each unselectedHome as f (f.id)}
-						<div class="flex items-center gap-2 rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)]/40 px-3 py-2">
+						<div
+							class="flex items-center gap-2 rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)]/40 px-3 py-2"
+						>
 							<span class="text-[var(--color-nav-inactive)] shrink-0"><f.icon size={14} /></span>
-							<span class="flex-1 text-xs font-bold text-[var(--color-nav-inactive)] truncate">{getFeatureName(f.id)}</span>
+							<span class="flex-1 text-xs font-bold text-[var(--color-nav-inactive)] truncate"
+								>{getFeatureName(f.id)}</span
+							>
 							<button
 								type="button"
 								onclick={() => toggleHomeFeature(f.id, true)}
@@ -1595,8 +1745,14 @@
 	</SettingsSection>
 
 	<!-- ===== Widget Settings ===== -->
-	<SettingsSection id="settings-widget" title={m.settings_widget_theme_title()} class={visibleSections['settings-widget'] ? '' : 'hidden'}>
-		<div class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3">
+	<SettingsSection
+		id="settings-widget"
+		title={m.settings_widget_theme_title()}
+		class={visibleSections['settings-widget'] ? '' : 'hidden'}
+	>
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3"
+		>
 			<div class="flex flex-col gap-0.5">
 				<span class="text-sm font-semibold text-[var(--color-nav-active)]">
 					{m.settings_widget_use_system_theme()}
@@ -1626,7 +1782,11 @@
 	</SettingsSection>
 
 	<!-- ===== About ===== -->
-	<SettingsSection id="settings-about" title={m.settings_about()} class={visibleSections['settings-about'] ? '' : 'hidden'}>
+	<SettingsSection
+		id="settings-about"
+		title={m.settings_about()}
+		class={visibleSections['settings-about'] ? '' : 'hidden'}
+	>
 		<div
 			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3"
 		>
@@ -1732,4 +1892,3 @@
 		</div>
 	</form>
 </Modal>
-
