@@ -10,6 +10,7 @@ import * as remoteStorage from '$lib/remotestorage';
 import { setPublicDataCdnBase } from '$lib/publicData';
 import { STORAGE_KEY_PREFIX } from '$lib/constants';
 import { themeStore } from './theme.svelte';
+import { syncWidgetData } from '$lib/widget';
 
 const STORAGE_KEY = STORAGE_KEY_PREFIX + 'user-settings';
 const ACTIVE_THEME_KEY = STORAGE_KEY_PREFIX + 'active-theme';
@@ -132,6 +133,7 @@ class SettingsStore {
 			applyBuiltinThemeImmediately(this.settings);
 		}
 		void this.syncToRS();
+		void syncWidgetData();
 	}
 
 	reset() {
@@ -194,6 +196,7 @@ class SettingsStore {
 					localStorage.setItem(STORAGE_KEY, JSON.stringify(this.settings));
 					setPublicDataCdnBase(this.settings.dataCdnUrl || null);
 					applyBuiltinThemeImmediately(this.settings);
+					void syncWidgetData();
 				} else if (remoteUpdatedAt < localUpdatedAt) {
 					await this.syncToRS();
 				}

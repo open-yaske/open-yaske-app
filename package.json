@@ -79,7 +79,7 @@
 		"@capacitor/local-notifications": "^8.2.0",
 		"@capgo/capacitor-document-scanner": "^8.3.33",
 		"@lucide/svelte": "^1.21.0",
-		"date-holidays": "^3.30.2",
+		"capacitor-widget-bridge": "^8.1.0",
 		"dompurify": "^3.4.11",
 		"idb-keyval": "^6.2.5",
 		"jspdf": "^4.2.1",

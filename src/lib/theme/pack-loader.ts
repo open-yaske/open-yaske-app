@@ -40,7 +40,8 @@ function validateColorEntry(v: unknown, path: string, errors: ThemeValidationErr
 	}
 	const o = v as Record<string, unknown>;
 	if (!isString(o.id)) errors.push(err(`${path}.id`, 'must be a string'));
-	if (!isLocalizedString(o.name)) errors.push(err(`${path}.name`, 'must be a string or localized object'));
+	if (!isLocalizedString(o.name))
+		errors.push(err(`${path}.name`, 'must be a string or localized object'));
 	if (!isHex(o.hex)) errors.push(err(`${path}.hex`, 'must be a valid hex color'));
 	return errors.filter((e) => e.path.startsWith(path)).length === 0;
 }

@@ -16,20 +16,90 @@
 
 	// サードパーティライブラリ定義
 	const libraries = [
-		{ name: 'Svelte 5', license: 'MIT', desc: 'Svelte team. Reactive component compiler.', url: 'https://svelte.dev' },
-		{ name: 'SvelteKit', license: 'MIT', desc: 'Application framework for Svelte.', url: 'https://kit.svelte.dev' },
-		{ name: 'Tailwind CSS', license: 'MIT', desc: 'A utility-first CSS framework.', url: 'https://tailwindcss.com' },
-		{ name: 'Capacitor', license: 'MIT', desc: 'Cross-platform runtime for Android, iOS, and Web.', url: 'https://capacitorjs.com' },
-		{ name: 'remoteStorage.js', license: 'MIT', desc: 'Offline-first, user-controlled data synchronization.', url: 'https://remotestorage.io' },
-		{ name: 'Lucide Svelte', license: 'ISC', desc: 'Beautiful & consistent icon library.', url: 'https://lucide.dev' },
-		{ name: '@inlang/paraglide-js', license: 'Apache-2.0', desc: 'High-performance i18n compiler.', url: 'https://inlang.com' },
-		{ name: 'DOMPurify', license: 'Apache-2.0', desc: 'DOM-only, super-fast, HTML-sanitizer.', url: 'https://github.com/cure53/DOMPurify' },
-		{ name: 'jsPDF', license: 'MIT', desc: 'Client-side PDF document generation.', url: 'https://github.com/parallax/jsPDF' },
-		{ name: 'idb-keyval', license: 'Apache-2.0', desc: 'A super-simple key-value store backed by IndexedDB.', url: 'https://github.com/jakearchibald/idb-keyval' },
-		{ name: 'marked', license: 'MIT', desc: 'A markdown parser and compiler built for speed.', url: 'https://marked.js.org' },
-		{ name: 'Katex', license: 'MIT', desc: 'Fast math typesetting library for the web.', url: 'https://katex.org' },
-		{ name: 'Mermaid', license: 'MIT', desc: 'JavaScript-based diagramming and charting tool.', url: 'https://mermaid.js.org' },
-		{ name: 'date-holidays', license: 'ISC', desc: 'Determine state, federal, and religious holidays.', url: 'https://github.com/commenthol/date-holidays' }
+		{
+			name: 'Svelte 5',
+			license: 'MIT',
+			desc: 'Svelte team. Reactive component compiler.',
+			url: 'https://svelte.dev'
+		},
+		{
+			name: 'SvelteKit',
+			license: 'MIT',
+			desc: 'Application framework for Svelte.',
+			url: 'https://kit.svelte.dev'
+		},
+		{
+			name: 'Tailwind CSS',
+			license: 'MIT',
+			desc: 'A utility-first CSS framework.',
+			url: 'https://tailwindcss.com'
+		},
+		{
+			name: 'Capacitor',
+			license: 'MIT',
+			desc: 'Cross-platform runtime for Android, iOS, and Web.',
+			url: 'https://capacitorjs.com'
+		},
+		{
+			name: 'remoteStorage.js',
+			license: 'MIT',
+			desc: 'Offline-first, user-controlled data synchronization.',
+			url: 'https://remotestorage.io'
+		},
+		{
+			name: 'Lucide Svelte',
+			license: 'ISC',
+			desc: 'Beautiful & consistent icon library.',
+			url: 'https://lucide.dev'
+		},
+		{
+			name: '@inlang/paraglide-js',
+			license: 'Apache-2.0',
+			desc: 'High-performance i18n compiler.',
+			url: 'https://inlang.com'
+		},
+		{
+			name: 'DOMPurify',
+			license: 'Apache-2.0',
+			desc: 'DOM-only, super-fast, HTML-sanitizer.',
+			url: 'https://github.com/cure53/DOMPurify'
+		},
+		{
+			name: 'jsPDF',
+			license: 'MIT',
+			desc: 'Client-side PDF document generation.',
+			url: 'https://github.com/parallax/jsPDF'
+		},
+		{
+			name: 'idb-keyval',
+			license: 'Apache-2.0',
+			desc: 'A super-simple key-value store backed by IndexedDB.',
+			url: 'https://github.com/jakearchibald/idb-keyval'
+		},
+		{
+			name: 'marked',
+			license: 'MIT',
+			desc: 'A markdown parser and compiler built for speed.',
+			url: 'https://marked.js.org'
+		},
+		{
+			name: 'Katex',
+			license: 'MIT',
+			desc: 'Fast math typesetting library for the web.',
+			url: 'https://katex.org'
+		},
+		{
+			name: 'Mermaid',
+			license: 'MIT',
+			desc: 'JavaScript-based diagramming and charting tool.',
+			url: 'https://mermaid.js.org'
+		},
+		{
+			name: 'date-holidays',
+			license: 'ISC',
+			desc: 'Determine state, federal, and religious holidays.',
+			url: 'https://github.com/commenthol/date-holidays'
+		}
 	];
 </script>
 
@@ -42,10 +112,14 @@
 <Container class="pb-12">
 	<div class="space-y-6 py-4">
 		<!-- 概要カード -->
-		<div class="relative overflow-hidden rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-6">
+		<div
+			class="relative overflow-hidden rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-6"
+		>
 			<!-- 装飾的な背景グラデーション -->
-			<div class="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-50)] opacity-40 blur-2xl"></div>
-			
+			<div
+				class="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-50)] opacity-40 blur-2xl"
+			></div>
+
 			<div class="relative space-y-3">
 				<h3 class="text-base font-extrabold text-[var(--color-primary-700)]">OpenYASKE</h3>
 				<p class="text-xs text-[var(--color-nav-active)] leading-5">
@@ -71,7 +145,8 @@
 					<p class="font-semibold text-[var(--color-nav-active)]">
 						{m.about_app_license_desc()}
 					</p>
-					<pre class="bg-[var(--color-surface-muted)] border border-[var(--color-surface-border)] p-3 rounded-card font-mono text-[10px] text-[var(--color-nav-active)] overflow-x-auto max-h-36 whitespace-pre-wrap leading-normal">
+					<pre
+						class="bg-[var(--color-surface-muted)] border border-[var(--color-surface-border)] p-3 rounded-card font-mono text-[10px] text-[var(--color-nav-active)] overflow-x-auto max-h-36 whitespace-pre-wrap leading-normal">
 MIT License
 
 Copyright (c) 2026 OpenYASKE Contributors
@@ -104,9 +179,13 @@ SOFTWARE.</pre>
 					<p>
 						{m.about_app_data_license_desc()}
 					</p>
-					
-					<div class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] p-4 space-y-2">
-						<div class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5 border-b border-[var(--color-surface-border)] pb-2 mb-1">
+
+					<div
+						class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] p-4 space-y-2"
+					>
+						<div
+							class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5 border-b border-[var(--color-surface-border)] pb-2 mb-1"
+						>
 							<span class="font-bold text-[var(--color-nav-active)]">現在のデータソース</span>
 							<button
 								type="button"
@@ -129,9 +208,15 @@ SOFTWARE.</pre>
 							</button>
 						</div>
 					</div>
-	
+
 					<p class="text-[11px]">
-						※データ構造やメタデータの利用規約、商用利用や二次配布に関する詳細情報につきましては、該当するデータソースの公式Webサイト（例: <a href="https://uec-atlas.org/about/#terms" target="_blank" rel="noopener noreferrer" class="underline text-[var(--color-primary-600)] font-bold">UEC Atlas 利用規約</a>）等をご参照ください。
+						※データ構造やメタデータの利用規約、商用利用や二次配布に関する詳細情報につきましては、該当するデータソースの公式Webサイト（例:
+						<a
+							href="https://uec-atlas.org/about/#terms"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline text-[var(--color-primary-600)] font-bold">UEC Atlas 利用規約</a
+						>）等をご参照ください。
 					</p>
 				</div>
 			</div>
@@ -143,7 +228,7 @@ SOFTWARE.</pre>
 				<p class="text-xs text-[var(--color-nav-inactive)]">
 					{m.about_app_library_license_desc()}
 				</p>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
 					{#each libraries as lib}
 						<button
@@ -152,14 +237,20 @@ SOFTWARE.</pre>
 							class="flex flex-col rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] p-3 text-left transition-colors hover:bg-[var(--color-surface-card)] group"
 						>
 							<div class="flex w-full items-center justify-between">
-								<span class="font-bold text-xs text-[var(--color-nav-active)] group-hover:text-[var(--color-primary-600)] transition-colors">
+								<span
+									class="font-bold text-xs text-[var(--color-nav-active)] group-hover:text-[var(--color-primary-600)] transition-colors"
+								>
 									{lib.name}
 								</span>
-								<span class="rounded bg-[var(--color-primary-50)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--color-primary-700)]">
+								<span
+									class="rounded bg-[var(--color-primary-50)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--color-primary-700)]"
+								>
 									{lib.license}
 								</span>
 							</div>
-							<p class="text-[10px] text-[var(--color-nav-inactive)] mt-1.5 leading-normal truncate w-full">
+							<p
+								class="text-[10px] text-[var(--color-nav-inactive)] mt-1.5 leading-normal truncate w-full"
+							>
 								{lib.desc}
 							</p>
 						</button>

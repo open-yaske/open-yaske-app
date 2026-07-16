@@ -122,6 +122,7 @@ type ThemePack = {
 ## モジュラー機能配置アーキテクチャ
 
 本アプリは、単なる固定されたナビゲーション構成ではなく、すべての主要コンテンツ（時間割、TODO、カレンダー、出席、データブラウザ、PDF、GPA）を「個別の機能モジュール（Feature）」として抽象化しています。
+
 - **`settingsStore.settings.barFeatures`**: ユーザーが下部/側部ナビゲーションバーにショートカット配置したい機能のIDリスト（最大5つ）。
 - **`settingsStore.settings.homeFeatures`**: ホーム（ダッシュボード）に表示したい機能のIDリスト。
 - **`settingsStore.settings.homeFeatureLayouts`**: 機能IDごとに `widget`（インラインデータ小部品）または `button`（リンクカード）のいずれかのレンダリングレイアウトをバインド。

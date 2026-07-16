@@ -120,7 +120,10 @@ if (fs.existsSync(gitConfigPath)) {
 	let gitConfig = fs.readFileSync(gitConfigPath, 'utf8');
 	gitConfig = gitConfig.replace(/name = .*?\n/, `name = ${config.displayName}\n`);
 	gitConfig = gitConfig.replace(/email = .*?\n/, `email = ${config.email}\n`);
-	gitConfig = gitConfig.replace(/github\.com\/.*?\/.*?-app\.git/, `github.com/${config.githubRepo}.git`);
+	gitConfig = gitConfig.replace(
+		/github\.com\/.*?\/.*?-app\.git/,
+		`github.com/${config.githubRepo}.git`
+	);
 	fs.writeFileSync(gitConfigPath, gitConfig);
 }
 

@@ -2,7 +2,6 @@
  * jsPDF ラッパー: 時間割 / シラバス / TODO を PDF に出力
  */
 
-import { jsPDF } from 'jspdf';
 import type { Course, Todo } from './types';
 import type { ThemePack } from './theme';
 
@@ -19,7 +18,12 @@ const DAY_LABEL: Record<string, string> = {
 /**
  * 時間割を PDF に出力
  */
-export function exportTimetablePdf(courses: Course[], pack: ThemePack, filename = 'timetable.pdf') {
+export async function exportTimetablePdf(
+	courses: Course[],
+	pack: ThemePack,
+	filename = 'timetable.pdf'
+) {
+	const { jsPDF } = await import('jspdf');
 	const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 	const primary = pack.ui.primary[500];
 	// Convert #rrggbb to [r, g, b]
@@ -70,7 +74,8 @@ export function exportTimetablePdf(courses: Course[], pack: ThemePack, filename 
 /**
  * TODO リストを PDF に出力
  */
-export function exportTodosPdf(todos: Todo[], filename = 'todos.pdf') {
+export async function exportTodosPdf(todos: Todo[], filename = 'todos.pdf') {
+	const { jsPDF } = await import('jspdf');
 	const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 	doc.setFontSize(18);
 	doc.text('TODO List', 14, 18);

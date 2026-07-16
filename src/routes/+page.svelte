@@ -604,7 +604,9 @@
 							onclick={(e) => handleLinkClick(e, link.url, link.forceExternal)}
 							class="flex h-full items-center justify-between rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] pl-4 pr-10 py-3.5 transition-colors hover:bg-[var(--color-surface-muted)]"
 						>
-							<span class="flex items-center gap-2 text-sm font-bold text-[var(--color-nav-active)]">
+							<span
+								class="flex items-center gap-2 text-sm font-bold text-[var(--color-nav-active)]"
+							>
 								<link.icon size={18} class="text-[var(--color-primary-700)]" />
 								<span class="line-clamp-1">{link.name}</span>
 							</span>

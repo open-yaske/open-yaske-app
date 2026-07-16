@@ -18,10 +18,10 @@
 	function formatEventDate(start: number, end: number, allDay: boolean): string {
 		const dStart = new Date(start);
 		const dEnd = new Date(end);
-		
+
 		const month = dStart.getMonth() + 1;
 		const date = dStart.getDate();
-		
+
 		if (allDay) {
 			return `${month}/${date} (${m.calendar_all_day()})`;
 		}
@@ -42,15 +42,14 @@
 <div
 	class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
 >
-	<div class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2">
+	<div
+		class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2"
+	>
 		<div class="flex items-center gap-2 font-bold text-[var(--color-nav-active)]">
 			<Calendar size={18} class="text-[var(--color-primary-500)]" />
 			<span>{m.nav_calendar()}</span>
 		</div>
-		<a
-			href="/calendar"
-			class="text-xs text-[var(--color-primary-600)] hover:underline"
-		>
+		<a href="/calendar" class="text-xs text-[var(--color-primary-600)] hover:underline">
 			{m.action_more()}
 		</a>
 	</div>
@@ -67,7 +66,9 @@
 						{event.title}
 					</h4>
 
-					<div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--color-nav-inactive)] font-medium">
+					<div
+						class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--color-nav-inactive)] font-medium"
+					>
 						<div class="flex items-center gap-1">
 							<Clock size={12} />
 							<span>{formatEventDate(event.startAt, event.endAt, event.allDay)}</span>

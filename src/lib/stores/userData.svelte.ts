@@ -10,6 +10,7 @@
 import { browser } from '$app/environment';
 import * as remoteStorage from '$lib/remotestorage';
 import type { Course, Todo, CalendarEvent, AttendanceRecord } from '$lib/types';
+import { syncWidgetData } from '$lib/widget';
 
 import { STORAGE_KEY_PREFIX as GLOBAL_PREFIX } from '$lib/constants';
 
@@ -57,6 +58,7 @@ class UserDataStore {
 		if (this.rsConnected) {
 			await this.syncFromRemote();
 		}
+		void syncWidgetData();
 	}
 
 	private loadLocal<T>(key: string): T | null {
@@ -137,6 +139,7 @@ class UserDataStore {
 		if (coursesChanged || this.courses.length !== mergedCourses.length) {
 			this.courses = mergedCourses;
 			this.saveLocal('courses', this.courses);
+			void syncWidgetData();
 		}
 
 		// 2) Todos のマージ
@@ -216,7 +219,9 @@ class UserDataStore {
 			}
 		}
 		for (const localAttr of this.attendance) {
-			if (!attendanceList.some((r) => r.courseId === localAttr.courseId && r.date === localAttr.date)) {
+			if (
+				!attendanceList.some((r) => r.courseId === localAttr.courseId && r.date === localAttr.date)
+			) {
 				void remoteStorage.rsSet(`attendance/${localAttr.courseId}/${localAttr.date}`, localAttr);
 			}
 		}
@@ -234,6 +239,7 @@ class UserDataStore {
 		this.courses = [...this.courses, course];
 		this.saveLocal('courses', this.courses);
 		if (this.rsConnected) await remoteStorage.rsSet(`courses/${id}`, course);
+		void syncWidgetData();
 	}
 
 	async updateCourse(id: string, patch: Partial<Course>) {
@@ -243,12 +249,14 @@ class UserDataStore {
 		this.saveLocal('courses', this.courses);
 		const updated = this.courses.find((c) => c.id === id);
 		if (updated && this.rsConnected) await remoteStorage.rsSet(`courses/${id}`, updated);
+		void syncWidgetData();
 	}
 
 	async removeCourse(id: string) {
 		this.courses = this.courses.filter((c) => c.id !== id);
 		this.saveLocal('courses', this.courses);
 		if (this.rsConnected) await remoteStorage.rsDelete(`courses/${id}`);
+		void syncWidgetData();
 	}
 
 	// ----- Todos -----
@@ -366,6 +374,7 @@ class UserDataStore {
 			...this.events.map((e) => remoteStorage.rsSet(`events/${e.id}`, e)),
 			...this.attendance.map((r) => remoteStorage.rsSet(`attendance/${r.courseId}/${r.date}`, r))
 		]);
+		void syncWidgetData();
 	}
 
 	async clearUserData() {

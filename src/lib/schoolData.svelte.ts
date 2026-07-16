@@ -6,6 +6,7 @@ import { settingsStore } from './stores';
 import type { PublicCourse } from './types/public';
 import { PUBLIC_DATA_SCHEMA_VERSION } from './types/public';
 import type { DayOfWeek, Period } from './types';
+import { m } from '$lib/paraglide/messages';
 
 export type SchoolDataMetadata = {
 	lastSyncedAt: number;
@@ -73,7 +74,7 @@ class SchoolDataService {
 	 */
 	async clearCache() {
 		this.loading = true;
-		this.syncStatus = 'キャッシュ消去中...';
+		this.syncStatus = m.school_data_status_clearing_cache();
 		try {
 			await idbDel(this.COURSE_KEY);
 			await idbDel(this.METADATA_KEY);
@@ -89,7 +90,13 @@ class SchoolDataService {
 					console.error('Failed to delete school data from RemoteStorage:', err);
 				});
 			}
-			this.syncStatus = 'キャッシュ消去完了';
+			this.syncStatus = m.school_data_status_clear_cache_complete();
+		} catch (err: any) {
+			console.error('Failed to clear school data cache:', err);
+			this.syncStatus = m.school_data_status_clear_cache_failed({
+				error: err.message || String(err)
+			});
+			throw err;
 		} finally {
 			this.loading = false;
 		}
@@ -100,15 +107,15 @@ class SchoolDataService {
 	 */
 	async sync() {
 		this.loading = true;
-		this.syncStatus = '初期化中...';
+		this.syncStatus = m.school_data_status_initializing();
 		try {
 			// RemoteStorage に接続されている場合、まずそちらからロードを試みる
 			if (remoteStorage.isConnected()) {
-				this.syncStatus = 'RemoteStorageのキャッシュを確認中...';
+				this.syncStatus = m.school_data_status_checking_rs();
 				try {
 					const remoteMeta = await remoteStorage.rsGet<SchoolDataMetadata>('school-data/metadata');
 					if (remoteMeta) {
-						this.syncStatus = 'RemoteStorageからシラバスデータをダウンロード中...';
+						this.syncStatus = m.school_data_status_downloading_rs();
 						const remoteCourses = await remoteStorage.rsGet<PublicCourse[]>('school-data/courses');
 
 						const courses = remoteCourses || [];
@@ -118,7 +125,7 @@ class SchoolDataService {
 
 						this.metadata = remoteMeta;
 						this.courseItems = courses;
-						this.syncStatus = 'RemoteStorageから復元完了';
+						this.syncStatus = m.school_data_status_restored_rs();
 						return;
 					}
 				} catch (err) {
@@ -127,10 +134,10 @@ class SchoolDataService {
 			}
 
 			// RemoteStorageにデータがない場合、または未接続の場合はSPARQLから取得
-			this.syncStatus = 'SPARQLからシラバスデータをダウンロード中...';
+			this.syncStatus = m.school_data_status_downloading_sparql();
 			const courses = await this.fetchCoursesFromLOD();
 
-			this.syncStatus = 'ローカルキャッシュに保存中...';
+			this.syncStatus = m.school_data_status_saving_local();
 			await idbSet(this.COURSE_KEY, courses);
 
 			const meta: SchoolDataMetadata = {
@@ -144,11 +151,15 @@ class SchoolDataService {
 
 			// RemoteStorage への同期はバックグラウンド（非同期）で実行
 			if (remoteStorage.isConnected()) {
-				this.syncStatus = 'RemoteStorageにバックグラウンド同期中...';
+				this.syncStatus = m.school_data_status_syncing_rs();
 				void this.uploadToRS(courses, meta);
 			} else {
-				this.syncStatus = '同期完了';
+				this.syncStatus = m.school_data_status_sync_complete();
 			}
+		} catch (err: any) {
+			console.error('Failed to sync school data:', err);
+			this.syncStatus = m.school_data_status_sync_failed({ error: err.message || String(err) });
+			throw err;
 		} finally {
 			this.loading = false;
 		}
@@ -159,10 +170,10 @@ class SchoolDataService {
 	 */
 	async importCustomCourses(courses: PublicCourse[]) {
 		this.loading = true;
-		this.syncStatus = 'カスタムシラバスデータのインポート中...';
+		this.syncStatus = m.school_data_status_importing_custom();
 		try {
 			await idbSet(this.COURSE_KEY, courses);
-			
+
 			const meta: SchoolDataMetadata = {
 				lastSyncedAt: Date.now(),
 				courseCount: courses.length
@@ -173,11 +184,15 @@ class SchoolDataService {
 			this.courseItems = courses;
 
 			if (remoteStorage.isConnected()) {
-				this.syncStatus = 'RemoteStorageにバックグラウンド同期中...';
+				this.syncStatus = m.school_data_status_syncing_rs();
 				void this.uploadToRS(courses, meta);
 			} else {
-				this.syncStatus = 'インポート完了';
+				this.syncStatus = m.school_data_status_import_complete();
 			}
+		} catch (err: any) {
+			console.error('Failed to import custom courses:', err);
+			this.syncStatus = m.school_data_status_import_failed({ error: err.message || String(err) });
+			throw err;
 		} finally {
 			this.loading = false;
 		}
@@ -205,7 +220,7 @@ class SchoolDataService {
 				}
 			}
 		`;
-		
+
 		type RawLecture = {
 			uri: string;
 			code?: string;
@@ -219,16 +234,16 @@ class SchoolDataService {
 		};
 
 		const rawList = await this.executeSparql<RawLecture>(query);
-		
+
 		const parseDayPeriod = (periodStr: string): { day: DayOfWeek; period: Period } | null => {
 			const dayMap: Record<string, DayOfWeek> = {
-				'月': 'mon',
-				'火': 'tue',
-				'水': 'wed',
-				'木': 'thu',
-				'金': 'fri',
-				'土': 'sat',
-				'日': 'sun'
+				月: 'mon',
+				火: 'tue',
+				水: 'wed',
+				木: 'thu',
+				金: 'fri',
+				土: 'sat',
+				日: 'sun'
 			};
 			const match = periodStr.match(/^([月火水木金土日])([1-7])$/);
 			if (match) {
@@ -243,7 +258,8 @@ class SchoolDataService {
 		for (const item of rawList) {
 			const uri = item.uri;
 			if (!map[uri]) {
-				const semester = item.semester === '前学期' ? 'spring' : item.semester === '後学期' ? 'fall' : 'other';
+				const semester =
+					item.semester === '前学期' ? 'spring' : item.semester === '後学期' ? 'fall' : 'other';
 				map[uri] = {
 					id: uri.split('/').pop() || uri,
 					code: item.code || '',
@@ -285,7 +301,8 @@ class SchoolDataService {
 	}
 
 	private async executeSparql<T = unknown>(query: string): Promise<T[]> {
-		const endpoint = settingsStore.settings.schoolDataSparqlEndpoint || 'https://uec-atlas.org/sparql';
+		const endpoint =
+			settingsStore.settings.schoolDataSparqlEndpoint || 'https://uec-atlas.org/sparql';
 		const url = `${endpoint}?query=${encodeURIComponent(query)}&output=json`;
 
 		const res = await fetch(url, {
@@ -297,7 +314,7 @@ class SchoolDataService {
 			throw new Error(`SPARQL query failed with status ${res.status}`);
 		}
 		const data = await res.json();
-		
+
 		const bindings = data.results?.bindings || [];
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return bindings.map((b: any) => {

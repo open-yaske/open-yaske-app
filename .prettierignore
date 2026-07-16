@@ -7,3 +7,10 @@ bun.lockb
 
 # Miscellaneous
 /static/
+/build/
+/.svelte-kit/
+/ios/
+/android/
+/node_modules/
+/src/lib/paraglide/
+/src/paraglide/

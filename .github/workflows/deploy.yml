@@ -104,7 +104,7 @@ jobs:
             --key-pass pass:"${{ secrets.KEY_PASSWORD }}" \
             --out android/app/build/outputs/apk/release/app-release-signed.apk \
             android/app/build/outputs/apk/release/app-release-unsigned.apk
- 
+
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:

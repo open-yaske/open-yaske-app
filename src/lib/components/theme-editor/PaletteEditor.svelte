@@ -84,7 +84,7 @@
 					/>
 					<input
 						type="text"
-						value={typeof color.name === 'string' ? color.name : (color.name.ja || '')}
+						value={typeof color.name === 'string' ? color.name : color.name.ja || ''}
 						oninput={(e) => updateName(i, (e.currentTarget as HTMLInputElement).value)}
 						class="w-full bg-transparent text-[10px] text-[var(--color-nav-inactive)] focus:outline-none"
 						placeholder="color_name"

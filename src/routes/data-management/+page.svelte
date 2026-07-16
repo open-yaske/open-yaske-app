@@ -124,7 +124,7 @@
 					userDataStore.attendance = parsed.attendance;
 					localStorage.setItem('open-yaske:userdata:attendance', JSON.stringify(parsed.attendance));
 				}
-				
+
 				if (userDataStore.rsConnected) {
 					void userDataStore.init();
 				}
@@ -213,16 +213,24 @@
 <Container class="pb-10">
 	<div class="space-y-6 py-4">
 		<!-- 1. RemoteStorage セクション -->
-		<SettingsSection id="data-remotestorage" title="RemoteStorage (個人データの同期)" description="カレンダー予定、TODO、時間割などのデータを、RemoteStorage サーバーを介して他のデバイスやブラウザと安全に同期・バックアップします。">
+		<SettingsSection
+			id="data-remotestorage"
+			title="RemoteStorage (個人データの同期)"
+			description="カレンダー予定、TODO、時間割などのデータを、RemoteStorage サーバーを介して他のデバイスやブラウザと安全に同期・バックアップします。"
+		>
 			<div class="p-4 space-y-4">
-				<div class="flex items-center gap-3 rounded-card bg-[var(--color-surface-muted)] p-3 border border-[var(--color-surface-border)]">
+				<div
+					class="flex items-center gap-3 rounded-card bg-[var(--color-surface-muted)] p-3 border border-[var(--color-surface-border)]"
+				>
 					{#if userDataStore.rsConnected}
 						<Cloud size={24} class="text-[var(--color-success-500)] shrink-0" />
 						<div class="flex-1 min-w-0">
 							<span class="text-xs font-bold text-[var(--color-success-700)] block">
 								{m.settings_account_connected()}
 							</span>
-							<span class="text-[11px] font-mono text-[var(--color-nav-inactive)] truncate block mt-0.5">
+							<span
+								class="text-[11px] font-mono text-[var(--color-nav-inactive)] truncate block mt-0.5"
+							>
 								{rsAddress || ''}
 							</span>
 						</div>
@@ -245,42 +253,59 @@
 		</SettingsSection>
 
 		<!-- 2. シラバスデータ同期 (オフライン対応) セクション -->
-		<SettingsSection id="data-schooldata" title="シラバスデータ同期 (オフライン対応)" description="大学のシラバス（科目）のマスターデータをローカルにキャッシュします。キャッシュ後は完全にオフラインで検索や時間割等での登録が可能です。">
+		<SettingsSection
+			id="data-schooldata"
+			title="シラバスデータ同期 (オフライン対応)"
+			description="大学のシラバス（科目）のマスターデータをローカルにキャッシュします。キャッシュ後は完全にオフラインで検索や時間割等での登録が可能です。"
+		>
 			<div class="p-4 space-y-3.5">
 				{#if schoolDataService.metadata}
-					<div class="flex items-center gap-2 rounded-card bg-[var(--color-success-50)] p-3 text-xs text-[var(--color-success-700)] border border-[var(--color-success-200)]">
+					<div
+						class="flex items-center gap-2 rounded-card bg-[var(--color-success-50)] p-3 text-xs text-[var(--color-success-700)] border border-[var(--color-success-200)]"
+					>
 						<CheckCircle2 size={16} class="text-[var(--color-success-500)] shrink-0" />
 						<div class="flex-1 min-w-0">
 							<span class="font-bold">{m.school_data_local_data_active()}</span>
 							<span class="block text-[10px] text-[var(--color-success-600)] mt-0.5 font-mono">
-								{m.school_data_last_sync({ date: formatDate(schoolDataService.metadata.lastSyncedAt) })} | 
-								科目: {schoolDataService.metadata.courseCount || 0}件
+								{m.school_data_last_sync({
+									date: formatDate(schoolDataService.metadata.lastSyncedAt)
+								})} | 科目: {schoolDataService.metadata.courseCount || 0}件
 							</span>
 						</div>
 					</div>
 				{:else}
-					<div class="flex items-center gap-2 rounded-card bg-[var(--color-danger-50)] p-3 text-xs text-[var(--color-danger-700)] border border-[var(--color-danger-200)]">
+					<div
+						class="flex items-center gap-2 rounded-card bg-[var(--color-danger-50)] p-3 text-xs text-[var(--color-danger-700)] border border-[var(--color-danger-200)]"
+					>
 						<Database size={16} class="text-[var(--color-danger-500)] shrink-0" />
 						<span class="font-bold">{m.school_data_no_data()}</span>
 					</div>
 				{/if}
 
 				<!-- クレジット・ライセンス表示 -->
-				<div class="rounded-card bg-[var(--color-surface-muted)] p-3 text-[11px] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)] leading-5">
-					{@html sanitize(m.school_data_credit({
-						source: `<a href="${settings.schoolDataSourceUrl}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-[var(--color-primary-600)]">${settings.schoolDataSourceTitle}</a>`,
-						license: `<a href="${settings.schoolDataLicenseUrl}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-[var(--color-primary-600)]">${settings.schoolDataLicenseTitle}</a>`
-					}))}
+				<div
+					class="rounded-card bg-[var(--color-surface-muted)] p-3 text-[11px] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)] leading-5"
+				>
+					{@html sanitize(
+						m.school_data_credit({
+							source: `<a href="${settings.schoolDataSourceUrl}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-[var(--color-primary-600)]">${settings.schoolDataSourceTitle}</a>`,
+							license: `<a href="${settings.schoolDataLicenseUrl}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-[var(--color-primary-600)]">${settings.schoolDataLicenseTitle}</a>`
+						})
+					)}
 				</div>
 
 				{#if syncError}
-					<div class="rounded-card bg-[var(--color-danger-50)] p-3 text-xs text-[var(--color-danger-700)] font-mono border border-[var(--color-danger-200)]">
+					<div
+						class="rounded-card bg-[var(--color-danger-50)] p-3 text-xs text-[var(--color-danger-700)] font-mono border border-[var(--color-danger-200)]"
+					>
 						{syncError}
 					</div>
 				{/if}
 
 				{#if schoolDataService.loading && schoolDataService.syncStatus}
-					<div class="rounded-card bg-[var(--color-surface-muted)] p-3 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)] flex items-center gap-2">
+					<div
+						class="rounded-card bg-[var(--color-surface-muted)] p-3 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)] flex items-center gap-2"
+					>
 						<RefreshCw size={14} class="animate-spin text-[var(--color-primary-500)]" />
 						<span class="font-medium">{schoolDataService.syncStatus}</span>
 					</div>
@@ -295,7 +320,11 @@
 						disabled={schoolDataService.loading}
 					>
 						<RefreshCw size={16} class={schoolDataService.loading ? 'animate-spin' : ''} />
-						<span>{schoolDataService.loading ? m.school_data_downloading() : m.school_data_offline_download()}</span>
+						<span
+							>{schoolDataService.loading
+								? m.school_data_downloading()
+								: m.school_data_offline_download()}</span
+						>
 					</Button>
 
 					<Button
@@ -379,7 +408,11 @@
 		</SettingsSection>
 
 		<!-- 3. アプリデータのバックアップ・クリア -->
-		<SettingsSection id="data-tools" title="データ管理ツール" description="アプリ内のすべての設定、時間割、TODO、カレンダー、出勤履歴データをJSON形式でバックアップ・復元します。">
+		<SettingsSection
+			id="data-tools"
+			title="データ管理ツール"
+			description="アプリ内のすべての設定、時間割、TODO、カレンダー、出勤履歴データをJSON形式でバックアップ・復元します。"
+		>
 			<div class="p-4 space-y-4">
 				<div class="flex flex-col gap-2 sm:flex-row">
 					<Button variant="secondary" size="md" class="flex-1" onclick={handleExportAll}>
@@ -401,7 +434,12 @@
 						</Button>
 					</div>
 
-					<Button variant="danger" size="md" class="flex-1" onclick={() => (showClearConfirm = true)}>
+					<Button
+						variant="danger"
+						size="md"
+						class="flex-1"
+						onclick={() => (showClearConfirm = true)}
+					>
 						<Trash2 size={16} />
 						<span>{m.settings_data_clear()}</span>
 					</Button>
@@ -412,8 +450,18 @@
 </Container>
 
 <!-- RemoteStorage 接続モーダル -->
-<Modal open={showConnectModal} onclose={() => (showConnectModal = false)} title={m.settings_account_connect()}>
-	<form onsubmit={(e) => { e.preventDefault(); submitConnect(); }} class="space-y-4">
+<Modal
+	open={showConnectModal}
+	onclose={() => (showConnectModal = false)}
+	title={m.settings_account_connect()}
+>
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			submitConnect();
+		}}
+		class="space-y-4"
+	>
 		<TextField
 			bind:value={connectAddress}
 			label={m.settings_account_remote_address_label()}
@@ -421,7 +469,9 @@
 			hint={m.settings_account_remote_address_hint()}
 			required
 		/>
-		<div class="rounded-card bg-[var(--color-surface-muted)] p-3.5 border border-[var(--color-surface-border)] space-y-2">
+		<div
+			class="rounded-card bg-[var(--color-surface-muted)] p-3.5 border border-[var(--color-surface-border)] space-y-2"
+		>
 			<h4 class="text-xs font-bold text-[var(--color-nav-active)]">
 				{m.settings_account_remote_guide_title()}
 			</h4>
@@ -432,10 +482,21 @@
 			</ol>
 		</div>
 		<div class="flex gap-2 pt-2">
-			<Button variant="secondary" size="md" class="flex-1" onclick={() => (showConnectModal = false)}>
+			<Button
+				variant="secondary"
+				size="md"
+				class="flex-1"
+				onclick={() => (showConnectModal = false)}
+			>
 				{m.action_cancel()}
 			</Button>
-			<Button variant="primary" size="md" class="flex-1" type="submit" disabled={!connectAddress.trim()}>
+			<Button
+				variant="primary"
+				size="md"
+				class="flex-1"
+				type="submit"
+				disabled={!connectAddress.trim()}
+			>
 				{m.settings_account_connect()}
 			</Button>
 		</div>
@@ -443,7 +504,11 @@
 </Modal>
 
 <!-- クリア確認ダイアログ -->
-<Modal open={showClearConfirm} onclose={() => (showClearConfirm = false)} title={m.settings_data_clear()}>
+<Modal
+	open={showClearConfirm}
+	onclose={() => (showClearConfirm = false)}
+	title={m.settings_data_clear()}
+>
 	<div class="space-y-4">
 		<p class="text-sm text-[var(--color-nav-active)]">
 			{m.settings_data_clear_confirm()}
@@ -452,7 +517,12 @@
 			※この操作は取り消せません。設定とすべての時間割、TODO、カレンダー、出席、学校キャッシュデータが完全に消去されます。
 		</p>
 		<div class="flex gap-2 pt-2">
-			<Button variant="secondary" size="md" class="flex-1" onclick={() => (showClearConfirm = false)}>
+			<Button
+				variant="secondary"
+				size="md"
+				class="flex-1"
+				onclick={() => (showClearConfirm = false)}
+			>
 				{m.action_cancel()}
 			</Button>
 			<Button variant="danger" size="md" class="flex-1" onclick={handleClearAllData}>
@@ -463,12 +533,16 @@
 </Modal>
 
 <!-- カスタムデータインポート・エクスポートモーダル -->
-<Modal open={showCustomModal} onclose={() => (showCustomModal = false)} title="カスタムシラバスデータの編集 (JSON)">
+<Modal
+	open={showCustomModal}
+	onclose={() => (showCustomModal = false)}
+	title="カスタムシラバスデータの編集 (JSON)"
+>
 	<div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
 		<p class="text-xs text-[var(--color-nav-inactive)] leading-5">
 			シラバス科目（Courses）のデータをJSON形式で直接書き換えます。独自の授業情報を取り込むことができます。
 		</p>
-		
+
 		<div class="space-y-3.5">
 			<TextField
 				type="textarea"
@@ -480,7 +554,12 @@
 		</div>
 
 		<div class="flex gap-2 pt-2">
-			<Button variant="secondary" size="md" class="flex-1" onclick={() => (showCustomModal = false)}>
+			<Button
+				variant="secondary"
+				size="md"
+				class="flex-1"
+				onclick={() => (showCustomModal = false)}
+			>
 				{m.action_cancel()}
 			</Button>
 			<Button variant="primary" size="md" class="flex-1" onclick={saveCustomData}>

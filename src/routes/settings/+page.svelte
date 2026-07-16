@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { RouteId } from '$app/types';
 	import { localizeHref } from '$lib/paraglide/runtime';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import Container from '$lib/components/Container.svelte';
@@ -43,7 +44,7 @@
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
-	const appVersion = '2026.06.28';
+	const appVersion = '2026.07.16';
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -710,7 +711,7 @@
 			</label>
 		</div>
 		<a
-			href={resolve(localizeHref('/theme-editor'))}
+			href={resolve(localizeHref('/theme-editor') as RouteId)}
 			class="flex items-center justify-between border-t border-[var(--color-surface-border)] px-4 py-3.5 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"
 		>
 			<span class="flex items-center gap-2 font-medium text-[var(--color-nav-active)]">

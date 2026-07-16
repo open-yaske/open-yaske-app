@@ -1,362 +1,362 @@
 {
-  "id": "default",
-  "name": {
-    "ja": "デフォルト",
-    "en": "Default",
-    "zh": "默认",
-    "ko": "기본"
-  },
-  "description": {
-    "ja": "標準の青・緑・オレンジ・赤・紫・ティール・グレー",
-    "en": "Standard Blue, Green, Orange, Red, Purple, Teal, and Gray",
-    "zh": "标准的蓝色、绿色、橙色、红色、紫色、青色和灰色",
-    "ko": "표준 파랑, 초록, 주황, 빨강, 보라, 청록, 회색"
-  },
-  "version": 1,
-  "builtIn": true,
-  "ui": {
-    "primary": {
-      "50": "#eff6ff",
-      "100": "#dbeafe",
-      "200": "#bfdbfe",
-      "300": "#93c5fd",
-      "400": "#60a5fa",
-      "500": "#3b82f6",
-      "600": "#2563eb",
-      "700": "#1d4ed8",
-      "800": "#1e40af",
-      "900": "#1e3a8a"
-    },
-    "surface": {
-      "page": "#f9fafb",
-      "card": "#ffffff",
-      "border": "#e5e7eb",
-      "muted": "#f3f4f6",
-      "mutedForeground": "#6b7280"
-    },
-    "nav": {
-      "bg": "#ffffff",
-      "active": "#2563eb",
-      "inactive": "#6b7280",
-      "hover": "#f3f4f6"
-    },
-    "shadow": {
-      "sheet": "0 -4px 16px rgba(0,0,0,0.08)",
-      "card": "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-      "modal": "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04)"
-    },
-    "radius": {
-      "pill": "9999px",
-      "card": "16px",
-      "chip": "8px"
-    },
-    "secondary": {
-      "50": "#f0fdfa",
-      "100": "#ccfbf1",
-      "200": "#99f6e4",
-      "300": "#5eead4",
-      "400": "#2dd4bf",
-      "500": "#14b8a6",
-      "600": "#0d9488",
-      "700": "#0f766e",
-      "800": "#115e59",
-      "900": "#134e4a"
-    },
-    "success": {
-      "50": "#f0fdf4",
-      "100": "#dcfce7",
-      "200": "#bbf7d0",
-      "300": "#86efac",
-      "400": "#4ade80",
-      "500": "#22c55e",
-      "600": "#16a34a",
-      "700": "#15803d",
-      "800": "#166534",
-      "900": "#14532d"
-    },
-    "warning": {
-      "50": "#fffbeb",
-      "100": "#fef3c7",
-      "200": "#fde68a",
-      "300": "#fcd34d",
-      "400": "#fbbf24",
-      "500": "#f59e0b",
-      "600": "#d97706",
-      "700": "#b45309",
-      "800": "#92400e",
-      "900": "#78350f"
-    },
-    "danger": {
-      "50": "#fef2f2",
-      "100": "#fee2e2",
-      "200": "#fecaca",
-      "300": "#fca5a5",
-      "400": "#f87171",
-      "500": "#ef4444",
-      "600": "#dc2626",
-      "700": "#b91c1c",
-      "800": "#991b1b",
-      "900": "#7f1d1d"
-    }
-  },
-  "palette": {
-    "courseColors": [
-      {
-        "id": "blue",
-        "name": {
-          "ja": "青",
-          "en": "Blue",
-          "zh": "蓝色",
-          "ko": "파랑"
-        },
-        "hex": "#1d4ed8"
-      },
-      {
-        "id": "green",
-        "name": {
-          "ja": "緑",
-          "en": "Green",
-          "zh": "绿色",
-          "ko": "초록"
-        },
-        "hex": "#22c55e"
-      },
-      {
-        "id": "orange",
-        "name": {
-          "ja": "オレンジ",
-          "en": "Orange",
-          "zh": "橙色",
-          "ko": "주황"
-        },
-        "hex": "#f97316"
-      },
-      {
-        "id": "red",
-        "name": {
-          "ja": "赤",
-          "en": "Red",
-          "zh": "红色",
-          "ko": "빨강"
-        },
-        "hex": "#b91c1c"
-      },
-      {
-        "id": "purple",
-        "name": {
-          "ja": "紫",
-          "en": "Purple",
-          "zh": "紫色",
-          "ko": "보ら"
-        },
-        "hex": "#7e22ce"
-      },
-      {
-        "id": "teal",
-        "name": {
-          "ja": "ティール",
-          "en": "Teal",
-          "zh": "青色",
-          "ko": "청록"
-        },
-        "hex": "#14b8a6"
-      },
-      {
-        "id": "gray",
-        "name": {
-          "ja": "グレー",
-          "en": "Gray",
-          "zh": "灰色",
-          "ko": "회색"
-        },
-        "hex": "#6b7280"
-      }
-    ],
-    "todoColors": [
-      {
-        "id": "blue",
-        "name": {
-          "ja": "青",
-          "en": "Blue",
-          "zh": "蓝色",
-          "ko": "파랑"
-        },
-        "hex": "#1d4ed8"
-      },
-      {
-        "id": "green",
-        "name": {
-          "ja": "緑",
-          "en": "Green",
-          "zh": "绿色",
-          "ko": "초록"
-        },
-        "hex": "#22c55e"
-      },
-      {
-        "id": "orange",
-        "name": {
-          "ja": "オレンジ",
-          "en": "Orange",
-          "zh": "橙色",
-          "ko": "주황"
-        },
-        "hex": "#f97316"
-      },
-      {
-        "id": "red",
-        "name": {
-          "ja": "赤",
-          "en": "Red",
-          "zh": "红色",
-          "ko": "빨강"
-        },
-        "hex": "#b91c1c"
-      },
-      {
-        "id": "purple",
-        "name": {
-          "ja": "紫",
-          "en": "Purple",
-          "zh": "紫色",
-          "ko": "보라"
-        },
-        "hex": "#7e22ce"
-      },
-      {
-        "id": "teal",
-        "name": {
-          "ja": "ティール",
-          "en": "Teal",
-          "zh": "青色",
-          "ko": "청록"
-        },
-        "hex": "#14b8a6"
-      }
-    ],
-    "eventColors": [
-      {
-        "id": "blue",
-        "name": {
-          "ja": "青",
-          "en": "Blue",
-          "zh": "蓝色",
-          "ko": "파랑"
-        },
-        "hex": "#1d4ed8"
-      },
-      {
-        "id": "green",
-        "name": {
-          "ja": "緑",
-          "en": "Green",
-          "zh": "绿色",
-          "ko": "초록"
-        },
-        "hex": "#22c55e"
-      },
-      {
-        "id": "orange",
-        "name": {
-          "ja": "オレンジ",
-          "en": "Orange",
-          "zh": "橙色",
-          "ko": "주황"
-        },
-        "hex": "#f97316"
-      },
-      {
-        "id": "red",
-        "name": {
-          "ja": "赤",
-          "en": "Red",
-          "zh": "红色",
-          "ko": "빨강"
-        },
-        "hex": "#b91c1c"
-      },
-      {
-        "id": "purple",
-        "name": {
-          "ja": "紫",
-          "en": "Purple",
-          "zh": "紫色",
-          "ko": "보라"
-        },
-        "hex": "#7e22ce"
-      },
-      {
-        "id": "teal",
-        "name": {
-          "ja": "ティール",
-          "en": "Teal",
-          "zh": "青色",
-          "ko": "청록"
-        },
-        "hex": "#14b8a6"
-      },
-      {
-        "id": "pink",
-        "name": {
-          "ja": "ピンク",
-          "en": "Pink",
-          "zh": "粉色",
-          "ko": "핑크"
-        },
-        "hex": "#ec4899"
-      },
-      {
-        "id": "indigo",
-        "name": {
-          "ja": "インディゴ",
-          "en": "Indigo",
-          "zh": "靛色",
-          "ko": "인디고"
-        },
-        "hex": "#6366f1"
-      },
-      {
-        "id": "amber",
-        "name": {
-          "ja": "アンバー",
-          "en": "Amber",
-          "zh": "琥珀色",
-          "ko": "앰버"
-        },
-        "hex": "#f59e0b"
-      },
-      {
-        "id": "gray",
-        "name": {
-          "ja": "グレー",
-          "en": "Gray",
-          "zh": "灰色",
-          "ko": "회색"
-        },
-        "hex": "#6b7280"
-      }
-    ]
-  },
-  "attendance": {
-    "present": {
-      "fg": "#ffffff",
-      "bg": "#15803d"
-    },
-    "absent": {
-      "fg": "#ffffff",
-      "bg": "#b91c1c"
-    },
-    "late": {
-      "fg": "#ffffff",
-      "bg": "#c2410c"
-    },
-    "excused": {
-      "fg": "#ffffff",
-      "bg": "#1d4ed8"
-    },
-    "cancelled": {
-      "fg": "#ffffff",
-      "bg": "#4b5563"
-    }
-  }
+	"id": "default",
+	"name": {
+		"ja": "デフォルト",
+		"en": "Default",
+		"zh": "默认",
+		"ko": "기본"
+	},
+	"description": {
+		"ja": "標準の青・緑・オレンジ・赤・紫・ティール・グレー",
+		"en": "Standard Blue, Green, Orange, Red, Purple, Teal, and Gray",
+		"zh": "标准的蓝色、绿色、橙色、红色、紫色、青色和灰色",
+		"ko": "표준 파랑, 초록, 주황, 빨강, 보라, 청록, 회색"
+	},
+	"version": 1,
+	"builtIn": true,
+	"ui": {
+		"primary": {
+			"50": "#eff6ff",
+			"100": "#dbeafe",
+			"200": "#bfdbfe",
+			"300": "#93c5fd",
+			"400": "#60a5fa",
+			"500": "#3b82f6",
+			"600": "#2563eb",
+			"700": "#1d4ed8",
+			"800": "#1e40af",
+			"900": "#1e3a8a"
+		},
+		"surface": {
+			"page": "#f9fafb",
+			"card": "#ffffff",
+			"border": "#e5e7eb",
+			"muted": "#f3f4f6",
+			"mutedForeground": "#6b7280"
+		},
+		"nav": {
+			"bg": "#ffffff",
+			"active": "#2563eb",
+			"inactive": "#6b7280",
+			"hover": "#f3f4f6"
+		},
+		"shadow": {
+			"sheet": "0 -4px 16px rgba(0,0,0,0.08)",
+			"card": "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+			"modal": "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04)"
+		},
+		"radius": {
+			"pill": "9999px",
+			"card": "16px",
+			"chip": "8px"
+		},
+		"secondary": {
+			"50": "#f0fdfa",
+			"100": "#ccfbf1",
+			"200": "#99f6e4",
+			"300": "#5eead4",
+			"400": "#2dd4bf",
+			"500": "#14b8a6",
+			"600": "#0d9488",
+			"700": "#0f766e",
+			"800": "#115e59",
+			"900": "#134e4a"
+		},
+		"success": {
+			"50": "#f0fdf4",
+			"100": "#dcfce7",
+			"200": "#bbf7d0",
+			"300": "#86efac",
+			"400": "#4ade80",
+			"500": "#22c55e",
+			"600": "#16a34a",
+			"700": "#15803d",
+			"800": "#166534",
+			"900": "#14532d"
+		},
+		"warning": {
+			"50": "#fffbeb",
+			"100": "#fef3c7",
+			"200": "#fde68a",
+			"300": "#fcd34d",
+			"400": "#fbbf24",
+			"500": "#f59e0b",
+			"600": "#d97706",
+			"700": "#b45309",
+			"800": "#92400e",
+			"900": "#78350f"
+		},
+		"danger": {
+			"50": "#fef2f2",
+			"100": "#fee2e2",
+			"200": "#fecaca",
+			"300": "#fca5a5",
+			"400": "#f87171",
+			"500": "#ef4444",
+			"600": "#dc2626",
+			"700": "#b91c1c",
+			"800": "#991b1b",
+			"900": "#7f1d1d"
+		}
+	},
+	"palette": {
+		"courseColors": [
+			{
+				"id": "blue",
+				"name": {
+					"ja": "青",
+					"en": "Blue",
+					"zh": "蓝色",
+					"ko": "파랑"
+				},
+				"hex": "#1d4ed8"
+			},
+			{
+				"id": "green",
+				"name": {
+					"ja": "緑",
+					"en": "Green",
+					"zh": "绿色",
+					"ko": "초록"
+				},
+				"hex": "#22c55e"
+			},
+			{
+				"id": "orange",
+				"name": {
+					"ja": "オレンジ",
+					"en": "Orange",
+					"zh": "橙色",
+					"ko": "주황"
+				},
+				"hex": "#f97316"
+			},
+			{
+				"id": "red",
+				"name": {
+					"ja": "赤",
+					"en": "Red",
+					"zh": "红色",
+					"ko": "빨강"
+				},
+				"hex": "#b91c1c"
+			},
+			{
+				"id": "purple",
+				"name": {
+					"ja": "紫",
+					"en": "Purple",
+					"zh": "紫色",
+					"ko": "보ら"
+				},
+				"hex": "#7e22ce"
+			},
+			{
+				"id": "teal",
+				"name": {
+					"ja": "ティール",
+					"en": "Teal",
+					"zh": "青色",
+					"ko": "청록"
+				},
+				"hex": "#14b8a6"
+			},
+			{
+				"id": "gray",
+				"name": {
+					"ja": "グレー",
+					"en": "Gray",
+					"zh": "灰色",
+					"ko": "회색"
+				},
+				"hex": "#6b7280"
+			}
+		],
+		"todoColors": [
+			{
+				"id": "blue",
+				"name": {
+					"ja": "青",
+					"en": "Blue",
+					"zh": "蓝色",
+					"ko": "파랑"
+				},
+				"hex": "#1d4ed8"
+			},
+			{
+				"id": "green",
+				"name": {
+					"ja": "緑",
+					"en": "Green",
+					"zh": "绿色",
+					"ko": "초록"
+				},
+				"hex": "#22c55e"
+			},
+			{
+				"id": "orange",
+				"name": {
+					"ja": "オレンジ",
+					"en": "Orange",
+					"zh": "橙色",
+					"ko": "주황"
+				},
+				"hex": "#f97316"
+			},
+			{
+				"id": "red",
+				"name": {
+					"ja": "赤",
+					"en": "Red",
+					"zh": "红色",
+					"ko": "빨강"
+				},
+				"hex": "#b91c1c"
+			},
+			{
+				"id": "purple",
+				"name": {
+					"ja": "紫",
+					"en": "Purple",
+					"zh": "紫色",
+					"ko": "보라"
+				},
+				"hex": "#7e22ce"
+			},
+			{
+				"id": "teal",
+				"name": {
+					"ja": "ティール",
+					"en": "Teal",
+					"zh": "青色",
+					"ko": "청록"
+				},
+				"hex": "#14b8a6"
+			}
+		],
+		"eventColors": [
+			{
+				"id": "blue",
+				"name": {
+					"ja": "青",
+					"en": "Blue",
+					"zh": "蓝色",
+					"ko": "파랑"
+				},
+				"hex": "#1d4ed8"
+			},
+			{
+				"id": "green",
+				"name": {
+					"ja": "緑",
+					"en": "Green",
+					"zh": "绿色",
+					"ko": "초록"
+				},
+				"hex": "#22c55e"
+			},
+			{
+				"id": "orange",
+				"name": {
+					"ja": "オレンジ",
+					"en": "Orange",
+					"zh": "橙色",
+					"ko": "주황"
+				},
+				"hex": "#f97316"
+			},
+			{
+				"id": "red",
+				"name": {
+					"ja": "赤",
+					"en": "Red",
+					"zh": "红色",
+					"ko": "빨강"
+				},
+				"hex": "#b91c1c"
+			},
+			{
+				"id": "purple",
+				"name": {
+					"ja": "紫",
+					"en": "Purple",
+					"zh": "紫色",
+					"ko": "보라"
+				},
+				"hex": "#7e22ce"
+			},
+			{
+				"id": "teal",
+				"name": {
+					"ja": "ティール",
+					"en": "Teal",
+					"zh": "青色",
+					"ko": "청록"
+				},
+				"hex": "#14b8a6"
+			},
+			{
+				"id": "pink",
+				"name": {
+					"ja": "ピンク",
+					"en": "Pink",
+					"zh": "粉色",
+					"ko": "핑크"
+				},
+				"hex": "#ec4899"
+			},
+			{
+				"id": "indigo",
+				"name": {
+					"ja": "インディゴ",
+					"en": "Indigo",
+					"zh": "靛色",
+					"ko": "인디고"
+				},
+				"hex": "#6366f1"
+			},
+			{
+				"id": "amber",
+				"name": {
+					"ja": "アンバー",
+					"en": "Amber",
+					"zh": "琥珀色",
+					"ko": "앰버"
+				},
+				"hex": "#f59e0b"
+			},
+			{
+				"id": "gray",
+				"name": {
+					"ja": "グレー",
+					"en": "Gray",
+					"zh": "灰色",
+					"ko": "회색"
+				},
+				"hex": "#6b7280"
+			}
+		]
+	},
+	"attendance": {
+		"present": {
+			"fg": "#ffffff",
+			"bg": "#15803d"
+		},
+		"absent": {
+			"fg": "#ffffff",
+			"bg": "#b91c1c"
+		},
+		"late": {
+			"fg": "#ffffff",
+			"bg": "#c2410c"
+		},
+		"excused": {
+			"fg": "#ffffff",
+			"bg": "#1d4ed8"
+		},
+		"cancelled": {
+			"fg": "#ffffff",
+			"bg": "#4b5563"
+		}
+	}
 }

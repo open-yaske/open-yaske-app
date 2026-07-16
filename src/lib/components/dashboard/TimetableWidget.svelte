@@ -18,9 +18,7 @@
 
 	// 今日の授業をフィルタリングして時限順にソート
 	const todayCourses = $derived(
-		userDataStore.courses
-			.filter((c) => c.day === showDay)
-			.sort((a, b) => a.period - b.period)
+		userDataStore.courses.filter((c) => c.day === showDay).sort((a, b) => a.period - b.period)
 	);
 
 	function getPeriodTime(p: Period) {
@@ -49,13 +47,17 @@
 <div
 	class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
 >
-	<div class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2">
+	<div
+		class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2"
+	>
 		<div class="flex items-center gap-2 font-bold text-[var(--color-nav-active)]">
 			<CalendarDays size={18} class="text-[var(--color-primary-500)]" />
 			<span>{m.nav_timetable()} ({dayLabel})</span>
 		</div>
 		{#if isWeekend && settingsStore.settings.timetableDayRange < 6}
-			<span class="text-[10px] rounded bg-[var(--color-surface-muted)] px-1.5 py-0.5 text-[var(--color-nav-inactive)]">
+			<span
+				class="text-[10px] rounded bg-[var(--color-surface-muted)] px-1.5 py-0.5 text-[var(--color-nav-inactive)]"
+			>
 				月曜の予定を表示
 			</span>
 		{/if}
@@ -80,21 +82,29 @@
 
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2">
-							<h4 class="font-bold text-sm text-[var(--color-nav-active)] truncate group-hover:text-[var(--color-primary-500)] transition-colors">
+							<h4
+								class="font-bold text-sm text-[var(--color-nav-active)] truncate group-hover:text-[var(--color-primary-500)] transition-colors"
+							>
 								{course.name}
 							</h4>
 							{#if course.type === 'required'}
-								<span class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded px-1 shrink-0">
+								<span
+									class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded px-1 shrink-0"
+								>
 									{m.course_required()}
 								</span>
 							{:else}
-								<span class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded px-1 shrink-0">
+								<span
+									class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded px-1 shrink-0"
+								>
 									{course.type === 'elective' ? m.course_elective() : m.course_free()}
 								</span>
 							{/if}
 						</div>
 
-						<div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-[var(--color-nav-inactive)]">
+						<div
+							class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-[var(--color-nav-inactive)]"
+						>
 							{#if course.classroom}
 								<div class="flex items-center gap-1">
 									<MapPin size={12} />

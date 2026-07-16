@@ -26,11 +26,7 @@
 
 	// ナビゲーションバーに固定されていない機能IDリスト
 	const unpinnedFeatures = $derived(
-		APP_FEATURES.filter(
-			(f) =>
-				f.id !== 'dashboard' &&
-				!(settings.barFeatures || []).includes(f.id)
-		)
+		APP_FEATURES.filter((f) => f.id !== 'dashboard' && !(settings.barFeatures || []).includes(f.id))
 	);
 
 	// 横断検索結果のアイテム定義
@@ -114,8 +110,6 @@
 			}
 		}
 
-
-
 		return list.slice(0, 40); // 最大40件表示
 	});
 </script>
@@ -141,17 +135,23 @@
 			<div class="space-y-3">
 				<SectionHeader>検索結果 ({searchResults.length})</SectionHeader>
 				{#if searchResults.length === 0}
-					<div class="py-8 text-center text-xs text-[var(--color-nav-inactive)] border border-dashed border-[var(--color-surface-border)] rounded-card bg-[var(--color-surface-card)]">
+					<div
+						class="py-8 text-center text-xs text-[var(--color-nav-inactive)] border border-dashed border-[var(--color-surface-border)] rounded-card bg-[var(--color-surface-card)]"
+					>
 						{m.more_search_no_results()}
 					</div>
 				{:else}
-					<div class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden">
+					<div
+						class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden"
+					>
 						{#each searchResults as item (item.id)}
 							<a
 								href={resolve(item.href as any)}
 								class="flex items-center gap-3 p-3 transition-colors hover:bg-[var(--color-surface-muted)]"
 							>
-								<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
+								<span
+									class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"
+								>
 									<item.icon size={16} />
 								</span>
 								<div class="flex-1 min-w-0">
@@ -181,7 +181,9 @@
 								href={resolve(f.href as any)}
 								class="flex items-center gap-3 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3.5 transition-colors hover:bg-[var(--color-surface-muted)] text-left"
 							>
-								<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-700)]">
+								<span
+									class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
+								>
 									<f.icon size={18} />
 								</span>
 								<div class="flex-1 min-w-0">
@@ -199,7 +201,9 @@
 			<!-- すべての機能一覧 -->
 			<div class="space-y-3">
 				<SectionHeader>{m.more_all_features()}</SectionHeader>
-				<div class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden">
+				<div
+					class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden"
+				>
 					{#each APP_FEATURES as f (f.id)}
 						<a
 							href={resolve(f.href as any)}

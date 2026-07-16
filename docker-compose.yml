@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: opennexus
+    container_name: openyaske
     build:
       context: .
       dockerfile: Dockerfile

@@ -69,7 +69,12 @@
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		currentLocaleSignal;
 
-		const barFeatures = settingsStore.settings.barFeatures || ['timetable', 'todo', 'calendar', 'attendance'];
+		const barFeatures = settingsStore.settings.barFeatures || [
+			'timetable',
+			'todo',
+			'calendar',
+			'attendance'
+		];
 		const links: NavLink[] = [];
 
 		for (const fid of barFeatures) {

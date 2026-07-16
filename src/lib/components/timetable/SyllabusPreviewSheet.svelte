@@ -51,9 +51,7 @@
 	{#if publicCourse}
 		<div class="space-y-4">
 			<!-- ヘッダー -->
-			<div
-				class="rounded-chip bg-[var(--color-surface-muted)] p-3 flex items-start gap-3"
-			>
+			<div class="rounded-chip bg-[var(--color-surface-muted)] p-3 flex items-start gap-3">
 				<span
 					class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-700)]"
 				>
@@ -73,7 +71,9 @@
 			<dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
 				{#if publicCourse.teacher}
 					<div class="col-span-2">
-						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">{m.course_teacher()}</dt>
+						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">
+							{m.course_teacher()}
+						</dt>
 						<dd class="mt-0.5 text-[var(--color-nav-active)]">{publicCourse.teacher}</dd>
 					</div>
 				{/if}
@@ -87,13 +87,17 @@
 				{/if}
 				{#if publicCourse.credits !== undefined}
 					<div>
-						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">{m.course_credits()}</dt>
+						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">
+							{m.course_credits()}
+						</dt>
 						<dd class="mt-0.5 text-[var(--color-nav-active)]">{publicCourse.credits} 単位</dd>
 					</div>
 				{/if}
 				{#if publicCourse.classroom}
 					<div class="col-span-2">
-						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">{m.course_classroom()}</dt>
+						<dt class="text-xs font-medium text-[var(--color-nav-inactive)]">
+							{m.course_classroom()}
+						</dt>
 						<dd class="mt-0.5 text-[var(--color-nav-active)]">{publicCourse.classroom}</dd>
 					</div>
 				{/if}

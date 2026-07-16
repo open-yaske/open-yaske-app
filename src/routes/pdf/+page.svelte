@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { jsPDF } from 'jspdf';
 	import { Camera, Image, Lightbulb, CheckCircle2, X } from '@lucide/svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import Container from '$lib/components/Container.svelte';
@@ -102,13 +101,14 @@
 		images = images.filter((_, i) => i !== index);
 	}
 
-	function handleExport() {
+	async function handleExport() {
 		if (images.length === 0) {
 			error = 'PDFにする画像を追加してください。';
 			return;
 		}
 
 		try {
+			const { jsPDF } = await import('jspdf');
 			const doc = new jsPDF({
 				orientation: 'portrait',
 				unit: 'mm',
@@ -193,7 +193,9 @@
 						<Camera size={18} />
 						書類をスキャン
 					</span>
-					<span class="text-[10px] text-[var(--color-primary-100)]">複数ページを連続で取り込めます</span>
+					<span class="text-[10px] text-[var(--color-primary-100)]"
+						>複数ページを連続で取り込めます</span
+					>
 				</button>
 
 				<!-- 写真を選ぶ -->

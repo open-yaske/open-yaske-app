@@ -39,7 +39,9 @@
 >
 	<!-- sample header -->
 	<div class="mb-4 flex items-center justify-between">
-		<h3 class="text-base font-semibold text-[var(--color-nav-active)]">{getLocalizedText(pack.name, settingsStore.settings.locale) || 'Theme'}</h3>
+		<h3 class="text-base font-semibold text-[var(--color-nav-active)]">
+			{getLocalizedText(pack.name, settingsStore.settings.locale) || 'Theme'}
+		</h3>
 		<span
 			class="rounded-[var(--radius-chip)] bg-[var(--color-primary-100)] px-2 py-0.5 text-xs font-medium text-[var(--color-primary-700)]"
 		>

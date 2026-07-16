@@ -62,7 +62,9 @@
 		class="rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-primary-50)] p-5 text-[var(--color-primary-800)]"
 	>
 		<div class="flex items-center gap-3">
-			<span class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-800)]">
+			<span
+				class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-800)]"
+			>
 				<Calculator size={22} />
 			</span>
 			<div>

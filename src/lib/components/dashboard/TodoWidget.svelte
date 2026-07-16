@@ -39,15 +39,14 @@
 <div
 	class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
 >
-	<div class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2">
+	<div
+		class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2"
+	>
 		<div class="flex items-center gap-2 font-bold text-[var(--color-nav-active)]">
 			<ClipboardList size={18} class="text-[var(--color-primary-500)]" />
 			<span>{m.nav_todo()}</span>
 		</div>
-		<a
-			href="/todo"
-			class="text-xs text-[var(--color-primary-600)] hover:underline"
-		>
+		<a href="/todo" class="text-xs text-[var(--color-primary-600)] hover:underline">
 			{m.action_more()}
 		</a>
 	</div>
@@ -65,7 +64,9 @@
 						onclick={() => toggleTodo(todo)}
 						class="flex items-start gap-2.5 text-left text-sm text-[var(--color-nav-active)] flex-1 min-w-0"
 					>
-						<span class="mt-0.5 text-[var(--color-nav-inactive)] group-hover:text-[var(--color-primary-500)] shrink-0 transition-colors">
+						<span
+							class="mt-0.5 text-[var(--color-nav-inactive)] group-hover:text-[var(--color-primary-500)] shrink-0 transition-colors"
+						>
 							{#if todo.done}
 								<CheckSquare size={16} class="text-[var(--color-success-500)]" />
 							{:else}

@@ -307,9 +307,7 @@
 					class="rounded-card border border-[var(--color-primary-300)] bg-[var(--color-surface-card)] overflow-hidden"
 				>
 					<!-- 検索フィールド (DESIGN 準拠) -->
-					<div
-						class="flex items-center gap-2 border-b border-[var(--color-surface-border)] p-3"
-					>
+					<div class="flex items-center gap-2 border-b border-[var(--color-surface-border)] p-3">
 						<div class="flex-1">
 							<TextField
 								bind:value={syllabusQuery}
@@ -351,10 +349,9 @@
 										</p>
 										<p class="text-[11px] text-[var(--color-nav-inactive)] mt-0.5">
 											{#if pc.teacher}{pc.teacher} ·{/if}
-											{pc.dayPeriods?.length
-												? formatDayPeriod(pc.dayPeriods)
-												: 'オンデマンド'}
-											{#if pc.credits} · {pc.credits}単位{/if}
+											{pc.dayPeriods?.length ? formatDayPeriod(pc.dayPeriods) : 'オンデマンド'}
+											{#if pc.credits}
+												· {pc.credits}単位{/if}
 										</p>
 									</div>
 									<Check size={14} class="mt-1 shrink-0 text-[var(--color-primary-500)]" />

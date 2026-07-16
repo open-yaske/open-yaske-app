@@ -4,7 +4,46 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
----
+## [Unreleased] - 2026-07-16
+
+### Added
+
+- **時間割ウィジェット（Android/iOSネイティブ）の新規実装**:
+  - `capacitor-widget-bridge` プラグインを導入し、Web側と各OSのネイティブウィジェット間で時間割データを同期する仕組みを構築しました。
+  - **Web (SvelteKit) 側**: 時間割やウィジェット配色などのデータ・設定変更時に自動同期をトリガーする `src/lib/widget.ts` を新規作成し、`userDataStore` および `settingsStore` に同期フックを追加しました。
+  - **Android ネイティブ側**: 今日の時間割（1〜7限）を表示するウィジェット `TimetableWidgetProvider.java`、表示レイアウト `timetable_widget.xml`、メタデータ `timetable_widget_info.xml`、および配色や背景角丸・バッジ用の Drawable / カラーリソースを作成し、`AndroidManifest.xml` にレシーバー登録を行いました。
+  - **iOS ネイティブ側**: SwiftUI / WidgetKit を用いて「今日の時間割」を描画する `TimetableWidget.swift` および設定ファイル `TimetableWidgetInfo.plist` をテンプレートとして `ios/App/TimetableWidget/` 配下に配置しました。
+- **開発者向け拡張ガイドの新規追加**:
+  - `EXTENDING.md` をルートに作成し、新規機能の追加方法、i18n翻訳キーの追加手順、型拡張、テストの記述および実行方法などを体系的にまとめました。
+- **データ管理サービスの単体テストの新規作成**:
+  - `SchoolDataService` に対する網羅的なテストスイート `src/lib/schoolData.spec.ts` を新規作成し、IndexedDBやRemoteStorage同期、SPARQLデータのパースなどの挙動をモックを用いて網羅しました。
+  - 公開データ互換レイヤー `publicData.ts` に対するテストスイート `src/lib/publicData.spec.ts` を作成し、キャッシュ動作とスキーマの一貫性を保証しました。
+
+### Changed
+
+- **ビルド・コンパイル設定の調整**:
+  - pnpm v11 での `sharp` や `esbuild` などのネイティブモジュールビルドを許可するため、`.npmrc` に `only-built-dependencies` の記述を追加しました。
+  - 開発環境の JDK 17 でもコンパイルができるよう、ルート `build.gradle` において、すべてのサブプロジェクトの Java ソース/ターゲット互換性を Java 17 に強制上書きする `subprojects` 設定を追加しました（Java 21 の CI でも動作します）。
+- **日本の祝日計算の内製化と外部依存排除による軽量化**:
+  - 巨大な多国籍祝日データベースを持つ `date-holidays` パッケージへの依存を排除し、日本の祝日（振替休日、国民の休日、オリンピック特例を含む）をプログラム計算する超軽量な独自ロジック（`src/lib/holidays.ts`）に置き換えました。これにより `/calendar` ページの初期JSバンドルサイズが大幅に削減されます（1.43MB → 41KB）。
+- **PDF生成処理の遅延ロード化による軽量化**:
+  - `src/lib/pdf.ts` および `src/routes/pdf/+page.svelte` にて、`jsPDF` を静的インポートから動的インポート (`await import('jspdf')`) へ移行しました。これにより、PDF生成時のみライブラリがロードされ、アプリ起動時および `/pdf` ページの初期ロードサイズが激減します（410KB → 11KB）。
+- **データ同期処理におけるエラーハンドリング徹底と安定性向上**:
+  - `SchoolDataService` 内の非同期処理（`sync`, `clearCache`, `importCustomCourses`）すべてに `try-catch` を導入し、エラー時にもUIがローディング状態でハングしないようにし、適切なエラー表示ステータスをUIにフィードバックするよう改善しました。
+- **データ同期ステータスの多言語化 (i18n)**:
+  - 従来日本語でハードコードされていたデータ同期およびキャッシュ消去の進行ステータス（「SPARQLからダウンロード中」など）をすべて Paraglide.js による翻訳キーに移行し、`ja`, `en`, `ko`, `zh` の全言語ファイルに新規キーを反映・コンパイルしました。
+- **プロジェクト設定と環境設定の改善**:
+  - 旧称 `opennexus` および `nexus` を設定から徹底的に排除し、`docker-compose.yml` 内のコンテナ名等を `openyaske` に統一・修正しました。
+  - `.prettierignore` に `/build/`, `/.svelte-kit/`, `/ios/`, `/android/`, `/src/paraglide/`, `/src/lib/paraglide/` などのビルド済み/自動生成アセットを追加し、フォーマッターやリンターの実行速度を大幅に向上させました。
+- **AIエージェント向け指示書の整備**:
+  - `AGENTS.md` のコーディング規約に、動的インポートによるパフォーマンス維持、try-catchエラーハンドリングの徹底、名称の統一、テスト作成の義務などの項目を追加し、AIエージェントの作業品質を向上させました。
+
+### Removed
+
+- **不要な旧ファイルの削除**:
+  - 旧称が含まれ、どこからも参照されていなかった不要な `open-nexus-base64.txt` を完全に削除しました。
+  - 不要となった `date-holidays` パッケージを依存関係から削除しました。
+
 ## [Unreleased] - 2026-06-29
 
 ### Added
