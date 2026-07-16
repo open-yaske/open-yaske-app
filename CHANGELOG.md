@@ -38,6 +38,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **AIエージェント向け指示書の整備**:
   - `AGENTS.md` のコーディング規約に、動的インポートによるパフォーマンス維持、try-catchエラーハンドリングの徹底、名称の統一、テスト作成の義務などの項目を追加し、AIエージェントの作業品質を向上させました。
 
+### Fixed
+
+- **CI/CDでのpnpmワークスペースビルドエラーの解消**:
+  - `pnpm-workspace.yaml` に `packages` フィールドを追加して root ディレクトリ `.` を指定し、GitHub Actions の `setup-pnpm` アクション実行時に `packages field missing or empty` エラーでビルドが失敗する不具合を修正しました。
+  - `package.json` に残っていた非推奨の `pnpm` フィールドを削除し、インストール時の警告ログを排除しました。
+
 ### Removed
 
 - **不要な旧ファイルの削除**:
