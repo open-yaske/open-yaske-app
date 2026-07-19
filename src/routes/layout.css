@@ -8,10 +8,95 @@
 	--radius-pill: var(--radius-pill);
 }
 
-/* スクロールバーのカスタマイズ */
+/* Apple Design (SKILL.md) 固有の自然な多層シャドウ */
+.shadow-apple-sm {
+	box-shadow:
+		0 2px 8px rgba(0, 0, 0, 0.04),
+		0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.shadow-apple-md {
+	box-shadow:
+		0 4px 16px rgba(0, 0, 0, 0.08),
+		0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-apple-lg {
+	box-shadow:
+		0 12px 32px rgba(0, 0, 0, 0.12),
+		0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-apple-xl {
+	box-shadow:
+		0 24px 48px rgba(0, 0, 0, 0.16),
+		0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================================================
+   Apple Design §14 — Reduced Motion
+   スライド・スプリング・パララックスをシンプルな
+   opacity クロスフェードに置き換える。
+   フィードバック自体は消さない — 穏やかな等価物に。
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+	/* Sheet / Modal: transform アニメーションをフェードのみに */
+	.sheet-panel,
+	.modal-panel {
+		transition: opacity 200ms ease !important;
+		transform: none !important;
+	}
+
+	/* BentoCard / ListItem / Button: scale press フィードバックを無効化 */
+	.active\:scale-\[0\.97\]:active,
+	.active\:scale-\[0\.985\]:active,
+	.active\:scale-90:active,
+	.active\:scale-95:active {
+		transform: none !important;
+	}
+
+	/* ProgressRing: stroke transition を短縮 */
+	circle {
+		transition-duration: 0ms !important;
+	}
+
+	/* 汎用: transition 時間を最小化 */
+	*,
+	*::before,
+	*::after {
+		transition-duration: 50ms !important;
+		animation-duration: 50ms !important;
+	}
+}
+
+/* =====================================================
+   Apple Design §14 — Reduced Transparency
+   backdrop-blur 要素をよりソリッドな背景に変更。
+   ===================================================== */
+@media (prefers-reduced-transparency: reduce) {
+	.backdrop-blur-xl,
+	.backdrop-blur-2xl,
+	.backdrop-blur-3xl,
+	.backdrop-blur-md {
+		backdrop-filter: none !important;
+		-webkit-backdrop-filter: none !important;
+	}
+
+	/* ガラス効果をソリッドに */
+	.bg-\[var\(--color-surface-card\)\]\/80,
+	.bg-\[var\(--color-surface-card\)\]\/90,
+	.bg-\[var\(--color-surface-card\)\]\/95,
+	.bg-\[var\(--color-surface-page\)\]\/80 {
+		background-color: var(--color-surface-card) !important;
+	}
+}
+
+/* =====================================================
+   スクロールバーのカスタマイズ (Light / Dark 対応)
+   ===================================================== */
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+	width: 6px;
+	height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -21,13 +106,13 @@
 ::-webkit-scrollbar-thumb {
 	background: var(--color-surface-border, rgba(0, 0, 0, 0.15));
 	border-radius: 9999px;
-	border: 2px solid transparent;
+	border: 1px solid transparent;
 	background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--color-nav-inactive, rgba(0, 0, 0, 0.3));
-	border: 2px solid transparent;
+	border: 1px solid transparent;
 	background-clip: padding-box;
 }
 

@@ -4,3 +4,4 @@ allowBuilds:
   core-js: true
   esbuild: true
   sharp: true
+  liquid-glass-svelte: true

@@ -389,71 +389,72 @@
 
 <svelte:head><title>{m.nav_calendar()} | OpenYASKE</title></svelte:head>
 
-{#snippet leadingSnippet()}
-	<IconButton
-		icon={themeIcon}
-		ariaLabel={themeAriaLabel}
-		onclick={toggleTheme}
-		variant="subtle"
-		size="sm"
-	/>
-{/snippet}
-
 {#snippet titleSnippet()}
 	<div class="flex items-center justify-center gap-1">
-		<h1 class="text-base font-bold text-[var(--color-nav-active)]">{headerTitle}</h1>
+		<h1 class="text-base font-bold tracking-tight text-[var(--color-nav-active)]">{headerTitle}</h1>
 	</div>
 {/snippet}
 
 {#snippet trailingSnippet()}
-	<IconButton
-		icon={Sliders}
-		ariaLabel="フィルター"
-		onclick={() => (filterOpen = true)}
-		variant="subtle"
-		size="sm"
-	/>
-{/snippet}
-
-<PageHeader leading={leadingSnippet} {titleSnippet} trailing={trailingSnippet}>
-	<div class="flex items-center gap-1 mt-1">
+	<div class="flex items-center gap-1">
 		<IconButton
-			icon={ChevronLeft}
-			ariaLabel="Previous"
-			onclick={goPrev}
+			icon={Sliders}
+			ariaLabel="フィルター"
+			onclick={() => (filterOpen = true)}
 			variant="subtle"
 			size="sm"
 		/>
-		<button
-			type="button"
-			class="rounded-pill px-3 py-1 text-xs font-semibold text-[var(--color-primary-700)] hover:bg-[var(--color-surface-muted)]"
-			onclick={goToday}
+		<IconButton
+			icon={Plus}
+			ariaLabel="予定追加"
+			onclick={handleAddNew}
+			variant="primary"
+			size="sm"
+		/>
+	</div>
+{/snippet}
+
+<PageHeader {titleSnippet} trailing={trailingSnippet}>
+	<div class="flex items-center justify-between w-full max-w-lg px-2 mt-1 gap-2">
+		<!-- 日付移動 -->
+		<div
+			class="flex items-center gap-1 bg-[var(--color-surface-card)]/80 p-1 rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
 		>
-			{m.calendar_today()}
-		</button>
-		<IconButton icon={ChevronRight} ariaLabel="Next" onclick={goNext} variant="subtle" size="sm" />
+			<IconButton icon={ChevronLeft} ariaLabel="前へ" onclick={goPrev} variant="ghost" size="sm" />
+			<button
+				type="button"
+				class="rounded-chip px-3 py-1 text-xs font-bold text-[var(--color-primary-600)] hover:bg-[var(--color-surface-muted)] active:scale-95 transition-all"
+				onclick={goToday}
+			>
+				{m.calendar_today()}
+			</button>
+			<IconButton icon={ChevronRight} ariaLabel="次へ" onclick={goNext} variant="ghost" size="sm" />
+		</div>
+
+		<!-- ビュー切り替えピル -->
+		<div
+			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+		>
+			{#each viewTabs as tab (tab.mode)}
+				<button
+					type="button"
+					class="min-h-[34px] px-3 rounded-chip text-xs font-semibold transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] active:scale-95"
+					class:bg-[var(--color-surface-card)]={viewMode === tab.mode}
+					class:text-[var(--color-primary-600)]={viewMode === tab.mode}
+					class:shadow-apple-sm={viewMode === tab.mode}
+					class:text-[var(--color-nav-inactive)]={viewMode !== tab.mode}
+					onclick={() => {
+						viewMode = tab.mode;
+					}}
+				>
+					{tab.label}
+				</button>
+			{/each}
+		</div>
 	</div>
 </PageHeader>
 
-<Container size="full" class="px-0">
-	<!-- ビュー切り替えタブ -->
-	<div class="flex items-center gap-1 border-b border-[var(--color-surface-border)] px-4 py-2">
-		{#each viewTabs as tab (tab.mode)}
-			<button
-				type="button"
-				class="rounded-pill px-4 py-1.5 text-sm font-medium transition-colors
-				{viewMode === tab.mode
-					? 'bg-[var(--color-primary-500)] text-white'
-					: 'text-[var(--color-nav-inactive)] hover:bg-[var(--color-surface-muted)]'}"
-				onclick={() => {
-					viewMode = tab.mode;
-				}}
-			>
-				{tab.label}
-			</button>
-		{/each}
-	</div>
-
+<Container size="full" class="px-0 pb-20">
 	<!-- アクティブビュー -->
 	{#if viewMode === 'month'}
 		<CalendarMonthView

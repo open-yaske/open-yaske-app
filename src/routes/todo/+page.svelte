@@ -85,47 +85,48 @@
 
 <svelte:head><title>{m.nav_todo()} | {m.app_name()}</title></svelte:head>
 
-{#snippet leadingSnippet()}
-	<IconButton
-		icon={themeIcon}
-		ariaLabel={themeAriaLabel}
-		onclick={toggleTheme}
-		variant="subtle"
-		size="sm"
-	/>
-{/snippet}
-
 {#snippet trailingSnippet()}
-	<IconButton
-		icon={Search}
-		ariaLabel="検索"
-		onclick={() => (searchOpen = !searchOpen)}
-		variant="subtle"
-		size="sm"
-	/>
+	<div class="flex items-center gap-1">
+		<IconButton
+			icon={Search}
+			ariaLabel="検索"
+			onclick={() => (searchOpen = !searchOpen)}
+			variant="subtle"
+			size="sm"
+		/>
+		<IconButton
+			icon={Plus}
+			ariaLabel={m.todo_add()}
+			onclick={openAddSheet}
+			variant="primary"
+			size="sm"
+		/>
+	</div>
 {/snippet}
 
-<PageHeader title="ToDo" leading={leadingSnippet} trailing={trailingSnippet} />
+<PageHeader title="ToDo" trailing={trailingSnippet} />
 
-<Container>
+<Container class="pb-24">
 	{#if searchOpen}
-		<div class="pt-3">
+		<div class="pt-3 pb-1">
 			<TextField bind:value={searchQuery} label="検索" placeholder="TODO・メモ・場所・科目" />
 		</div>
 	{/if}
 
-	<!-- フィルタチップ + ソート -->
-	<div class="flex items-center gap-2 py-3">
-		<!-- フィルタチップ（横スクロール） -->
-		<div class="flex flex-1 gap-2 overflow-x-auto scrollbar-hide">
+	<!-- フィルタピル + ソート -->
+	<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-3">
+		<!-- 流体セグメントピル -->
+		<div
+			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+		>
 			{#each filterChips as chip (chip.key)}
 				<button
 					type="button"
-					class="shrink-0 rounded-pill px-4 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)]"
-					class:bg-[var(--color-primary-500)]={filter === chip.key}
-					class:text-white={filter === chip.key}
-					class:bg-[var(--color-surface-muted)]={filter !== chip.key}
-					class:text-[var(--color-nav-active)]={filter !== chip.key}
+					class="flex-1 min-h-[38px] px-4 rounded-chip text-xs font-semibold transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] active:scale-95"
+					class:bg-[var(--color-surface-card)]={filter === chip.key}
+					class:text-[var(--color-primary-600)]={filter === chip.key}
+					class:shadow-apple-sm={filter === chip.key}
+					class:text-[var(--color-nav-inactive)]={filter !== chip.key}
 					onclick={() => (filter = chip.key)}
 				>
 					{chip.label}
@@ -133,27 +134,27 @@
 			{/each}
 		</div>
 
-		<!-- ソートセレクト -->
-		<div class="flex shrink-0 items-center relative gap-1 pr-1">
-			<ArrowDownUp size={14} color="var(--color-nav-inactive)" />
-			<select
-				bind:value={sort}
-				class="appearance-none bg-transparent pr-4 text-sm text-[var(--color-nav-active)] focus:outline-none cursor-pointer border-none py-1"
-				aria-label={m.todo_sort()}
+		<!-- ソートピル -->
+		<div class="flex items-center justify-end">
+			<div
+				class="inline-flex items-center gap-2 px-3 py-1.5 min-h-[40px] rounded-chip bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60 shadow-apple-sm text-xs font-semibold text-[var(--color-nav-active)]"
 			>
-				{#each sortOptions as opt (opt.value)}
-					<option
-						value={opt.value}
-						class="bg-[var(--color-surface-card)] text-[var(--color-nav-active)]"
-						>{opt.label}</option
-					>
-				{/each}
-			</select>
-			<span
-				class="absolute right-0 pointer-events-none text-[8px] text-[var(--color-nav-inactive)]"
-			>
-				▼
-			</span>
+				<ArrowDownUp size={14} class="text-[var(--color-primary-500)]" />
+				<span class="text-[var(--color-nav-inactive)]">{m.todo_sort()}:</span>
+				<select
+					bind:value={sort}
+					class="bg-transparent text-xs font-bold text-[var(--color-nav-active)] focus:outline-none cursor-pointer border-none pr-1 py-0.5"
+					aria-label={m.todo_sort()}
+				>
+					{#each sortOptions as opt (opt.value)}
+						<option
+							value={opt.value}
+							class="bg-[var(--color-surface-card)] text-[var(--color-nav-active)]"
+							>{opt.label}</option
+						>
+					{/each}
+				</select>
+			</div>
 		</div>
 	</div>
 
@@ -161,14 +162,14 @@
 	<TodoList {filter} {sort} {searchQuery} onedit={openEditSheet} />
 </Container>
 
-<!-- FAB -->
+<!-- FAB (Floating Action Button) -->
 <button
 	type="button"
-	class="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary-800)] text-[var(--color-primary-50)] shadow-[var(--shadow-card)] transition-all hover:bg-[var(--color-primary-900)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-800)] focus-visible:ring-offset-2 md:bottom-6"
+	class="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-apple-lg hover:bg-[var(--color-primary-600)] active:scale-90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2 md:bottom-8 md:right-8"
 	aria-label={m.todo_add()}
 	onclick={openAddSheet}
 >
-	<Plus size={24} stroke-width={2.5} />
+	<Plus size={26} stroke-width={2.5} />
 </button>
 
 <!-- 編集シート -->

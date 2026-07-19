@@ -44,7 +44,7 @@
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
-	const appVersion = '2026.07.16';
+	const appVersion = '2026.07.19';
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -72,6 +72,7 @@
 
 	// ----- データクリア確認 -----
 	let showClearConfirm = $state(false);
+	let showLicenseModal = $state(false);
 
 	function handleClearData() {
 		settingsStore.reset();
@@ -1799,19 +1800,99 @@
 				>{m.version({ version: appVersion })}</span
 			>
 		</div>
+		<button
+			type="button"
+			onclick={() => (showLicenseModal = true)}
+			class="flex w-full items-center justify-between px-4 py-3.5 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)] active:scale-98"
+		>
+			<span class="flex items-center gap-2 font-medium">
+				<Info size={16} class="text-[var(--color-primary-500)]" />
+				オープンソースライセンス (OSS Licenses)
+			</span>
+			<ChevronRight size={16} class="text-[var(--color-nav-inactive)]" />
+		</button>
 		<a
 			href={SOURCE_URL}
 			target="_blank"
 			rel="noopener noreferrer"
-			class="flex items-center justify-between px-4 py-3 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"
+			class="flex items-center justify-between px-4 py-3.5 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"
 		>
-			<span class="flex items-center gap-2">
+			<span class="flex items-center gap-2 font-medium">
 				<Link2 size={16} class="text-[var(--color-nav-inactive)]" />
 				{m.settings_about_source()}
 			</span>
+			<ChevronRight size={16} class="text-[var(--color-nav-inactive)]" />
 		</a>
 	</SettingsSection>
 </Container>
+
+<!-- ===== Open Source Licenses Modal ===== -->
+<Modal
+	open={showLicenseModal}
+	onclose={() => (showLicenseModal = false)}
+	title="オープンソースライセンス"
+>
+	<div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+		<div
+			class="p-3.5 rounded-2xl bg-[var(--color-surface-muted)]/80 border border-[var(--color-surface-border)]/40 space-y-1"
+		>
+			<h4 class="text-sm font-bold text-[var(--color-nav-active)]">OpenYASKE</h4>
+			<p class="text-xs text-[var(--color-nav-inactive)]">Released under the MIT License.</p>
+			<p class="text-[11px] text-[var(--color-nav-inactive)] pt-1">
+				Copyright (c) 2026 OpenYASKE Authors.
+			</p>
+		</div>
+
+		<div class="space-y-2 pt-2">
+			<h5 class="text-xs font-bold uppercase tracking-wider text-[var(--color-nav-inactive)]">
+				使用ライブラリ & クレジット
+			</h5>
+			<div class="space-y-2 text-xs text-[var(--color-nav-active)]">
+				<div
+					class="p-3 rounded-xl bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60"
+				>
+					<div class="font-bold">Svelte / SvelteKit</div>
+					<div class="text-[11px] text-[var(--color-nav-inactive)]">
+						MIT License - Cybernetically enhanced web apps
+					</div>
+				</div>
+				<div
+					class="p-3 rounded-xl bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60"
+				>
+					<div class="font-bold">Paraglide JS (@inlang/paraglide-js)</div>
+					<div class="text-[11px] text-[var(--color-nav-inactive)]">
+						Apache-2.0 License - Simple & lightweight i18n framework
+					</div>
+				</div>
+				<div
+					class="p-3 rounded-xl bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60"
+				>
+					<div class="font-bold">Lucide Icons</div>
+					<div class="text-[11px] text-[var(--color-nav-inactive)]">
+						ISC License - Beautiful & consistent icon toolkit
+					</div>
+				</div>
+				<div
+					class="p-3 rounded-xl bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60"
+				>
+					<div class="font-bold">RemoteStorage.js</div>
+					<div class="text-[11px] text-[var(--color-nav-inactive)]">
+						MIT License - Unhosted & local-first data protocol
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<Button
+			variant="secondary"
+			size="md"
+			class="w-full mt-4"
+			onclick={() => (showLicenseModal = false)}
+		>
+			{m.action_cancel()}
+		</Button>
+	</div>
+</Modal>
 
 <!-- ===== Clear Data Confirmation Modal ===== -->
 <Modal

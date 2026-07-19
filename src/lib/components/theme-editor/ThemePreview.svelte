@@ -10,11 +10,16 @@
 	import { settingsStore } from '$lib/stores';
 	import { m } from '$lib/paraglide/messages';
 
+	import { diagnoseThemePackContrast } from '$lib/theme/contrast';
+
 	interface Props {
 		pack: ThemePack;
 	}
 
 	let { pack }: Props = $props();
+
+	const contrastResults = $derived(diagnoseThemePackContrast(pack));
+	const warnings = $derived(contrastResults.filter((r) => !r.passAA));
 
 	const cssVars = $derived.by(() => {
 		const vars = packToCssVars(pack);
@@ -128,7 +133,7 @@
 	</div>
 
 	<!-- attendance badges -->
-	<div>
+	<div class="mb-4">
 		<div class="mb-1.5 text-xs font-medium text-[var(--color-nav-inactive)]">Attendance Badges</div>
 		<div class="flex flex-wrap gap-1.5">
 			{#each attendanceStates as state (state.key)}
@@ -139,6 +144,45 @@
 				>
 					{state.label}
 				</span>
+			{/each}
+		</div>
+	</div>
+
+	<!-- WCAG 2.1 Contrast Diagnostics -->
+	<div class="border-t border-[var(--color-surface-border)] pt-3 mt-3">
+		<div class="flex items-center justify-between mb-2">
+			<span class="text-xs font-bold text-[var(--color-nav-active)]">WCAG 2.1 コントラスト診断</span
+			>
+			{#if warnings.length === 0}
+				<span
+					class="text-[10px] font-bold rounded-full bg-[var(--color-success-50)] text-[var(--color-success-600)] px-2 py-0.5"
+				>
+					✓ AA完全適合 (4.5:1+)
+				</span>
+			{:else}
+				<span
+					class="text-[10px] font-bold rounded-full bg-[var(--color-warning-50)] text-[var(--color-warning-600)] px-2 py-0.5"
+				>
+					⚠️ {warnings.length}件の低コントラスト
+				</span>
+			{/if}
+		</div>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px]">
+			{#each contrastResults as item}
+				<div
+					class="flex items-center justify-between p-1.5 rounded bg-[var(--color-surface-muted)]"
+				>
+					<span class="truncate text-[var(--color-nav-inactive)] mr-1">{item.label}</span>
+					<span
+						class="font-mono font-bold shrink-0 {item.passAA
+							? 'text-[var(--color-success-600)]'
+							: item.passAALarge
+								? 'text-[var(--color-warning-600)]'
+								: 'text-[var(--color-danger-600)]'}"
+					>
+						{item.ratio}:1 {item.passAA ? '✓' : item.passAALarge ? '△' : '✕'}
+					</span>
+				</div>
 			{/each}
 		</div>
 	</div>

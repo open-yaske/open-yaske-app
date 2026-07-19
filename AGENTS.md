@@ -59,13 +59,14 @@ src/lib/theme/
 - コンポーネントは `var(--color-primary-500)` のような CSS 変数経由で参照
 - カスタムパックはユーザーが作成可能（Settings > テーマ）
 
-## 📐 デザイン原則（Google DESIGN.md）
+## 📐 デザイン原則（Apple Design Guidelines）
 
-アプリ全体のビジュアル設計は、[Google DESIGN.md](Google DESIGN.md) で規定された「フラットなタイル・カードデザイン」に完全準拠してください。
+アプリ全体のビジュアル設計および物理インタラクションは、**Apple Design Guidelines (`src/lib/apple-design.ts`)** に完全準拠してください。
 
-- **影 (Shadow) の原則的排除**: `shadow-sm` などの静的シャドウクラスは原則禁止です。境界線と背景色の使い分けで階層を表現します。
-- **角丸の統一**: ボタンや入力欄、セレクトボックスには `rounded-chip`、大きな配置ウィジェット等には `rounded-card` を使用します。
-- **コンポーネントの統一**: フォームパーツは生タグを避け、標準の `TextField` に統一します。
+- **中央デザインシステムの利用**: `src/lib/apple-design.ts` から `APPLE_EASING`, `APPLE_PRESS`, `APPLE_MATERIALS` をインポート・参照し、一貫したイージングと質感を実現します。
+- **即時フィードバックと流動的アニメーション (Response & Interruptibility)**: タッチ/クリック可能要素には `:active` 時の押し込みフィードバック (`APPLE_PRESS`) やスプリングイージング (`APPLE_EASING`) を適用し、操作遅延をゼロにします。
+- **エレガントな多層影とすりガラス (Elevation & Vibrancy)**: iOS/macOS 特有の柔らかく自然な多層影 (`shadow-apple-sm`, `shadow-apple-md`, `shadow-apple-lg`) と高級感のあるすりガラス質感 (`backdrop-blur-xl`) を活用します。
+- **角丸と最小タップターゲットの統一**: コンテンツカードには `rounded-card` (`rounded-2xl` / `rounded-3xl`)、チップ・ボタンには `rounded-chip` / `rounded-full` を使用し、モバイルでの最小タップターゲット領域 (44px) を確保します。
 
 ## 📦 データ層
 

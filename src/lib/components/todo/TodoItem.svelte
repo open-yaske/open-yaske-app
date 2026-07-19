@@ -9,6 +9,7 @@
 	import { themeStore } from '$lib/stores';
 	import { resolveColorHex } from '$lib/theme';
 	import { Check, Clock, AlertCircle, BookOpen } from '@lucide/svelte';
+	import { rubberBand } from '$lib/apple-design';
 
 	interface Props {
 		todo: Todo;
@@ -26,9 +27,11 @@
 	let startY = 0;
 	let dragging = $state(false);
 	let horizontal = $state(true);
+	let containerWidth = $state(300); // rubber-band の次元として使用
 
 	const DELETE_THRESHOLD = 80;
 	const SNAP_THRESHOLD = 40;
+	const RUBBER_BAND_ZONE = 20; // 境界越えの弾性ゾーン (px)
 
 	// ----- 派生値 -----
 	const isOverdue = $derived(!!todo.dueAt && !todo.done && todo.dueAt < Date.now());
@@ -106,8 +109,27 @@
 		}
 		if (!horizontal) return;
 
-		// 左方向のみ許可（負の translateX）
-		translateX = Math.max(-DELETE_THRESHOLD, Math.min(0, dx));
+		// Apple Design §9 Rubber-banding:
+		// DELETE_THRESHOLD 以内はリニア追従、超えると弾性抵抗を適用
+		if (dx < 0) {
+			if (dx >= -DELETE_THRESHOLD) {
+				// リニアゾーン: 1:1 追従
+				translateX = dx;
+			} else {
+				// 弾性ゾーン: 境界を越えるほど抵抗増加
+				const overshoot = Math.abs(dx) - DELETE_THRESHOLD;
+				const dampened = rubberBand(overshoot, containerWidth);
+				translateX = -(DELETE_THRESHOLD + dampened);
+			}
+		} else {
+			// 右方向: わずかな弾性抵抗
+			if (dx <= RUBBER_BAND_ZONE) {
+				translateX = dx;
+			} else {
+				const dampened = rubberBand(dx - RUBBER_BAND_ZONE, containerWidth);
+				translateX = RUBBER_BAND_ZONE + dampened;
+			}
+		}
 	}
 
 	function handlePointerUp() {
@@ -147,20 +169,20 @@
 	}
 </script>
 
-<div class="relative overflow-hidden rounded-card">
+<div class="relative overflow-hidden rounded-card mb-2 shadow-apple-sm">
 	<!-- 削除ボタン（背景） -->
 	<button
 		type="button"
-		class="absolute inset-y-0 right-0 flex w-[80px] items-center justify-center bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)]"
+		class="absolute inset-y-0 right-0 flex w-[80px] items-center justify-center bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] font-semibold text-sm active:opacity-90"
 		aria-label={m.todo_delete()}
 		onclick={handleDeleteClick}
 	>
-		<span class="text-sm font-medium">{m.action_delete()}</span>
+		<span>{m.action_delete()}</span>
 	</button>
 
 	<!-- メイン行 -->
 	<div
-		class="relative flex items-center gap-3 border-b border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 transition-transform"
+		class="relative flex min-h-[44px] items-center gap-3.5 border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl px-4 py-3.5 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] select-none cursor-pointer"
 		style="transform: translateX({translateX}px); {dragging ? 'transition: none;' : ''}"
 		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}

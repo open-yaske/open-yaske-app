@@ -10,6 +10,7 @@
 	import { calculateRate, getTodayStatus, isDangerous } from '$lib/attendance';
 	import type { Course, AttendanceRecord, AttendanceStatus } from '$lib/types';
 	import ProgressRing from '$lib/components/ProgressRing.svelte';
+	import GlassContainer from '$lib/components/GlassContainer.svelte';
 	import AttendanceToggle from './AttendanceToggle.svelte';
 	import AttendanceLog from './AttendanceLog.svelte';
 	import { ChevronDown, ChevronUp } from '@lucide/svelte';
@@ -96,8 +97,9 @@
 	}
 </script>
 
-<div
-	class="space-y-4 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4 shadow-[var(--shadow-card)]"
+<GlassContainer
+	variant="card"
+	class="space-y-4 rounded-card border border-[var(--color-surface-border)]/80 p-4 shadow-apple-md"
 >
 	<!-- Header: course name + color dot + rate ring -->
 	<div class="flex items-center gap-3">
@@ -164,7 +166,7 @@
 			{#if todayStatus}
 				<button
 					type="button"
-					class="text-xs text-[var(--color-nav-inactive)] underline"
+					class="min-h-[44px] px-3 text-xs text-[var(--color-nav-inactive)] underline hover:text-[var(--color-nav-active)] transition-colors active:scale-95"
 					onclick={handleClear}
 				>
 					{m.action_undo()}
@@ -179,7 +181,7 @@
 		<div class="flex items-center justify-between">
 			<button
 				type="button"
-				class="flex items-center gap-1.5 text-xs font-medium text-[var(--color-nav-inactive)]"
+				class="flex min-h-[44px] items-center gap-1.5 text-xs font-medium text-[var(--color-nav-inactive)] hover:text-[var(--color-nav-active)] transition-colors px-1"
 				onclick={() => (logExpanded = !logExpanded)}
 			>
 				<span>{m.attendance_history()} ({courseRecords.length})</span>
@@ -227,7 +229,7 @@
 						<div class="flex justify-end gap-2 pt-1">
 							<button
 								type="button"
-								class="rounded px-2.5 py-1 text-xs text-[var(--color-nav-inactive)] hover:bg-[var(--color-surface-border)]"
+								class="min-h-[44px] rounded-chip px-3 text-xs text-[var(--color-nav-inactive)] hover:bg-[var(--color-surface-border)] transition-colors active:scale-95"
 								onclick={() => (showPastForm = false)}
 							>
 								{m.action_cancel()}
@@ -235,7 +237,7 @@
 							<button
 								type="button"
 								disabled={!pastDate}
-								class="rounded bg-[var(--color-primary-500)] text-white px-2.5 py-1 text-xs font-medium disabled:opacity-50"
+								class="min-h-[44px] rounded-chip bg-[var(--color-primary-500)] text-white px-3 text-xs font-medium disabled:opacity-50 hover:bg-[var(--color-primary-600)] transition-colors active:scale-95"
 								onclick={handleAddPastRecord}
 							>
 								{m.action_save()}
@@ -247,4 +249,4 @@
 			</div>
 		{/if}
 	</div>
-</div>
+</GlassContainer>

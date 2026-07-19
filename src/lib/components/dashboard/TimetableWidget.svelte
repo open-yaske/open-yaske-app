@@ -2,13 +2,12 @@
 	import { userDataStore, settingsStore } from '$lib/stores';
 	import { m } from '$lib/paraglide/messages';
 	import type { Period } from '$lib/types';
-	import { CalendarDays, MapPin, User } from '@lucide/svelte';
+	import { CalendarDays, MapPin, User, ChevronRight } from '@lucide/svelte';
+	import BentoCard from '../BentoCard.svelte';
 
-	// 今日の曜日を取得
 	const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 	const todayDay = days[new Date().getDay()];
 
-	// 今日が週末（土・日）の場合は、設定の timetableDayRange を見て、表示対象日であればそのまま表示、そうでなければ月曜日のプレビューを表示するか、休みを表示
 	const isWeekend = todayDay === 'sun' || todayDay === 'sat';
 	const showDay = isWeekend
 		? settingsStore.settings.timetableDayRange >= 6
@@ -16,7 +15,6 @@
 			: 'mon'
 		: todayDay;
 
-	// 今日の授業をフィルタリングして時限順にソート
 	const todayCourses = $derived(
 		userDataStore.courses.filter((c) => c.day === showDay).sort((a, b) => a.period - b.period)
 	);
@@ -44,35 +42,48 @@
 	);
 </script>
 
-<div
-	class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
->
-	<div
-		class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2"
-	>
-		<div class="flex items-center gap-2 font-bold text-[var(--color-nav-active)]">
-			<CalendarDays size={18} class="text-[var(--color-primary-500)]" />
-			<span>{m.nav_timetable()} ({dayLabel})</span>
+<BentoCard padding="p-4 md:p-5" class="w-full">
+	{#snippet header()}
+		<div
+			class="flex w-full items-center justify-between border-b border-[var(--color-surface-border)]/60 pb-3"
+		>
+			<div class="flex items-center gap-2.5 font-bold text-[var(--color-nav-active)]">
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+				>
+					<CalendarDays size={18} />
+				</div>
+				<span class="text-sm font-semibold">{m.nav_timetable()} ({dayLabel})</span>
+			</div>
+			<div class="flex items-center gap-2">
+				{#if isWeekend && settingsStore.settings.timetableDayRange < 6}
+					<span
+						class="text-[10px] rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 font-medium text-[var(--color-nav-inactive)]"
+					>
+						{m.day_long_mon()}
+					</span>
+				{/if}
+				<a
+					href="/timetable"
+					class="flex items-center gap-0.5 text-xs font-semibold text-[var(--color-primary-600)] hover:underline"
+				>
+					<span>{m.syllabus_detail()}</span>
+					<ChevronRight size={14} />
+				</a>
+			</div>
 		</div>
-		{#if isWeekend && settingsStore.settings.timetableDayRange < 6}
-			<span
-				class="text-[10px] rounded bg-[var(--color-surface-muted)] px-1.5 py-0.5 text-[var(--color-nav-inactive)]"
-			>
-				月曜の予定を表示
-			</span>
-		{/if}
-	</div>
+	{/snippet}
 
 	{#if !hasClasses}
-		<div class="py-6 text-center text-xs text-[var(--color-nav-inactive)]">
+		<div class="py-8 text-center text-xs text-[var(--color-nav-inactive)]">
 			{m.attendance_no_class_today()}
 		</div>
 	{:else}
-		<div class="divide-y divide-[var(--color-surface-border)]">
+		<div class="divide-y divide-[var(--color-surface-border)]/50 pt-2">
 			{#each todayCourses as course (course.id)}
-				<div class="flex items-start gap-4 py-3 first:pt-0 last:pb-0 group">
+				<div class="flex items-start gap-4 py-3.5 first:pt-1 last:pb-1 group">
 					<div class="flex flex-col items-center shrink-0 w-12">
-						<span class="text-sm font-bold text-[var(--color-primary-600)]">
+						<span class="text-xs font-bold text-[var(--color-primary-600)]">
 							{course.period}限
 						</span>
 						<span class="text-[10px] text-[var(--color-nav-inactive)] mt-0.5 font-mono">
@@ -83,19 +94,19 @@
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2">
 							<h4
-								class="font-bold text-sm text-[var(--color-nav-active)] truncate group-hover:text-[var(--color-primary-500)] transition-colors"
+								class="font-bold text-sm text-[var(--color-nav-active)] truncate group-hover:text-[var(--color-primary-600)] transition-colors"
 							>
 								{course.name}
 							</h4>
 							{#if course.type === 'required'}
 								<span
-									class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded px-1 shrink-0"
+									class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded-md px-1.5 py-0.5 shrink-0"
 								>
 									{m.course_required()}
 								</span>
 							{:else}
 								<span
-									class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded px-1 shrink-0"
+									class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded-md px-1.5 py-0.5 shrink-0"
 								>
 									{course.type === 'elective' ? m.course_elective() : m.course_free()}
 								</span>
@@ -103,7 +114,7 @@
 						</div>
 
 						<div
-							class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-[var(--color-nav-inactive)]"
+							class="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-xs text-[var(--color-nav-inactive)]"
 						>
 							{#if course.classroom}
 								<div class="flex items-center gap-1">
@@ -123,4 +134,4 @@
 			{/each}
 		</div>
 	{/if}
-</div>
+</BentoCard>

@@ -83,57 +83,73 @@
 	<title>{m.nav_attendance()} | OpenYASKE</title>
 </svelte:head>
 
-{#snippet leadingSnippet()}
-	<IconButton
-		icon={themeIcon}
-		ariaLabel={themeAriaLabel}
-		onclick={toggleTheme}
-		variant="subtle"
-		size="sm"
-	/>
-{/snippet}
+<PageHeader title={m.nav_attendance()} />
 
-<PageHeader title="出席管理" leading={leadingSnippet} />
-
-<Container class="pb-10">
+<Container class="pb-16 max-w-5xl">
 	{#if courses.length === 0}
 		<EmptyState icon={ClipboardCheck} message={m.empty_no_courses()} submessage={m.course_add()} />
 	{:else}
-		<div class="space-y-5 py-4">
-			<!-- Statistics Section -->
-			<div class="space-y-2">
-				<SectionHeader>統計</SectionHeader>
+		<div class="space-y-6 py-4">
+			<!-- Statistics Hero Section -->
+			<div class="space-y-3">
+				<SectionHeader>{m.nav_attendance()}</SectionHeader>
 				<div
-					class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-5 space-y-4 max-w-5xl mx-auto"
+					class="rounded-3xl border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-2xl p-6 shadow-apple-md space-y-5"
 				>
-					<div class="grid grid-cols-2 gap-4">
-						<div class="space-y-0.5">
-							<span class="text-xs font-semibold text-[var(--color-nav-inactive)]">登録授業数</span>
-							<div class="text-3xl font-black text-[var(--color-nav-active)]">
-								{stats.totalRegistered}
+					<div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+						<!-- 出席率スコア & プログレスバー -->
+						<div class="flex-1 space-y-2 w-full">
+							<div class="flex items-baseline justify-between">
+								<span
+									class="text-xs font-extrabold uppercase tracking-wider text-[var(--color-nav-inactive)]"
+									>{m.attendance_rate()}</span
+								>
+								<span class="text-3xl font-black text-[var(--color-primary-600)]"
+									>{stats.averageRate}%</span
+								>
 							</div>
-						</div>
-						<div class="space-y-0.5">
-							<span class="text-xs font-semibold text-[var(--color-nav-inactive)]"
-								>記録済み授業</span
+							<div
+								class="h-3 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden p-0.5 border border-[var(--color-surface-border)]/40"
 							>
-							<div class="text-3xl font-black text-[var(--color-nav-active)]">
-								{stats.recordedCount}
+								<div
+									class="h-full rounded-full bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] transition-all duration-500"
+									style:width="{Math.min(100, Math.max(0, Number(stats.averageRate)))}%"
+								></div>
 							</div>
 						</div>
-					</div>
-					<div class="border-t border-[var(--color-surface-border)] pt-4 grid grid-cols-2 gap-4">
-						<div class="space-y-0.5">
-							<span class="text-xs font-semibold text-[var(--color-nav-inactive)]"
-								>平均出席率 (記録あり)</span
+
+						<!-- ミニ統計グリッド -->
+						<div class="grid grid-cols-3 gap-3 shrink-0 w-full sm:w-auto">
+							<div
+								class="bg-[var(--color-surface-muted)]/80 p-3 rounded-2xl text-center space-y-0.5 border border-[var(--color-surface-border)]/40"
 							>
-							<div class="text-3xl font-black text-[var(--color-primary-800)]">
-								{stats.averageRate}%
+								<span class="text-[10px] font-bold text-[var(--color-nav-inactive)] block"
+									>{m.nav_timetable()}</span
+								>
+								<span class="text-xl font-black text-[var(--color-nav-active)]"
+									>{stats.totalRegistered}</span
+								>
 							</div>
-						</div>
-						<div class="space-y-0.5">
-							<span class="text-xs font-semibold text-[var(--color-nav-inactive)]">危険な授業</span>
-							<div class="text-3xl font-black text-red-500">{stats.dangerCount}</div>
+							<div
+								class="bg-[var(--color-surface-muted)]/80 p-3 rounded-2xl text-center space-y-0.5 border border-[var(--color-surface-border)]/40"
+							>
+								<span class="text-[10px] font-bold text-[var(--color-nav-inactive)] block"
+									>{m.attendance_marked()}</span
+								>
+								<span class="text-xl font-black text-[var(--color-nav-active)]"
+									>{stats.recordedCount}</span
+								>
+							</div>
+							<div
+								class="bg-[var(--color-attendance-absent-bg)]/60 p-3 rounded-2xl text-center space-y-0.5 border border-[var(--color-attendance-absent-fg)]/20"
+							>
+								<span class="text-[10px] font-bold text-[var(--color-attendance-absent-fg)] block"
+									>{m.attendance_danger()}</span
+								>
+								<span class="text-xl font-black text-[var(--color-attendance-absent-fg)]"
+									>{stats.dangerCount}</span
+								>
+							</div>
 						</div>
 					</div>
 				</div>

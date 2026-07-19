@@ -5,6 +5,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import IconButton from '$lib/components/IconButton.svelte';
+	import BentoCard from '$lib/components/BentoCard.svelte';
+	import { m } from '$lib/paraglide/messages';
 	import { Calculator, Plus, Trash2 } from '@lucide/svelte';
 
 	type GradeRow = {
@@ -53,60 +55,91 @@
 	}
 </script>
 
-<svelte:head><title>GPA 計算機 | OpenYASKE</title></svelte:head>
+<svelte:head><title>GPA | OpenYASKE</title></svelte:head>
 
-<PageHeader title="GPA 計算機" />
+<PageHeader title="GPA" />
 
-<Container size="narrow" class="space-y-5 py-4">
-	<div
-		class="rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-primary-50)] p-5 text-[var(--color-primary-800)]"
-	>
-		<div class="flex items-center gap-3">
-			<span
-				class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-800)]"
-			>
-				<Calculator size={22} />
-			</span>
-			<div>
-				<p class="text-xs font-semibold text-[var(--color-primary-700)]">
-					合計 {totalCredits} 単位
-				</p>
-				<p class="text-3xl font-black leading-tight">{gpa.toFixed(2)}</p>
+<Container size="narrow" class="space-y-6 pb-20 py-4">
+	<!-- Hero Score Bento Card -->
+	<BentoCard padding="p-6 md:p-8" class="w-full relative overflow-hidden">
+		<div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+			<div class="flex items-center gap-5">
+				<div
+					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] shrink-0 shadow-apple-sm border border-[var(--color-primary-500)]/20"
+				>
+					<Calculator size={32} />
+				</div>
+				<div>
+					<p class="text-xs font-bold uppercase tracking-wider text-[var(--color-nav-inactive)]">
+						計算結果 (合計 {totalCredits} 単位)
+					</p>
+					<div class="flex items-baseline gap-2">
+						<span
+							class="text-4xl md:text-5xl font-black leading-tight tracking-tight font-mono text-[var(--color-primary-600)]"
+						>
+							{gpa.toFixed(2)}
+						</span>
+						<span class="text-sm font-bold text-[var(--color-nav-inactive)]">/ 4.00</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="w-full sm:w-36 space-y-1.5">
+				<div class="flex justify-between text-[11px] font-bold text-[var(--color-nav-inactive)]">
+					<span>達成度</span>
+					<span>{Math.round((gpa / 4.0) * 100)}%</span>
+				</div>
+				<div
+					class="h-2.5 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden p-0.5 border border-[var(--color-surface-border)]/40"
+				>
+					<div
+						class="h-full rounded-full bg-[var(--color-primary-500)] transition-all duration-300"
+						style:width="{Math.min(100, (gpa / 4.0) * 100)}%"
+					></div>
+				</div>
 			</div>
 		</div>
-	</div>
+	</BentoCard>
 
+	<!-- 入力行リスト -->
 	<div class="space-y-3">
 		{#each rows as row (row.id)}
-			<div
-				class="rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
-			>
+			<BentoCard padding="p-4 md:p-5" class="w-full border border-[var(--color-surface-border)]/60">
 				<div class="mb-3 flex items-center justify-between gap-3">
-					<TextField bind:value={row.name} label="科目名" placeholder="任意" />
-					<IconButton
-						icon={Trash2}
-						ariaLabel="削除"
-						onclick={() => removeRow(row.id)}
-						variant="subtle"
-						size="sm"
-						disabled={rows.length <= 1}
-					/>
+					<div class="flex-1">
+						<TextField
+							bind:value={row.name}
+							label={m.external_link_name()}
+							placeholder="例: 微積分学"
+						/>
+					</div>
+					<div class="pt-5">
+						<IconButton
+							icon={Trash2}
+							ariaLabel={m.action_delete()}
+							onclick={() => removeRow(row.id)}
+							variant="danger"
+							size="sm"
+							disabled={rows.length <= 1}
+						/>
+					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-3">
 					<TextField bind:value={row.credits} type="number" label="単位数" />
 					<TextField bind:value={row.point} type="select" label="評価" options={gradeOptions} />
 				</div>
-			</div>
+			</BentoCard>
 		{/each}
 	</div>
 
-	<div class="grid grid-cols-2 gap-3">
-		<Button variant="secondary" size="md" onclick={resetRows}>リセット</Button>
+	<!-- アクションボタン -->
+	<div class="grid grid-cols-2 gap-3 pt-2">
+		<Button variant="secondary" size="md" onclick={resetRows}>{m.theme_pick_reset()}</Button>
 		<Button variant="primary" size="md" onclick={addRow}>
-			<Plus size={16} />
-			行を追加
+			<Plus size={18} />
+			{m.external_link_add()}
 		</Button>
 	</div>
 
-	<Button href={resolve('/')} variant="ghost" size="md" class="w-full">ホームへ戻る</Button>
+	<Button href={resolve('/')} variant="ghost" size="md" class="w-full">{m.nav_home()}</Button>
 </Container>

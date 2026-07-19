@@ -19,8 +19,10 @@
 	} from '$lib/types/public';
 	import EmptyState from './EmptyState.svelte';
 	import Sheet from './Sheet.svelte';
+	import GlassContainer from './GlassContainer.svelte';
 	import { openLink } from '$lib/browser';
 	import { LayoutGrid, ExternalLink, ChevronRight } from '@lucide/svelte';
+	import { APPLE_PRESS } from '$lib/apple-design';
 
 	// --- Card HTML content cache (for html-internal) ---
 	const htmlCache = $state<Record<string, string>>({});
@@ -95,62 +97,80 @@
 			{#if card.type === 'html-internal'}
 				{@const c = card as HtmlInternalCard}
 				{@const isBanner = c.layout === 'banner'}
-				<div
-					class="flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] shadow-[var(--shadow-card)]"
-					class:col-span-2={isBanner}
+				<GlassContainer
+					variant="card"
+					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm {isBanner
+						? 'col-span-2'
+						: ''}"
 				>
-					<div class="flex items-center gap-2 px-3 pt-3">
-						<span class="text-lg">{c.icon}</span>
-						<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
+					<div class="flex flex-col overflow-hidden w-full">
+						<div class="flex items-center gap-2 px-4 pt-4">
+							<span class="text-lg">{c.icon}</span>
+							<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
+						</div>
+						<div class="px-4 pb-4 pt-2">
+							{#if htmlLoading[c.id]}
+								<div class="h-16 animate-pulse rounded-chip bg-[var(--color-surface-muted)]"></div>
+							{:else if htmlCache[c.id]}
+								<div class="prose prose-sm max-w-none text-[var(--color-nav-active)]">
+									<!-- htmlCache entries are sanitized via DOMPurify in lib/html-renderer.ts -->
+									<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+									{@html htmlCache[c.id]}
+								</div>
+							{:else}
+								<div
+									role="button"
+									tabindex="0"
+									onclick={() => fetchHtml(c)}
+									onkeydown={(e) => e.key === 'Enter' && fetchHtml(c)}
+									class="flex min-h-[44px] items-center justify-center gap-1 py-3 text-xs font-medium text-[var(--color-nav-inactive)] cursor-pointer hover:text-[var(--color-nav-active)]"
+								>
+									{m.action_refresh()}
+								</div>
+							{/if}
+						</div>
 					</div>
-					<div class="px-3 pb-3 pt-2">
-						{#if htmlLoading[c.id]}
-							<div class="h-16 animate-pulse rounded bg-[var(--color-surface-muted)]"></div>
-						{:else if htmlCache[c.id]}
-							<div class="prose prose-sm max-w-none text-[var(--color-nav-active)]">
-								<!-- htmlCache entries are sanitized via DOMPurify in lib/html-renderer.ts -->
-								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-								{@html htmlCache[c.id]}
-							</div>
-						{:else}
-							<div
-								role="button"
-								tabindex="0"
-								onclick={() => fetchHtml(c)}
-								onkeydown={(e) => e.key === 'Enter' && fetchHtml(c)}
-								class="flex items-center justify-center gap-1 py-4 text-xs text-[var(--color-nav-inactive)]"
-							>
-								{m.action_refresh()}
-							</div>
-						{/if}
-					</div>
-				</div>
+				</GlassContainer>
 			{:else if card.type === 'external-url'}
 				{@const c = card as ExternalUrlCard}
-				<button
-					type="button"
-					onclick={() => openExternalUrl(c)}
-					class="flex flex-col items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-3 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-surface-muted)]"
+				<GlassContainer
+					variant="card"
+					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200"
 				>
-					<div class="flex w-full items-center justify-between">
-						<span class="text-lg">{c.icon}</span>
-						<ExternalLink size={14} color="var(--color-nav-inactive)" />
-					</div>
-					<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
-				</button>
+					<button
+						type="button"
+						onclick={() => openExternalUrl(c)}
+						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {APPLE_PRESS.card} select-none"
+					>
+						<div class="flex w-full items-center justify-between">
+							<span class="text-lg">{c.icon}</span>
+							<ExternalLink size={15} color="var(--color-nav-inactive)" class="shrink-0" />
+						</div>
+						<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1"
+							>{c.title}</span
+						>
+					</button>
+				</GlassContainer>
 			{:else if card.type === 'webview-popup'}
 				{@const c = card as WebviewPopupCard}
-				<button
-					type="button"
-					onclick={() => openWebviewPopup(c)}
-					class="flex flex-col items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-3 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-surface-muted)]"
+				<GlassContainer
+					variant="card"
+					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200"
 				>
-					<div class="flex w-full items-center justify-between">
-						<span class="text-lg">{c.icon}</span>
-						<ChevronRight size={14} color="var(--color-nav-inactive)" />
-					</div>
-					<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
-				</button>
+					<button
+						type="button"
+						onclick={() => openWebviewPopup(c)}
+						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {APPLE_PRESS.card} select-none"
+					>
+						<div class="flex w-full items-center justify-between">
+							<span class="text-lg">{c.icon}</span>
+							<ChevronRight size={16} color="var(--color-nav-inactive)" class="shrink-0" />
+						</div>
+						<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1"
+							>{c.title}</span
+						>
+					</button>
+				</GlassContainer>
 			{/if}
 		{/each}
 	</div>

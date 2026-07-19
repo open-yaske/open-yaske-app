@@ -1,6 +1,6 @@
 <!--
   WeatherCard.svelte
-  現在の天気と時間別予報を表示するカード。
+  現在の天気と時間別予報を表示する Apple スタイル Bento Card。
 -->
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
@@ -9,6 +9,7 @@
 	import { CloudOff, MapPin } from '@lucide/svelte';
 	import EmptyState from './EmptyState.svelte';
 	import Emoji from './Emoji.svelte';
+	import BentoCard from './BentoCard.svelte';
 
 	const settings = $derived(settingsStore.settings);
 	const weather = $derived(weatherStore.current);
@@ -49,7 +50,6 @@
 	);
 	const currentPrecip = $derived(todayHours.length ? todayHours[0].precipitationProbability : 0);
 
-	// 6 points of forecast (index 0, 3, 6, 9, 12, 15)
 	const forecastPoints = $derived.by(() => {
 		if (todayHours.length === 0) return [];
 		const points = [];
@@ -77,7 +77,6 @@
 		return points;
 	});
 
-	// 現在時刻の更新タイマー
 	let currentTime = $state(new Date());
 
 	$effect(() => {
@@ -87,7 +86,6 @@
 		return () => clearInterval(interval);
 	});
 
-	// 温度表示の変換ヘルパー
 	function getTempDisplay(celsius: number): { value: number; unit: string } {
 		if (settings.weatherTempUnit === 'fahrenheit') {
 			return { value: Math.round(celsius * 1.8 + 32), unit: '°F' };
@@ -95,7 +93,6 @@
 		return { value: Math.round(celsius), unit: '°C' };
 	}
 
-	// 時刻フォーマットヘルパー
 	function formatTime(date: Date | number | null | undefined): string {
 		if (!date) return '';
 		const d = typeof date === 'number' ? new Date(date) : date;
@@ -129,14 +126,14 @@
 	);
 </script>
 
-<a
+<BentoCard
 	href={weatherUrl}
 	target="_blank"
 	rel="noopener noreferrer"
-	class="block overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3.5"
+	padding="px-4 py-3.5"
+	class="w-full"
 >
 	{#if loading && !weather}
-		<!-- Loading skeleton -->
 		<div class="flex items-center gap-4 py-4">
 			<div class="h-12 w-12 animate-pulse rounded-full bg-[var(--color-surface-muted)]"></div>
 			<div class="flex-1 space-y-2">
@@ -153,15 +150,18 @@
 			class="py-6"
 		/>
 	{:else if weather}
-		<!-- Main weather display (Header style from mock) -->
 		<div class="flex flex-col gap-3">
 			<div class="flex items-start justify-between">
 				<div class="flex flex-col">
 					<div class="flex items-baseline gap-2 flex-wrap">
-						<span class="text-2xl font-bold tracking-tight text-[var(--color-nav-active)]">
+						<span
+							class="text-xl md:text-2xl font-bold tracking-tight text-[var(--color-nav-active)]"
+						>
 							{todayStr}
 						</span>
-						<span class="text-2xl font-bold tracking-tight text-[var(--color-nav-active)]">
+						<span
+							class="text-xl md:text-2xl font-bold tracking-tight text-[var(--color-nav-active)] font-mono"
+						>
 							{formatTime(currentTime)}
 						</span>
 					</div>
@@ -178,7 +178,9 @@
 					<span class="text-4xl leading-none flex items-center"><Emoji {emoji} /></span>
 					<div class="flex flex-col items-end">
 						<div class="flex items-baseline gap-0.5">
-							<span class="text-3xl font-bold leading-none text-[var(--color-nav-active)]">
+							<span
+								class="text-2xl md:text-3xl font-bold leading-none text-[var(--color-nav-active)] font-mono"
+							>
 								{getTempDisplay(weather.temperature).value}
 							</span>
 							<span class="text-sm font-medium text-[var(--color-nav-inactive)]">
@@ -192,16 +194,18 @@
 				</div>
 			</div>
 
-			<!-- Extra details aligned horizontally in mock -->
 			<div class="flex items-center justify-between text-xs font-semibold">
 				<div class="flex items-center gap-4">
-					<span class="text-red-500"
+					<span
+						class="text-[var(--color-danger-400)] dark:text-[var(--color-danger-400)] text-red-600 font-bold"
 						>↑ {getTempDisplay(maxTemp).value}{getTempDisplay(maxTemp).unit}</span
 					>
-					<span class="text-blue-500"
+					<span
+						class="text-[var(--color-primary-600)] dark:text-[var(--color-primary-400)] font-bold"
 						>↓ {getTempDisplay(minTemp).value}{getTempDisplay(minTemp).unit}</span
 					>
-					<span class="inline-flex items-center gap-1 text-sky-500"
+					<span
+						class="inline-flex items-center gap-1 text-[var(--color-primary-600)] dark:text-[var(--color-primary-400)] font-bold"
 						><Emoji emoji="💧" /> {currentPrecip}%</span
 					>
 				</div>
@@ -213,9 +217,8 @@
 			</div>
 
 			{#if forecastPoints.length > 0}
-				<!-- Hourly Forecast Grid -->
 				<div
-					class="grid grid-cols-6 gap-1 border-t border-[var(--color-surface-border)] pt-3 mt-1 text-center"
+					class="grid grid-cols-6 gap-1 border-t border-[var(--color-surface-border)]/50 pt-3 mt-1 text-center"
 				>
 					{#each forecastPoints as pt (pt.label)}
 						<div class="flex flex-col items-center">
@@ -225,14 +228,15 @@
 							<span class="text-xl my-1 flex items-center justify-center"
 								><Emoji emoji={pt.emoji} /></span
 							>
-							<span class="text-[10px] font-bold text-sky-500">{pt.prob}%</span>
+							<span class="text-[10px] font-bold text-[var(--color-primary-600)] font-mono"
+								>{pt.prob}%</span
+							>
 						</div>
 					{/each}
 				</div>
 			{/if}
 		</div>
 	{:else if !loading}
-		<!-- 天気データ未取得（エラーなし）→ ローディングスケルトンを表示 -->
 		<div class="flex items-center gap-4 py-4">
 			<div class="h-12 w-12 animate-pulse rounded-full bg-[var(--color-surface-muted)]"></div>
 			<div class="flex-1 space-y-2">
@@ -241,4 +245,4 @@
 			</div>
 		</div>
 	{/if}
-</a>
+</BentoCard>

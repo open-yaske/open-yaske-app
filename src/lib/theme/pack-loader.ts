@@ -9,8 +9,8 @@ import uecPack from './defaults/uec.json' with { type: 'json' };
 import dangoPack from './defaults/dango.json' with { type: 'json' };
 import darkPack from './defaults/dark.json' with { type: 'json' };
 
-/** HEX カラー正規表現 (#RGB or #RRGGBB) */
-const HEX_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+/** HEX カラー正規表現 (#RGB, #RGBA, #RRGGBB, #RRGGBBAA) または rgba() / css カラー */
+const COLOR_RE = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$|^rgba?\(/;
 
 function err(path: string, message: string): ThemeValidationError {
 	return { path, message };
@@ -30,7 +30,7 @@ function isLocalizedString(v: unknown): boolean {
 }
 
 function isHex(v: unknown): v is string {
-	return isString(v) && HEX_RE.test(v);
+	return isString(v) && COLOR_RE.test(v);
 }
 
 function validateColorEntry(v: unknown, path: string, errors: ThemeValidationError[]): boolean {

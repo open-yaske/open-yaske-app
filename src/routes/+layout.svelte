@@ -152,11 +152,11 @@
 
 		// 5) デフォルト / システムフォント
 		if (locale === 'zh') {
-			return "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;";
+			return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Microsoft YaHei', sans-serif;";
 		} else if (locale === 'ko') {
-			return "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;";
+			return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;";
 		}
-		return "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;";
+		return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;";
 	});
 
 	let osDark = $state(false);
@@ -218,7 +218,7 @@
 				logoData={settingsStore.settings.customLogoData}
 			/>
 
-			<main class="min-w-0 flex-1 pb-20 md:pb-0">
+			<main class="min-w-0 flex-1 pb-24 md:pb-6">
 				{@render children()}
 			</main>
 		</div>

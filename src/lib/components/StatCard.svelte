@@ -4,6 +4,8 @@
   出席画面やホーム画面で使用。
 -->
 <script lang="ts">
+	import GlassContainer from './GlassContainer.svelte';
+
 	interface Props {
 		/** ラベル（i18n key または文字列） */
 		label: string;
@@ -26,16 +28,20 @@
 	}: Props = $props();
 </script>
 
-<div
-	class="flex flex-col gap-1 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 shadow-[var(--shadow-card)] {klass}"
+<GlassContainer
+	variant="card"
+	class="flex flex-col justify-between gap-1 rounded-card border border-[var(--color-surface-border)]/80 px-4 py-3.5 shadow-apple-sm {klass}"
 >
-	<span class="text-xs text-[var(--color-nav-inactive)]">{label}</span>
+	<span class="text-xs font-medium text-[var(--color-nav-inactive)]">{label}</span>
 	<div class="flex items-baseline gap-1">
-		<span class="text-2xl font-bold leading-none" style="color: var({valueColor});">
+		<span
+			class="text-2xl md:text-3xl font-bold leading-none font-mono"
+			style="color: var({valueColor});"
+		>
 			{value}
 		</span>
 		{#if unit}
-			<span class="text-sm text-[var(--color-nav-inactive)]">{unit}</span>
+			<span class="text-xs font-semibold text-[var(--color-nav-inactive)]">{unit}</span>
 		{/if}
 	</div>
-</div>
+</GlassContainer>

@@ -232,24 +232,12 @@
 		: ''}
 >
 	<!-- Custom mockup header with slots -->
-	{#snippet leadingSnippet()}
-		<div class="flex items-center gap-1">
-			<IconButton
-				icon={themeIcon}
-				ariaLabel={themeAriaLabel}
-				onclick={toggleTheme}
-				variant="subtle"
-				size="sm"
-			/>
-		</div>
-	{/snippet}
-
 	{#snippet titleSnippet()}
-		<label class="relative inline-flex min-w-32 items-center justify-center">
+		<label class="relative inline-flex min-w-[140px] items-center justify-center">
 			<span class="sr-only">{m.settings_semester()}</span>
 			<select
 				bind:value={currentSemester}
-				class="h-9 w-full cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)]/95 py-1.5 pl-4 pr-9 text-center text-sm font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
+				class="h-9 w-full cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-md py-1.5 pl-3.5 pr-8 text-center text-xs font-bold text-[var(--color-nav-active)] outline-none shadow-apple-sm transition-all hover:bg-[var(--color-surface-muted)] focus:ring-2 focus:ring-[var(--color-primary-500)]"
 				style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 			>
 				<option value="spring"
@@ -258,7 +246,7 @@
 				<option value="fall">{currentYear}{m.settings_year()} {m.settings_semester_fall()}</option>
 			</select>
 			<span
-				class="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				class="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 text-[var(--color-primary-500)]"
 			>
 				<ChevronDown size={14} />
 			</span>
@@ -274,10 +262,17 @@
 				variant="subtle"
 				size="sm"
 			/>
+			<IconButton
+				icon={Plus}
+				ariaLabel="科目追加"
+				onclick={handleAddClick}
+				variant="primary"
+				size="sm"
+			/>
 		</div>
 	{/snippet}
 
-	<PageHeader leading={leadingSnippet} {titleSnippet} trailing={trailingSnippet} />
+	<PageHeader {titleSnippet} trailing={trailingSnippet} />
 
 	<Container size="full" class="pt-2 space-y-5">
 		<WeekGrid

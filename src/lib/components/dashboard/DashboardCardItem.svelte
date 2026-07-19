@@ -14,6 +14,7 @@
 	import { settingsStore } from '$lib/stores';
 	import { m } from '$lib/paraglide/messages';
 	import { sanitize } from '$lib/html-renderer';
+	import { APPLE_PRESS } from '$lib/apple-design';
 	import type {
 		DashboardCard,
 		HtmlInternalCard,
@@ -233,10 +234,10 @@
 {#if card.type === 'html-internal'}
 	{@const c = card as HtmlInternalCard}
 	<div
-		class="flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] shadow-[var(--shadow-card)]"
+		class="flex flex-col overflow-hidden rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl shadow-apple-sm"
 		class:col-span-2={isBanner}
 	>
-		<div class="flex items-center gap-2 px-3 pt-3">
+		<div class="flex items-center gap-2.5 px-4 pt-4">
 			{#if isLucideIcon}
 				<ResolvedIcon size={18} color="var(--color-primary-500)" />
 			{:else}
@@ -244,9 +245,9 @@
 			{/if}
 			<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
 		</div>
-		<div class="px-3 pb-3 pt-2">
+		<div class="px-4 pb-4 pt-2">
 			{#if htmlLoading}
-				<div class="h-16 animate-pulse rounded bg-[var(--color-surface-muted)]"></div>
+				<div class="h-16 animate-pulse rounded-chip bg-[var(--color-surface-muted)]"></div>
 			{:else if htmlContent}
 				<div class="prose prose-sm max-w-none text-[var(--color-nav-active)]">
 					<!-- htmlContent is sanitized via DOMPurify in lib/html-renderer.ts -->
@@ -259,7 +260,7 @@
 					tabindex="0"
 					onclick={() => fetchHtml(c)}
 					onkeydown={(e) => e.key === 'Enter' && fetchHtml(c)}
-					class="flex items-center justify-center gap-1 py-4 text-xs text-[var(--color-nav-inactive)]"
+					class="flex min-h-[44px] items-center justify-center gap-1.5 py-3 text-xs font-medium text-[var(--color-nav-inactive)] cursor-pointer hover:text-[var(--color-nav-active)]"
 				>
 					{m.action_refresh()}
 				</div>
@@ -278,7 +279,7 @@
 				void openLink(c.url, true);
 			}
 		}}
-		class="flex flex-col items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-3 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-surface-muted)]"
+		class="flex flex-col items-start gap-2.5 rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-apple-sm hover:shadow-apple-md {APPLE_PRESS.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">
 			{#if isLucideIcon}
@@ -286,16 +287,16 @@
 			{:else}
 				<span class="text-lg leading-none"><Emoji emoji={c.icon} /></span>
 			{/if}
-			<ExternalLink size={14} color="var(--color-nav-inactive)" />
+			<ExternalLink size={15} color="var(--color-nav-inactive)" class="shrink-0" />
 		</div>
-		<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
+		<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1">{c.title}</span>
 	</a>
 {:else if card.type === 'webview-popup'}
 	{@const c = card as WebviewPopupCard}
 	<button
 		type="button"
 		onclick={() => openWebviewPopup(c)}
-		class="flex flex-col items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-3 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-surface-muted)]"
+		class="flex flex-col items-start gap-2.5 rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-apple-sm hover:shadow-apple-md {APPLE_PRESS.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">
 			{#if isLucideIcon}
@@ -303,9 +304,9 @@
 			{:else}
 				<span class="text-lg leading-none"><Emoji emoji={c.icon} /></span>
 			{/if}
-			<ChevronRight size={14} color="var(--color-nav-inactive)" />
+			<ChevronRight size={16} color="var(--color-nav-inactive)" class="shrink-0" />
 		</div>
-		<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
+		<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1">{c.title}</span>
 	</button>
 {/if}
 

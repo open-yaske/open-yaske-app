@@ -2,37 +2,25 @@
 	import { resolve } from '$app/paths';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import Container from '$lib/components/Container.svelte';
-	import TextField from '$lib/components/TextField.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
+	import BentoCard from '$lib/components/BentoCard.svelte';
+	import SpotlightSearch from '$lib/components/SpotlightSearch.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { settingsStore, userDataStore } from '$lib/stores';
-	import { schoolDataService } from '$lib/schoolData.svelte';
 	import { APP_FEATURES, getFeatureName } from '$lib/features';
-	import {
-		Search,
-		ChevronRight,
-		BookOpen,
-		CheckSquare,
-		Calendar,
-		MapPin,
-		Building2,
-		GraduationCap
-	} from '@lucide/svelte';
-	import type { Component } from 'svelte';
+	import { ChevronRight, BookOpen, CheckSquare, Calendar } from '@lucide/svelte';
 
 	let searchQuery = $state('');
 
 	const settings = $derived(settingsStore.settings);
 
-	// ナビゲーションバーに固定されていない機能IDリスト
 	const unpinnedFeatures = $derived(
 		APP_FEATURES.filter((f) => f.id !== 'dashboard' && !(settings.barFeatures || []).includes(f.id))
 	);
 
-	// 横断検索結果のアイテム定義
 	type SearchResult = {
 		id: string;
-		type: 'feature' | 'course' | 'todo' | 'event' | 'spatial' | 'org';
+		type: 'feature' | 'course' | 'todo' | 'event';
 		title: string;
 		subtitle?: string;
 		icon: any;
@@ -45,7 +33,6 @@
 
 		const list: SearchResult[] = [];
 
-		// 1) 機能検索
 		for (const f of APP_FEATURES) {
 			const name = getFeatureName(f.id);
 			if (name.toLowerCase().includes(q)) {
@@ -53,14 +40,13 @@
 					id: `feature-${f.id}`,
 					type: 'feature',
 					title: name,
-					subtitle: 'アプリ機能',
+					subtitle: m.nav_more(),
 					icon: f.icon,
 					href: f.href
 				});
 			}
 		}
 
-		// 2) 履修授業検索
 		for (const c of userDataStore.courses) {
 			if (
 				c.name.toLowerCase().includes(q) ||
@@ -78,7 +64,6 @@
 			}
 		}
 
-		// 3) TODO検索
 		for (const t of userDataStore.todos) {
 			if (t.name.toLowerCase().includes(q) || (t.memo && t.memo.toLowerCase().includes(q))) {
 				list.push({
@@ -92,7 +77,6 @@
 			}
 		}
 
-		// 4) カレンダーイベント検索
 		for (const e of userDataStore.events) {
 			if (
 				e.title.toLowerCase().includes(q) ||
@@ -110,7 +94,7 @@
 			}
 		}
 
-		return list.slice(0, 40); // 最大40件表示
+		return list.slice(0, 40);
 	});
 </script>
 
@@ -120,15 +104,10 @@
 
 <PageHeader title={m.nav_more()} />
 
-<Container class="pb-10">
+<Container class="pb-16 max-w-5xl">
 	<div class="space-y-6 py-4">
-		<!-- 横断検索バー -->
-		<TextField
-			bind:value={searchQuery}
-			placeholder={m.more_search_placeholder()}
-			type="text"
-			leadingIcon={Search}
-		/>
+		<!-- macOS / iOS Spotlight 風横断検索バー -->
+		<SpotlightSearch bind:query={searchQuery} placeholder={m.more_search_placeholder()} />
 
 		{#if searchQuery.trim() !== ''}
 			<!-- 検索結果エリア -->
@@ -136,36 +115,37 @@
 				<SectionHeader>検索結果 ({searchResults.length})</SectionHeader>
 				{#if searchResults.length === 0}
 					<div
-						class="py-8 text-center text-xs text-[var(--color-nav-inactive)] border border-dashed border-[var(--color-surface-border)] rounded-card bg-[var(--color-surface-card)]"
+						class="py-12 text-center text-xs text-[var(--color-nav-inactive)] border border-dashed border-[var(--color-surface-border)] rounded-card bg-[var(--color-surface-card)]/50"
 					>
 						{m.more_search_no_results()}
 					</div>
 				{:else}
-					<div
-						class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden"
-					>
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
 						{#each searchResults as item (item.id)}
-							<a
+							<BentoCard
 								href={resolve(item.href as any)}
-								class="flex items-center gap-3 p-3 transition-colors hover:bg-[var(--color-surface-muted)]"
+								padding="p-3.5"
+								class="flex-row items-center justify-between"
 							>
-								<span
-									class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"
-								>
-									<item.icon size={16} />
-								</span>
-								<div class="flex-1 min-w-0">
-									<div class="font-bold text-xs text-[var(--color-nav-active)] truncate">
-										{item.title}
+								<div class="flex items-center gap-3 min-w-0 flex-1">
+									<div
+										class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+									>
+										<item.icon size={18} />
 									</div>
-									{#if item.subtitle}
-										<div class="text-[10px] text-[var(--color-nav-inactive)] truncate mt-0.5">
-											{item.subtitle}
+									<div class="flex-1 min-w-0">
+										<div class="font-semibold text-xs text-[var(--color-nav-active)] truncate">
+											{item.title}
 										</div>
-									{/if}
+										{#if item.subtitle}
+											<div class="text-[10px] text-[var(--color-nav-inactive)] truncate mt-0.5">
+												{item.subtitle}
+											</div>
+										{/if}
+									</div>
 								</div>
-								<ChevronRight size={14} class="text-[var(--color-nav-inactive)] shrink-0" />
-							</a>
+								<ChevronRight size={14} class="text-[var(--color-nav-inactive)] shrink-0 ml-2" />
+							</BentoCard>
 						{/each}
 					</div>
 				{/if}
@@ -175,70 +155,75 @@
 			{#if unpinnedFeatures.length > 0}
 				<div class="space-y-3">
 					<SectionHeader>{m.more_quick_features()}</SectionHeader>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 						{#each unpinnedFeatures as f (f.id)}
-							<a
+							<BentoCard
 								href={resolve(f.href as any)}
-								class="flex items-center gap-3 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3.5 transition-colors hover:bg-[var(--color-surface-muted)] text-left"
+								padding="p-4"
+								class="flex-row items-center justify-between"
 							>
-								<span
-									class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
-								>
-									<f.icon size={18} />
-								</span>
-								<div class="flex-1 min-w-0">
-									<h4 class="text-xs font-bold text-[var(--color-nav-active)]">
+								<div class="flex items-center gap-3 min-w-0">
+									<div
+										class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+									>
+										<f.icon size={18} />
+									</div>
+									<h4 class="text-xs font-semibold text-[var(--color-nav-active)] truncate">
 										{getFeatureName(f.id)}
 									</h4>
 								</div>
-								<ChevronRight size={14} class="text-[var(--color-nav-inactive)] shrink-0" />
-							</a>
+								<ChevronRight size={16} class="text-[var(--color-nav-inactive)] shrink-0" />
+							</BentoCard>
 						{/each}
 					</div>
 				</div>
 			{/if}
 
-			<!-- すべての機能一覧 -->
+			<!-- すべての機能一覧 (Bento Grid) -->
 			<div class="space-y-3">
 				<SectionHeader>{m.more_all_features()}</SectionHeader>
-				<div
-					class="divide-y divide-[var(--color-surface-border)] rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] overflow-hidden"
-				>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 					{#each APP_FEATURES as f (f.id)}
-						<a
+						<BentoCard
 							href={resolve(f.href as any)}
-							class="flex items-center justify-between p-3.5 hover:bg-[var(--color-surface-muted)] transition-colors"
+							padding="p-3.5"
+							class="flex-row items-center justify-between"
 						>
 							<div class="flex items-center gap-3 min-w-0">
-								<span class="text-[var(--color-primary-600)] shrink-0">
+								<div
+									class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+								>
 									<f.icon size={18} />
-								</span>
-								<span class="text-xs font-bold text-[var(--color-nav-active)] truncate">
+								</div>
+								<span class="text-xs font-semibold text-[var(--color-nav-active)] truncate">
 									{getFeatureName(f.id)}
 								</span>
 							</div>
-							<ChevronRight size={14} class="text-[var(--color-nav-inactive)]" />
-						</a>
+							<ChevronRight size={16} class="text-[var(--color-nav-inactive)] shrink-0" />
+						</BentoCard>
 					{/each}
 				</div>
 			</div>
 
 			<!-- アプリについて（ライセンス） -->
 			<div class="pt-2">
-				<a
+				<BentoCard
 					href={resolve('/more/about')}
-					class="flex items-center justify-between p-3.5 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:bg-[var(--color-surface-muted)] transition-colors"
+					padding="p-3.5"
+					class="flex-row items-center justify-between"
 				>
 					<div class="flex items-center gap-3 min-w-0">
-						<span class="text-[var(--color-primary-600)] shrink-0">
+						<div
+							class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+						>
 							<BookOpen size={18} />
-						</span>
-						<span class="text-xs font-bold text-[var(--color-nav-active)] truncate">
+						</div>
+						<span class="text-xs font-semibold text-[var(--color-nav-active)] truncate">
 							{m.more_about_app()}
 						</span>
 					</div>
-					<ChevronRight size={14} class="text-[var(--color-nav-inactive)]" />
-				</a>
+					<ChevronRight size={16} class="text-[var(--color-nav-inactive)] shrink-0" />
+				</BentoCard>
 			</div>
 		{/if}
 	</div>

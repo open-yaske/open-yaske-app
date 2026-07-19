@@ -222,233 +222,270 @@
 
 			<!-- 絞り込み条件（アコーディオン） -->
 			<div
-				class="border border-[var(--color-surface-border)] rounded-card bg-[var(--color-surface-card)] p-3"
+				class="border border-[var(--color-surface-border)]/60 rounded-2xl bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-3.5 shadow-apple-sm"
 			>
 				<button
 					type="button"
-					class="flex w-full items-center justify-between text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-colors"
+					class="flex w-full items-center justify-between text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-colors active:scale-98"
 					onclick={() => (showFilter = !showFilter)}
 				>
-					<span class="flex items-center gap-1.5">
-						<span>絞り込みフィルター</span>
+					<span class="flex items-center gap-2">
+						<span class="font-bold text-sm">絞り込みフィルター</span>
 						{#if hasActiveFilters}
-							<span class="h-2 w-2 rounded-full bg-[var(--color-primary-500)]"></span>
+							<span
+								class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--color-primary-500)] text-white shadow-apple-sm"
+							>
+								アクティブ
+							</span>
 						{/if}
 					</span>
 					{#if showFilter}
-						<ChevronUp size={16} />
+						<ChevronUp size={18} class="text-[var(--color-primary-500)]" />
 					{:else}
-						<ChevronDown size={16} />
+						<ChevronDown size={18} class="text-[var(--color-nav-inactive)]" />
 					{/if}
 				</button>
 
 				{#if showFilter}
-					<div class="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-4">
-						<!-- 曜日 -->
-						<div class="space-y-1">
-							<label for="filter-day" class="text-[10px] font-bold text-[var(--color-nav-inactive)]"
-								>曜日</label
+					<div class="space-y-3 pt-3 border-t border-[var(--color-surface-border)]/40 mt-2">
+						<!-- 曜日マトリクスチップ -->
+						<div>
+							<span class="text-[11px] font-bold text-[var(--color-nav-inactive)] block mb-1"
+								>曜日</span
 							>
-							<select
-								id="filter-day"
-								class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
-								bind:value={filterDay}
-							>
-								<option value="all">すべて</option>
-								<option value="mon">月曜日</option>
-								<option value="tue">火曜日</option>
-								<option value="wed">水曜日</option>
-								<option value="thu">木曜日</option>
-								<option value="fri">金曜日</option>
-								<option value="sat">土曜日</option>
-								<option value="sun">日曜日</option>
-							</select>
+							<div class="flex flex-wrap gap-1.5">
+								{#each [{ val: 'all', label: 'すべて' }, { val: 'mon', label: '月' }, { val: 'tue', label: '火' }, { val: 'wed', label: '水' }, { val: 'thu', label: '木' }, { val: 'fri', label: '金' }] as d (d.val)}
+									<button
+										type="button"
+										class="min-h-[36px] min-w-[44px] px-3 rounded-chip text-xs font-bold transition-all active:scale-95"
+										class:bg-[var(--color-primary-500)]={filterDay === d.val}
+										class:text-white={filterDay === d.val}
+										class:bg-[var(--color-surface-muted)]={filterDay !== d.val}
+										class:text-[var(--color-nav-active)]={filterDay !== d.val}
+										onclick={() => (filterDay = d.val)}
+									>
+										{d.label}
+									</button>
+								{/each}
+							</div>
 						</div>
 
-						<!-- 時限 -->
-						<div class="space-y-1">
-							<label
-								for="filter-period"
-								class="text-[10px] font-bold text-[var(--color-nav-inactive)]">時限</label
+						<!-- 時限マトリクスチップ -->
+						<div>
+							<span class="text-[11px] font-bold text-[var(--color-nav-inactive)] block mb-1"
+								>時限</span
 							>
-							<select
-								id="filter-period"
-								class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
-								bind:value={filterPeriod}
-							>
-								<option value="all">すべて</option>
-								<option value="1">1限</option>
-								<option value="2">2限</option>
-								<option value="3">3限</option>
-								<option value="4">4限</option>
-								<option value="5">5限</option>
-								<option value="6">6限</option>
-								<option value="7">7限</option>
-							</select>
-						</div>
-
-						<!-- 種別 -->
-						<div class="space-y-1">
-							<label
-								for="filter-type"
-								class="text-[10px] font-bold text-[var(--color-nav-inactive)]">種別</label
-							>
-							<select
-								id="filter-type"
-								class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
-								bind:value={filterType}
-							>
-								<option value="all">すべて</option>
-								<option value="required">必修</option>
-								<option value="elective">選択</option>
-								<option value="free">自由選択</option>
-							</select>
-						</div>
-
-						<!-- 開講年度 -->
-						<div class="space-y-1">
-							<label
-								for="filter-year"
-								class="text-[10px] font-bold text-[var(--color-nav-inactive)]">年度</label
-							>
-							<select
-								id="filter-year"
-								class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
-								bind:value={filterYear}
-							>
-								<option value="all">すべて</option>
-								<option value="2025">2025年度</option>
-								<option value="2026">2026年度</option>
-							</select>
+							<div class="flex flex-wrap gap-1.5">
+								{#each [{ val: 'all', label: 'すべて' }, { val: '1', label: '1限' }, { val: '2', label: '2限' }, { val: '3', label: '3限' }, { val: '4', label: '4限' }, { val: '5', label: '5限' }, { val: '6', label: '6限' }] as p (p.val)}
+									<button
+										type="button"
+										class="min-h-[36px] min-w-[44px] px-3 rounded-chip text-xs font-bold transition-all active:scale-95"
+										class:bg-[var(--color-primary-500)]={filterPeriod === p.val}
+										class:text-white={filterPeriod === p.val}
+										class:bg-[var(--color-surface-muted)]={filterPeriod !== p.val}
+										class:text-[var(--color-nav-active)]={filterPeriod !== p.val}
+										onclick={() => (filterPeriod = p.val)}
+									>
+										{p.label}
+									</button>
+								{/each}
+							</div>
 						</div>
 					</div>
 				{/if}
 			</div>
+			<select
+				id="filter-day"
+				class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
+				bind:value={filterDay}
+			>
+				<option value="all">すべて</option>
+				<option value="mon">月曜日</option>
+				<option value="tue">火曜日</option>
+				<option value="wed">水曜日</option>
+				<option value="thu">木曜日</option>
+				<option value="fri">金曜日</option>
+				<option value="sat">土曜日</option>
+				<option value="sun">日曜日</option>
+			</select>
 		</div>
 
-		{#if publicCourses.length === 0}
-			<div
-				class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-8 text-center space-y-2"
+		<!-- 時限 -->
+		<div class="space-y-1">
+			<label for="filter-period" class="text-[10px] font-bold text-[var(--color-nav-inactive)]"
+				>時限</label
 			>
-				<BookOpen size={40} class="mx-auto text-[var(--color-nav-inactive)]" />
-				<div class="text-sm font-bold text-[var(--color-nav-active)]">
-					シラバスデータがロードされていません
-				</div>
-				<p class="text-xs text-[var(--color-nav-inactive)]">
-					ネットワークの接続状態を確認するか、しばらく待ってから再度お試しください。
-				</p>
+			<select
+				id="filter-period"
+				class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
+				bind:value={filterPeriod}
+			>
+				<option value="all">すべて</option>
+				<option value="1">1限</option>
+				<option value="2">2限</option>
+				<option value="3">3限</option>
+				<option value="4">4限</option>
+				<option value="5">5限</option>
+				<option value="6">6限</option>
+				<option value="7">7限</option>
+			</select>
+		</div>
+
+		<!-- 種別 -->
+		<div class="space-y-1">
+			<label for="filter-type" class="text-[10px] font-bold text-[var(--color-nav-inactive)]"
+				>種別</label
+			>
+			<select
+				id="filter-type"
+				class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
+				bind:value={filterType}
+			>
+				<option value="all">すべて</option>
+				<option value="required">必修</option>
+				<option value="elective">選択</option>
+				<option value="free">自由選択</option>
+			</select>
+		</div>
+
+		<!-- 開講年度 -->
+		<div class="space-y-1">
+			<label for="filter-year" class="text-[10px] font-bold text-[var(--color-nav-inactive)]"
+				>年度</label
+			>
+			<select
+				id="filter-year"
+				class="w-full rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-3 py-1.5 text-xs font-medium text-[var(--color-nav-active)] focus:outline-none focus:border-[var(--color-primary-500)]"
+				bind:value={filterYear}
+			>
+				<option value="all">すべて</option>
+				<option value="2025">2025年度</option>
+			</select>
+		</div>
+	</div>
+
+	{#if publicCourses.length === 0}
+		<div
+			class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-8 text-center space-y-2"
+		>
+			<BookOpen size={40} class="mx-auto text-[var(--color-nav-inactive)]" />
+			<div class="text-sm font-bold text-[var(--color-nav-active)]">
+				シラバスデータがロードされていません
 			</div>
-		{:else if filteredCourses.length === 0}
-			<div class="py-12 text-center text-sm text-[var(--color-nav-inactive)]">
-				{m.syllabus_no_course()}
-			</div>
-		{:else}
-			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				{#each filteredCourses as c (c.id)}
-					<div
-						class="flex flex-col justify-between rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4 group transition-colors hover:bg-[var(--color-surface-muted)]"
+			<p class="text-xs text-[var(--color-nav-inactive)]">
+				ネットワークの接続状態を確認するか、しばらく待ってから再度お試しください。
+			</p>
+		</div>
+	{:else if filteredCourses.length === 0}
+		<div class="py-12 text-center text-sm text-[var(--color-nav-inactive)]">
+			{m.syllabus_no_course()}
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+			{#each filteredCourses as c (c.id)}
+				<div
+					class="flex flex-col justify-between rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4 group transition-colors hover:bg-[var(--color-surface-muted)]"
+				>
+					<button
+						type="button"
+						class="text-left flex-1 min-w-0"
+						onclick={() => handleOpenSyllabus(c)}
 					>
-						<button
-							type="button"
-							class="text-left flex-1 min-w-0"
-							onclick={() => handleOpenSyllabus(c)}
-						>
-							<div class="flex items-center gap-2">
-								<h4
-									class="font-bold text-sm text-[var(--color-nav-active)] group-hover:text-[var(--color-primary-500)] transition-colors truncate"
-								>
-									{c.name}
-								</h4>
-								{#if c.type === 'required'}
-									<span
-										class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded px-1 shrink-0"
-									>
-										{m.course_required()}
-									</span>
-								{:else if c.type}
-									<span
-										class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded px-1 shrink-0"
-									>
-										{c.type === 'elective' ? m.course_elective() : m.course_free()}
-									</span>
-								{/if}
-							</div>
-
-							<p class="text-xs text-[var(--color-nav-inactive)] mt-1 font-mono">
-								{c.id}
-							</p>
-
-							<div
-								class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-xs text-[var(--color-nav-inactive)] font-medium"
+						<div class="flex items-center gap-2">
+							<h4
+								class="font-bold text-sm text-[var(--color-nav-active)] group-hover:text-[var(--color-primary-500)] transition-colors truncate"
 							>
-								{#if c.teacher}
-									<div class="flex items-center gap-1">
-										<User size={12} />
-										<span>{c.teacher}</span>
-									</div>
-								{/if}
-								<div class="flex items-center gap-1">
-									<Clock size={12} />
-									<span>{formatDayPeriod(c.dayPeriods || [])}</span>
-								</div>
-								{#if c.credits}
-									<div class="flex items-center gap-1">
-										<GraduationCap size={12} />
-										<span>{c.credits} {m.course_credits()}</span>
-									</div>
-								{/if}
-							</div>
-						</button>
+								{c.name}
+							</h4>
+							{#if c.type === 'required'}
+								<span
+									class="text-[9px] font-bold bg-[var(--color-danger-50)] text-[var(--color-danger-600)] rounded px-1 shrink-0"
+								>
+									{m.course_required()}
+								</span>
+							{:else if c.type}
+								<span
+									class="text-[9px] font-bold bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] rounded px-1 shrink-0"
+								>
+									{c.type === 'elective' ? m.course_elective() : m.course_free()}
+								</span>
+							{/if}
+						</div>
+
+						<p class="text-xs text-[var(--color-nav-inactive)] mt-1 font-mono">
+							{c.id}
+						</p>
 
 						<div
-							class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-[var(--color-surface-border)] mt-3 pt-3"
+							class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-xs text-[var(--color-nav-inactive)] font-medium"
 						>
+							{#if c.teacher}
+								<div class="flex items-center gap-1">
+									<User size={12} />
+									<span>{c.teacher}</span>
+								</div>
+							{/if}
+							<div class="flex items-center gap-1">
+								<Clock size={12} />
+								<span>{formatDayPeriod(c.dayPeriods || [])}</span>
+							</div>
+							{#if c.credits}
+								<div class="flex items-center gap-1">
+									<GraduationCap size={12} />
+									<span>{c.credits} {m.course_credits()}</span>
+								</div>
+							{/if}
+						</div>
+					</button>
+
+					<div
+						class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-[var(--color-surface-border)] mt-3 pt-3"
+					>
+						<Button
+							variant="secondary"
+							size="sm"
+							class="w-full sm:w-auto"
+							onclick={() => handleOpenSyllabus(c)}
+						>
+							<ExternalLink size={14} class="mr-1 shrink-0" />
+							<span class="truncate">{m.syllabus_detail()}</span>
+						</Button>
+						{#if isRegistered(c.id)}
 							<Button
 								variant="secondary"
 								size="sm"
-								class="w-full sm:w-auto"
-								onclick={() => handleOpenSyllabus(c)}
+								class="w-full sm:w-auto border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:bg-[var(--color-surface-muted)]"
+								onclick={() => handleEditRegistered(c.id)}
 							>
-								<ExternalLink size={14} class="mr-1 shrink-0" />
-								<span class="truncate">{m.syllabus_detail()}</span>
+								<Check size={14} class="mr-1 text-[var(--color-success-500)] shrink-0" />
+								<span class="truncate">{m.syllabus_already_registered()}</span>
 							</Button>
-							{#if isRegistered(c.id)}
-								<Button
-									variant="secondary"
-									size="sm"
-									class="w-full sm:w-auto border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:bg-[var(--color-surface-muted)]"
-									onclick={() => handleEditRegistered(c.id)}
-								>
-									<Check size={14} class="mr-1 text-[var(--color-success-500)] shrink-0" />
-									<span class="truncate">{m.syllabus_already_registered()}</span>
-								</Button>
-							{:else}
-								<Button
-									variant="primary"
-									size="sm"
-									class="w-full sm:w-auto"
-									onclick={() => handleRegisterClick(c)}
-								>
-									<Plus size={14} class="shrink-0" />
-									<span class="truncate">{m.syllabus_add_to_timetable()}</span>
-								</Button>
-							{/if}
-						</div>
+						{:else}
+							<Button
+								variant="primary"
+								size="sm"
+								class="w-full sm:w-auto"
+								onclick={() => handleRegisterClick(c)}
+							>
+								<Plus size={14} class="shrink-0" />
+								<span class="truncate">{m.syllabus_add_to_timetable()}</span>
+							</Button>
+						{/if}
 					</div>
-				{/each}
-			</div>
-
-			<!-- スクロール検知用アンカー (さらにデータがある場合のみ表示) -->
-			{#if publicCourses.length > displayLimit}
-				<div
-					bind:this={scrollAnchor}
-					class="py-6 text-center text-xs text-[var(--color-nav-inactive)] font-medium"
-				>
-					スクロールしてさらに読み込む...
 				</div>
-			{/if}
+			{/each}
+		</div>
+
+		<!-- スクロール検知用アンカー (さらにデータがある場合のみ表示) -->
+		{#if publicCourses.length > displayLimit}
+			<div
+				bind:this={scrollAnchor}
+				class="py-6 text-center text-xs text-[var(--color-nav-inactive)] font-medium"
+			>
+				スクロールしてさらに読み込む...
+			</div>
 		{/if}
-	</div>
+	{/if}
 </Container>
 
 <svelte:window onscroll={handleScroll} />

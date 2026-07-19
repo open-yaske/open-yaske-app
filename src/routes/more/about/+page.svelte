@@ -181,12 +181,14 @@ SOFTWARE.</pre>
 					</p>
 
 					<div
-						class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] p-4 space-y-2"
+						class="rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/80 backdrop-blur-xl p-4 space-y-2 shadow-apple-sm"
 					>
 						<div
-							class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5 border-b border-[var(--color-surface-border)] pb-2 mb-1"
+							class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5 border-b border-[var(--color-surface-border)]/50 pb-2 mb-1"
 						>
-							<span class="font-bold text-[var(--color-nav-active)]">現在のデータソース</span>
+							<span class="font-bold text-[var(--color-nav-active)]"
+								>{m.about_app_data_license()}</span
+							>
 							<button
 								type="button"
 								onclick={() => handleOpenLink(settings.schoolDataSourceUrl)}
@@ -197,7 +199,7 @@ SOFTWARE.</pre>
 							</button>
 						</div>
 						<div class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5">
-							<span class="font-bold text-[var(--color-nav-active)]">適用ライセンス</span>
+							<span class="font-bold text-[var(--color-nav-active)]">{m.about_app_license()}</span>
 							<button
 								type="button"
 								onclick={() => handleOpenLink(settings.schoolDataLicenseUrl)}

@@ -20,3 +20,6 @@ export { default as EmptyState } from './EmptyState.svelte';
 export { default as ProgressRing } from './ProgressRing.svelte';
 export { default as StatCard } from './StatCard.svelte';
 export { default as Emoji } from './Emoji.svelte';
+export { default as BentoCard } from './BentoCard.svelte';
+export { default as SpotlightSearch } from './SpotlightSearch.svelte';
+export { default as GlassContainer } from './GlassContainer.svelte';

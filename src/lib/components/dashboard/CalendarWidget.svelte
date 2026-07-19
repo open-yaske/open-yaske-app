@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { userDataStore } from '$lib/stores';
 	import { m } from '$lib/paraglide/messages';
-	import { Calendar, MapPin, Clock } from '@lucide/svelte';
+	import { Calendar, MapPin, Clock, ChevronRight } from '@lucide/svelte';
+	import BentoCard from '../BentoCard.svelte';
 
-	// 今日以降のイベントを取得し、日付が早い順にソートして最大3件表示
 	const upcomingEvents = $derived.by(() => {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
@@ -30,7 +30,6 @@
 			return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 		};
 
-		// 同一日の場合
 		if (dStart.toDateString() === dEnd.toDateString()) {
 			return `${month}/${date} ${formatTime(dStart)} - ${formatTime(dEnd)}`;
 		}
@@ -39,30 +38,38 @@
 	}
 </script>
 
-<div
-	class="rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
->
-	<div
-		class="mb-4 flex items-center justify-between border-b border-[var(--color-surface-border)] pb-2"
-	>
-		<div class="flex items-center gap-2 font-bold text-[var(--color-nav-active)]">
-			<Calendar size={18} class="text-[var(--color-primary-500)]" />
-			<span>{m.nav_calendar()}</span>
+<BentoCard padding="p-4 md:p-5" class="w-full">
+	{#snippet header()}
+		<div
+			class="flex w-full items-center justify-between border-b border-[var(--color-surface-border)]/60 pb-3"
+		>
+			<div class="flex items-center gap-2.5 font-bold text-[var(--color-nav-active)]">
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+				>
+					<Calendar size={18} />
+				</div>
+				<span class="text-sm font-semibold">{m.nav_calendar()}</span>
+			</div>
+			<a
+				href="/calendar"
+				class="flex items-center gap-0.5 text-xs font-semibold text-[var(--color-primary-600)] hover:underline"
+			>
+				<span>{m.action_more()}</span>
+				<ChevronRight size={14} />
+			</a>
 		</div>
-		<a href="/calendar" class="text-xs text-[var(--color-primary-600)] hover:underline">
-			{m.action_more()}
-		</a>
-	</div>
+	{/snippet}
 
 	{#if upcomingEvents.length === 0}
-		<div class="py-6 text-center text-xs text-[var(--color-nav-inactive)]">
+		<div class="py-8 text-center text-xs text-[var(--color-nav-inactive)]">
 			{m.calendar_empty()}
 		</div>
 	{:else}
-		<div class="space-y-3">
+		<div class="space-y-3 pt-2">
 			{#each upcomingEvents as event (event.id)}
-				<div class="flex flex-col gap-1.5 py-1.5 first:pt-0 last:pb-0">
-					<h4 class="font-bold text-sm text-[var(--color-nav-active)] truncate">
+				<div class="flex flex-col gap-1 py-1.5 first:pt-0 last:pb-0">
+					<h4 class="font-bold text-xs md:text-sm text-[var(--color-nav-active)] truncate">
 						{event.title}
 					</h4>
 
@@ -84,4 +91,4 @@
 			{/each}
 		</div>
 	{/if}
-</div>
+</BentoCard>

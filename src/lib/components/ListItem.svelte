@@ -9,6 +9,8 @@
 	import type { RouteId } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { ChevronRight } from '@lucide/svelte';
+	import { APPLE_PRESS } from '$lib/apple-design';
+	import GlassContainer from './GlassContainer.svelte';
 
 	interface Props {
 		title: string;
@@ -45,31 +47,36 @@
 	});
 </script>
 
-{#if resolvedHref && !disabled}
-	<!-- eslint-disable svelte/no-navigation-without-resolve -->
-	<a
-		href={resolvedHref}
-		class="flex items-center gap-3 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 transition-colors hover:bg-[var(--color-surface-muted)] {klass}"
-	>
-		{@render body()}
-	</a>
-	<!-- eslint-enable svelte/no-navigation-without-resolve -->
-{:else if onclick && !disabled}
-	<button
-		type="button"
-		{onclick}
-		class="flex w-full items-center gap-3 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-muted)] {klass}"
-	>
-		{@render body()}
-	</button>
-{:else}
-	<div
-		class="flex items-center gap-3 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 {klass}"
-		class:opacity-50={disabled}
-	>
-		{@render body()}
-	</div>
-{/if}
+<GlassContainer
+	variant="card"
+	class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200 {klass}"
+>
+	{#if resolvedHref && !disabled}
+		<!-- eslint-disable svelte/no-navigation-without-resolve -->
+		<a
+			href={resolvedHref}
+			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 {APPLE_PRESS.card} select-none"
+		>
+			{@render body()}
+		</a>
+		<!-- eslint-enable svelte/no-navigation-without-resolve -->
+	{:else if onclick && !disabled}
+		<button
+			type="button"
+			{onclick}
+			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 text-left {APPLE_PRESS.card} select-none"
+		>
+			{@render body()}
+		</button>
+	{:else}
+		<div
+			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3"
+			class:opacity-50={disabled}
+		>
+			{@render body()}
+		</div>
+	{/if}
+</GlassContainer>
 
 {#snippet body()}
 	{#if Icon}

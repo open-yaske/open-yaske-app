@@ -56,14 +56,15 @@
 	}
 
 	// 列の幅定義（時間ラベル列 + 曜日列）
+	// スマホでは minmax(0, 1fr) で画面幅に収め、PC/タブレットでは十分な幅を確保
 	const gridTemplateColumns = $derived(
-		`minmax(1.75rem, 2rem) repeat(${dayRange}, minmax(5.25rem, 1fr))`
+		`minmax(1.25rem, 1.75rem) repeat(${dayRange}, minmax(0, 1fr))`
 	);
 </script>
 
-<div class="overflow-x-auto px-4">
+<div class="w-full overflow-x-auto px-1 sm:px-4">
 	<div
-		class="grid w-max min-w-full gap-1 bg-transparent p-1"
+		class="grid w-full gap-1 bg-transparent p-0.5 sm:p-1"
 		style="grid-template-columns: {gridTemplateColumns};"
 	>
 		<!-- ヘッダー行: 左上角 + 曜日名 -->
@@ -96,62 +97,53 @@
 					{@const color = resolveColor(course)}
 					{@const isDarkTheme = themeStore.pack.id === 'dark'}
 					<!-- 授業カード: 複数時限にまたがる (span) -->
-					<div
-						class="m-0.5 flex min-h-[64px] cursor-pointer flex-col gap-1 rounded-card p-2.5 transition-all hover:scale-[0.99] active:scale-[0.97]"
+					<button
+						type="button"
+						class="m-0.5 flex min-h-[56px] sm:min-h-[64px] cursor-pointer flex-col gap-0.5 sm:gap-1 rounded-card p-1.5 sm:p-2.5 transition-all hover:scale-[0.99] active:scale-[0.97] overflow-hidden w-full text-left"
 						style="background-color: {color}; grid-column: {d + 2}; grid-row: {p +
 							2} / span {course.span};"
 						class:text-white={!isDarkTheme}
 						class:text-slate-900={isDarkTheme}
 						class:shadow-sm={!settingsStore.settings.timetableBgImage}
 						class:opacity-95={settingsStore.settings.timetableTransparent}
-						role="button"
-						tabindex="0"
+						aria-label="{course.name}{course.classroom ? ` (${course.classroom})` : ''}"
 						onclick={() => oncoursetap(course)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								oncoursetap(course);
-							}
-						}}
 					>
-						<p class="line-clamp-3 text-xs font-bold leading-tight">
+						<p
+							class="line-clamp-2 sm:line-clamp-3 text-[10px] sm:text-xs font-bold leading-tight break-words"
+						>
 							{course.name}
 						</p>
 						{#if course.classroom}
 							<span
-								class="mt-auto inline-block w-fit rounded-full px-1.5 py-0.5 text-[9px] font-bold {isDarkTheme
+								class="mt-auto inline-block w-fit max-w-full truncate rounded-full px-1 py-0.5 text-[8px] sm:text-[9px] font-bold {isDarkTheme
 									? 'bg-black/10 text-slate-800'
 									: 'bg-white/20 text-white'}"
 							>
 								{course.classroom}
 							</span>
 						{/if}
-					</div>
+					</button>
 				{:else if !occupied}
 					<!-- 空セル: タップして追加 -->
-					<div
-						class="m-0.5 flex min-h-[64px] cursor-pointer items-center justify-center rounded-card border border-dashed transition-all hover:scale-[0.99] active:scale-[0.97] {settingsStore
+					<button
+						type="button"
+						class="m-0.5 flex min-h-[64px] w-full cursor-pointer items-center justify-center rounded-card border border-dashed transition-all hover:scale-[0.99] active:scale-[0.97] {settingsStore
 							.settings.timetableTransparent
 							? 'border-[var(--color-surface-muted)] bg-[var(--color-surface-card)]/40 backdrop-blur-xs hover:bg-[var(--color-surface-muted)]/60'
 							: 'border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:bg-[var(--color-surface-muted)]'}"
 						style="grid-column: {d + 2}; grid-row: {p + 2};"
-						role="button"
-						tabindex="0"
+						aria-label="{dayLabel(day)} {period}限に授業を追加"
 						onclick={() => oncelltap(day, period)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								oncelltap(day, period);
-							}
-						}}
 					>
 						<span
 							class="text-sm font-medium transition-colors {settingsStore.settings
 								.timetableTransparent
 								? 'text-[var(--color-nav-inactive)]'
-								: 'text-[var(--color-surface-border)]'}">+</span
+								: 'text-[var(--color-surface-border)]'}"
+							aria-hidden="true">+</span
 						>
-					</div>
+					</button>
 				{/if}
 			{/each}
 		{/each}

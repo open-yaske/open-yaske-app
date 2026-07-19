@@ -10,6 +10,7 @@
 	import type { AttendanceStatus } from '$lib/types';
 	import { Check, X, Clock, ShieldCheck, Ban } from '@lucide/svelte';
 	import type { Component } from 'svelte';
+	import { APPLE_PRESS } from '$lib/apple-design';
 
 	interface Props {
 		/** Currently selected status, or null if none */
@@ -35,7 +36,7 @@
 </script>
 
 <div
-	class="flex gap-1.5 rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] p-1.5"
+	class="flex gap-1.5 rounded-chip border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-muted)]/60 backdrop-blur-md p-1.5 shadow-apple-sm"
 	role="group"
 	aria-label={m.attendance_status()}
 >
@@ -46,9 +47,10 @@
 		<button
 			type="button"
 			{disabled}
-			class="flex flex-1 flex-col items-center justify-center gap-1 rounded-chip py-2.5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)]"
+			class="flex flex-1 min-h-[44px] flex-col items-center justify-center gap-1 rounded-chip py-2 px-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] {APPLE_PRESS.tab}"
 			class:bg-transparent={!isActive}
 			class:text-[var(--color-nav-inactive)]={!isActive}
+			class:shadow-apple-sm={isActive}
 			class:opacity-50={disabled}
 			style:background-color={isActive ? `var(--color-attendance-${meta.cssVar}-bg)` : undefined}
 			style:color={isActive ? `var(--color-attendance-${meta.cssVar}-fg)` : undefined}
@@ -57,7 +59,7 @@
 			onclick={() => onselect(s)}
 		>
 			<Icon size={18} />
-			<span class="text-xs font-medium leading-none">{meta.label()}</span>
+			<span class="text-xs font-semibold leading-none">{meta.label()}</span>
 		</button>
 	{/each}
 </div>

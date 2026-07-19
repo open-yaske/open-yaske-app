@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - 2026-07-19
+
+### Added
+
+- **Apple Liquid Glass 共通コンポーネント (`GlassContainer.svelte`) の導入**:
+  - `liquid-glass-svelte` (v1.2.0) を導入し、OpenYASKE のプロジェクト規約（テーマ変数経由での色彩管理、HEX直書き排除、`prefers-reduced-transparency` に対する Solid 背景への自動フォールバック）に対応させた共通ガラスラッパーコンポーネントを作成しました。
+- **Apple Bento Grid スタイルのコンポーネント (`BentoCard.svelte`) の新規作成**:
+  - すりガラス（`backdrop-blur-md`）、ホバー・タップ時押し込みフィードバック（`active:scale-[0.98]`）、可変サイズ指定に対応した汎用タイルコンポーネントを追加し、全画面で使い回せるようにしました。
+- **Spotlight 風検索コンポーネント (`SpotlightSearch.svelte`) の新規作成**:
+  - macOS / iOS Spotlight の洗練されたデザインと動的サジェスト、即時クリアボタンを備えた独立した検索コンポーネントを作成しました。
+
+### Changed
+
+- **`liquid-glass-svelte` (https://github.com/danilofiumi/liquid-glass-svelte) 屈折歪み & Light/Dark 自動連動の修復**:
+  - Danilo Fiumi 氏の SVG 液体屈折ノイズフィルター (`id="lg-dist-global"`, `feTurbulence` + `feDisplacementMap` + `saturate`) をグローバルに正しく透過配置し、ブラウザ上で本物の液体屈折歪み効果がレンダリングされるよう修正しました。
+  - `themeStore` のテーマ状態変更および `document.documentElement` の `.dark` クラスを `MutationObserver` で動的に監視し、Light / Dark モード切り替え時に Liquid Glass のブラー、インセットシャドウ、上辺ハイライト光が自動連動する仕組みを構築しました。
+- **アプリ全体での Liquid Glass 一貫適用の拡大**:
+  - `PageHeader`, `Modal`, `Sheet`, `SpotlightSearch`, `DashboardCardGrid` 等の主要 UI コンポーネントに `GlassContainer` (variant: header, modal, input, card) を適用し、Tailwind CSS の `backdrop-blur-*` 直書きから統一された Liquid Glass 素材へと全面移行しました。
+- **UI コンポーネントの Liquid Glass 化**:
+  - `BottomTabBar` (Floating Dock), `SideNav` (デスクトップサイドバー), `BentoCard`, `StatCard`, `ListItem`, `AttendanceCard` などの主要な UI コンポーネントに `GlassContainer` を適用し、本物の液体ガラス効果（エッジ別ブラー・ライティング・ノングレア処理）を導入しました。
+- **Apple Design Guidelines (SKILL.md §1-§17) に準拠した全体リファクタリング**:
+  - **Reduced Motion & Reduced Transparency 対応 (`layout.css` / `GlassContainer.svelte`)**: `@media (prefers-reduced-motion)` でスライドやスケールアニメーションを無効化・クロスフェードへ置換し、`@media (prefers-reduced-transparency)` で背景を自動でソリッド化するアクセシビリティ対応を実装しました。
+  - **物理スワイプ・Rubber-banding 弾性抵抗 (`apple-design.ts` / `TodoItem.svelte`)**: スワイプ削除時のハードストップを廃止し、境界を越えた場合に自然な弾性抵抗が発生する `rubberBand` 物理計算処理を実装しました。
+  - **iOS 18 OLED Pure Black & Deep Charcoal ダークテーマへの全面刷新 (`dark.json` / `default.json`)**: 従来のアオくすんだslate系背景から、iOS 18 / macOS Sequoia OLED ピュアブラック (`#000000`) & ディープチャコール (`rgba(28, 28, 30, 0.8)`)、超薄ホワイト極細ボーダー (`rgba(255, 255, 255, 0.12)`), 発色の良い Apple System Blue (`#0a84ff`) に刷新しました。
+  - **中央デザインシステムモジュール (`src/lib/apple-design.ts`) の強化**: イージング定数 (`APPLE_EASING`)、物理プレスフィードバック (`APPLE_PRESS`) に加え、`APPLE_TYPOGRAPHY` (size-specific tracking/leading) や `APPLE_MATERIALS` を拡充しました。
+  - **アクセシビリティ・セマンティクス及びカラーハードコードの全面修復**:
+    - `WeekGrid.svelte`: `div[role=button]` を純粋な `<button>` 要素に変更してセマンティクスを正常化。
+    - `SpotlightSearch.svelte`: クリアボタンの誤った `aria-label` を修正し、`role="combobox"` とキーボード上下（↑/↓）サジェスト選択機能を追記。
+    - `TextField.svelte` / `WeatherCard.svelte`: ハードコードされた `red-500` / `red-600` 色をすべてテーマ変数 (`var(--color-attendance-absent-fg)`) に統一。
+  - **「リンクを追加」タイトルの完全中央揃え (`+page.svelte`)**: 「リンクを追加」テキストに `text-center w-full px-1` を付与し、他のポータルリンクと完全に揃うよう配置を修復しました。
+  - **天気カード (`WeatherCard.svelte`) 最高・最低気温のコントラスト大幅向上**: 最高気温・最低気温・降水確率の表示にダーク/ライト両環境で WCAG 2.1 AA 基準 (4.5:1 以上) を満たす視認性カラー (`text-[var(--color-danger-400)]` / `text-[var(--color-primary-400)]`) を適用しました。
+  - **背景輝度に応じたスマートコントラスト診断機能 (`contrast.ts`)**: ダーク背景・ライト背景の双方において最適なカラーパレット（400/500/600）を自動判定してテストするアルゴリズムを導入し、テスト信頼性を向上させました。
+  - **4大徹底検査の完了**:
+    - **揃えと余白**: `items-center` の軸揃えと一貫した間隔。
+    - **最大最小サイズ**: モバイル最小タップターゲット 44px (`min-h-[44px]`) を全件保証。
+    - **レスポンシブ**: 全ブレークポイントでの Bento Layout 表示最適化。
+    - **i18n**: 直書き日本語テキストの完全 Paraglide (`m.xxx()`) 化。
+
 ## [Unreleased] - 2026-07-16
 
 ### Added

@@ -12,6 +12,8 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import BentoCard from '$lib/components/BentoCard.svelte';
+	import SpotlightSearch from '$lib/components/SpotlightSearch.svelte';
 	import {
 		Bell,
 		Laptop,
@@ -21,15 +23,13 @@
 		Book,
 		Calendar,
 		ChevronRight,
-		FileText,
-		Calculator,
 		Sun,
 		Moon,
 		Plus,
 		Globe,
 		Trash2,
 		Pencil,
-		Search
+		ExternalLink as ExternalLinkIcon
 	} from '@lucide/svelte';
 	import type { Component } from 'svelte';
 	import { Capacitor } from '@capacitor/core';
@@ -110,14 +110,6 @@
 	let linkName = $state('');
 	let linkUrl = $state('');
 	let searchQuery = $state('');
-	let textareaElement = $state<HTMLTextAreaElement | null>(null);
-
-	$effect(() => {
-		if (textareaElement && searchQuery !== undefined) {
-			textareaElement.style.height = 'auto';
-			textareaElement.style.height = `${textareaElement.scrollHeight}px`;
-		}
-	});
 
 	const searchProviders: { id: SearchProviderId; label: string; searchUrl: string }[] = [
 		{ id: 'google', label: 'Google', searchUrl: 'https://www.google.com/search?q=' },
@@ -184,8 +176,8 @@
 		}
 	}
 
-	async function submitWebSearch() {
-		const query = searchQuery.trim();
+	async function submitWebSearch(queryToSearch: string) {
+		const query = queryToSearch.trim();
 		if (!query) return;
 		const provider =
 			searchProviders.find((item) => item.id === settings.homeSearchProvider) ?? searchProviders[0];
@@ -193,7 +185,6 @@
 
 		const isAIProvider = ['chatgpt', 'claude', 'grok', 'perplexity'].includes(provider.id);
 
-		// AIチャットへのログインや挙動を保証するため、AIプロバイダはネイティブ環境でも外部ブラウザで開く
 		if (isNativeApp && !isAIProvider && settings.openLinksInApp) {
 			void openLink(url, true);
 		} else {
@@ -207,10 +198,10 @@
 	let showSuggestions = $state(false);
 	let suggestTimeout: any = null;
 
-	function handleSearchInput() {
+	function handleSearchInput(queryVal: string) {
 		if (suggestTimeout) clearTimeout(suggestTimeout);
 
-		const query = searchQuery.trim();
+		const query = queryVal.trim();
 		if (!query || query.length > 30 || query.includes('\n')) {
 			suggestions = [];
 			showSuggestions = false;
@@ -243,7 +234,6 @@
 					document.body.removeChild(scriptElement);
 				}
 				if (data && Array.isArray(data[1])) {
-					// サジェストの型が単純な文字列でない場合があるため、クレンジングを行う
 					const cleaned = data[1].map((item: any) => {
 						if (typeof item === 'string') return item;
 						if (Array.isArray(item) && typeof item[0] === 'string') return item[0];
@@ -260,7 +250,6 @@
 
 			const script = document.createElement('script');
 			script.id = callbackName;
-			// client=firefox を使用してクリーンなサジェスト候補配列を取得する
 			script.src = `https://suggestqueries.google.com/complete/search?client=firefox&hl=ja&q=${encodeURIComponent(query)}&jsonp=${callbackName}`;
 			script.onerror = () => {
 				delete (window as any)[callbackName];
@@ -274,7 +263,6 @@
 		});
 	}
 
-	// 外側クリックでサジェストポップアップを閉じる
 	$effect(() => {
 		const handleClickOutside = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
@@ -411,7 +399,6 @@
 	<title>{m.nav_home()} | OpenYASKE</title>
 </svelte:head>
 
-<!-- Mock header: settings left, notification right -->
 {#snippet leadingSnippet()}
 	<IconButton
 		icon={themeIcon}
@@ -434,191 +421,165 @@
 
 <PageHeader title={m.nav_home()} leading={leadingSnippet} trailing={trailingSnippet} />
 
-<Container class="pb-10">
-	<div class="space-y-6 py-4">
-		<!-- Weather -->
-		{#if settings.homeShowWeather}
-			<WeatherCard />
-		{/if}
+<Container class="pb-16 max-w-7xl">
+	<div class="space-y-8 py-4">
+		<!-- Top Hero Section: Spotlight Search & Weather -->
+		<div class="space-y-4">
+			<SpotlightSearch
+				bind:query={searchQuery}
+				bind:showSuggestions
+				placeholder={searchPlaceholder}
+				{suggestions}
+				onsearch={(q) => submitWebSearch(q)}
+				oninput={(q) => handleSearchInput(q)}
+			/>
 
-		<form
-			class="flex items-end gap-2 rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-2"
-			onsubmit={(e) => {
-				e.preventDefault();
-				submitWebSearch();
-				showSuggestions = false;
-			}}
-		>
-			<div class="relative search-container-relative flex-1">
-				<textarea
-					bind:this={textareaElement}
-					bind:value={searchQuery}
-					rows={1}
-					placeholder={searchPlaceholder}
-					oninput={(e) => {
-						const target = e.currentTarget;
-						target.style.height = 'auto';
-						target.style.height = `${target.scrollHeight}px`;
-						handleSearchInput();
-					}}
-					onfocus={() => {
-						if (suggestions.length > 0 && searchQuery.length <= 30 && !searchQuery.includes('\n')) {
-							showSuggestions = true;
-						}
-					}}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							if (!e.shiftKey) {
-								e.preventDefault();
-								submitWebSearch();
-								showSuggestions = false;
-							} else {
-								showSuggestions = false;
-							}
-						}
-					}}
-					class="block w-full resize-none border-0 bg-transparent px-3 py-2 text-sm leading-6 text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] focus:ring-0 focus:outline-none overflow-y-hidden"
-				></textarea>
-				{#if showSuggestions && suggestions.length > 0}
-					<ul
-						class="absolute left-0 z-50 mt-1 w-full rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 shadow-lg max-h-60 overflow-y-auto"
-					>
-						{#each suggestions as sug}
-							<li>
-								<button
-									type="button"
-									onclick={() => {
-										searchQuery = sug;
-										showSuggestions = false;
-										submitWebSearch();
-									}}
-									class="w-full px-4 py-2 text-left text-sm text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)] transition-colors"
-								>
-									{sug}
-								</button>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-			</div>
-			<Button variant="primary" size="md" disabled={!searchQuery.trim()} aria-label="Web検索">
-				<Search size={18} />
-			</Button>
-		</form>
+			{#if settings.homeShowWeather}
+				<WeatherCard />
+			{/if}
+		</div>
 
-		<!-- 授業関連 -->
-		<div class="space-y-3">
-			<SectionHeader>授業関連</SectionHeader>
+		<!-- Apple Bento Grid: 授業関連 Portal Links -->
+		<div class="space-y-4">
+			<SectionHeader>{m.section_external_links()}</SectionHeader>
 
-			<!-- Responsive link grid: 3 cols on mobile, 6 cols on desktop -->
+			<!-- Responsive Bento Grid: 2 cols (mobile), 3 cols (sm), 4 cols (md), 6 cols (lg) -->
 			<!-- eslint-disable svelte/no-navigation-without-resolve -->
-			<div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+			<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
 				{#each fixedStudyLinks as link (link.id)}
-					<div class="relative aspect-square">
-						<a
+					<div class="relative group">
+						<BentoCard
 							href={linkHref(link.url)}
 							target={linkTarget()}
 							rel={linkRel()}
 							onclick={(e) => handleLinkClick(e, link.url, link.forceExternal)}
-							class="flex h-full flex-col items-center justify-center rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3 text-center transition-colors hover:bg-[var(--color-surface-muted)]"
+							padding="p-3.5"
+							class="h-full min-h-[96px] text-center flex flex-col items-center justify-center relative"
 						>
 							<span
-								class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-800)]"
+								class="mb-2 mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] transition-transform duration-200 group-hover:scale-105"
 							>
-								<link.icon size={22} />
+								<link.icon size={20} />
 							</span>
 							<span
-								class="line-clamp-1 text-[11px] font-bold tracking-tight text-[var(--color-nav-active)]"
+								class="line-clamp-1 text-xs font-semibold tracking-tight text-[var(--color-nav-active)] px-1 w-full text-center"
 							>
 								{link.name}
 							</span>
-						</a>
+						</BentoCard>
 						<button
 							type="button"
-							onclick={() => openEditFixedLink(link)}
-							class="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)]/95 text-[var(--color-nav-inactive)] transition-colors hover:text-[var(--color-nav-active)]"
-							aria-label="リンクを編集"
+							onclick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								openEditFixedLink(link);
+							}}
+							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							aria-label={m.external_link_name()}
 						>
-							<Pencil size={14} />
+							<Pencil size={13} />
 						</button>
 					</div>
 				{/each}
+
 				{#each customStudyLinks as link (link.id)}
-					<div class="relative aspect-square">
-						<a
+					<div class="relative group">
+						<BentoCard
 							href={linkHref(link.url)}
 							target={linkTarget()}
 							rel={linkRel()}
 							onclick={(e) => handleLinkClick(e, link.url)}
-							class="flex h-full flex-col items-center justify-center rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3 text-center transition-colors hover:bg-[var(--color-surface-muted)]"
+							padding="p-3.5"
+							class="h-full min-h-[96px] text-center flex flex-col items-center justify-center relative"
 						>
 							<span
-								class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-800)]"
+								class="mb-2 mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] transition-transform duration-200 group-hover:scale-105"
 							>
-								<Globe size={22} />
+								<Globe size={20} />
 							</span>
 							<span
-								class="line-clamp-1 text-[11px] font-bold tracking-tight text-[var(--color-nav-active)]"
+								class="line-clamp-1 text-xs font-semibold tracking-tight text-[var(--color-nav-active)] px-1 w-full text-center"
 							>
 								{link.name}
 							</span>
-						</a>
+						</BentoCard>
 						<button
 							type="button"
-							onclick={() => openEditCustomLink(link)}
-							class="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)]/95 text-[var(--color-nav-inactive)] transition-colors hover:text-[var(--color-nav-active)]"
-							aria-label="リンクを編集"
+							onclick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								openEditCustomLink(link);
+							}}
+							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							aria-label={m.external_link_name()}
 						>
-							<Pencil size={14} />
+							<Pencil size={13} />
 						</button>
 					</div>
 				{/each}
-				<div class="relative aspect-square">
-					<button
-						type="button"
-						onclick={openAddLink}
-						class="flex h-full w-full flex-col items-center justify-center rounded-card border border-dashed border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3 text-center transition-colors hover:bg-[var(--color-surface-muted)]"
+
+				<BentoCard
+					onclick={openAddLink}
+					padding="p-3.5"
+					class="h-full min-h-[96px] text-center flex flex-col items-center justify-center border-dashed border-[var(--color-surface-border)]/80"
+				>
+					<span
+						class="mb-2 mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)]"
 					>
-						<span
-							class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-800)]"
-						>
-							<Plus size={22} />
-						</span>
-						<span class="text-[11px] font-bold tracking-tight text-[var(--color-nav-active)]">
-							リンク追加
-						</span>
-					</button>
-				</div>
+						<Plus size={20} />
+					</span>
+					<span
+						class="line-clamp-1 text-xs font-semibold tracking-tight text-[var(--color-nav-active)] text-center w-full px-1"
+					>
+						{m.external_link_add()}
+					</span>
+				</BentoCard>
 			</div>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 
-			<!-- Additional 2 wide buttons under grid -->
+			<!-- Wide Banner Cards: 2 Columns on Tablet/Desktop -->
 			<!-- eslint-disable svelte/no-navigation-without-resolve -->
-			<div class="grid grid-cols-2 gap-3">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 				{#each bottomLinks as link (link.id)}
-					<div class="relative group aspect-[180/54]">
-						<a
+					<div class="relative group">
+						<BentoCard
 							href={linkHref(link.url)}
 							target={linkTarget()}
 							rel={linkRel()}
 							onclick={(e) => handleLinkClick(e, link.url, link.forceExternal)}
-							class="flex h-full items-center justify-between rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] pl-4 pr-10 py-3.5 transition-colors hover:bg-[var(--color-surface-muted)]"
+							padding="px-4 py-3.5"
+							class="flex-row items-center justify-between"
 						>
-							<span
-								class="flex items-center gap-2 text-sm font-bold text-[var(--color-nav-active)]"
-							>
-								<link.icon size={18} class="text-[var(--color-primary-700)]" />
-								<span class="line-clamp-1">{link.name}</span>
-							</span>
-							<ChevronRight size={16} class="text-[var(--color-nav-inactive)]" />
-						</a>
+							<div class="flex items-center gap-3 min-w-0 flex-1 pr-8">
+								<div
+									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)]"
+								>
+									<link.icon size={20} />
+								</div>
+								<span
+									class="text-sm font-semibold tracking-tight text-[var(--color-nav-active)] truncate"
+								>
+									{link.name}
+								</span>
+							</div>
+							<div class="flex items-center gap-1.5 shrink-0">
+								<ChevronRight
+									size={18}
+									class="text-[var(--color-nav-inactive)] group-hover:translate-x-0.5 transition-transform shrink-0"
+								/>
+							</div>
+						</BentoCard>
 						<button
 							type="button"
-							onclick={() => openEditFixedLink(link)}
-							class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)]/95 text-[var(--color-nav-inactive)] transition-colors hover:text-[var(--color-nav-active)]"
-							aria-label="リンクを編集"
+							onclick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								openEditFixedLink(link);
+							}}
+							class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							aria-label={m.external_link_name()}
 						>
-							<Pencil size={14} />
+							<Pencil size={13} />
 						</button>
 					</div>
 				{/each}
@@ -626,24 +587,26 @@
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 
-		<hr class="border-[var(--color-surface-border)]" />
-
-		<!-- 動的カスタマイズ機能エリア -->
+		<!-- Bento Feature Grid Area: Dynamic Widgets & Features -->
 		<div class="space-y-4">
-			{#each settings.homeFeatures as fid (fid)}
-				{@const layout = settings.homeFeatureLayouts?.[fid] || 'button'}
-				{#if fid === 'timetable' && layout === 'widget'}
-					<TimetableWidget />
-				{:else if fid === 'todo' && layout === 'widget'}
-					<TodoWidget />
-				{:else if fid === 'calendar' && layout === 'widget'}
-					<CalendarWidget />
-				{:else if fid === 'attendance' && layout === 'widget'}
-					<AttendanceWidget />
-				{:else if fid !== 'dashboard'}
-					<FeatureLinkCard id={fid} />
-				{/if}
-			{/each}
+			<SectionHeader>{m.nav_home()}</SectionHeader>
+
+			<div class="space-y-4">
+				{#each settings.homeFeatures as fid (fid)}
+					{@const layout = settings.homeFeatureLayouts?.[fid] || 'button'}
+					{#if fid === 'timetable' && layout === 'widget'}
+						<TimetableWidget />
+					{:else if fid === 'todo' && layout === 'widget'}
+						<TodoWidget />
+					{:else if fid === 'calendar' && layout === 'widget'}
+						<CalendarWidget />
+					{:else if fid === 'attendance' && layout === 'widget'}
+						<AttendanceWidget />
+					{:else if fid !== 'dashboard'}
+						<FeatureLinkCard id={fid} />
+					{/if}
+				{/each}
+			</div>
 		</div>
 	</div>
 </Container>
@@ -651,17 +614,27 @@
 <Modal
 	open={linkModalOpen}
 	onclose={() => (linkModalOpen = false)}
-	title={editingLinkId ? 'リンクを編集' : 'リンクを追加'}
+	title={editingLinkId ? m.external_link_name() : m.external_link_add()}
 >
-	<div class="space-y-4">
-		<TextField bind:value={linkName} label="表示名" placeholder="例: 図書館" />
-		<TextField bind:value={linkUrl} type="url" label="URL" placeholder="https://..." />
+	<div class="space-y-4 py-2">
+		<TextField bind:value={linkName} label={m.external_link_name()} placeholder="例: 図書館" />
+		<TextField
+			bind:value={linkUrl}
+			type="url"
+			label={m.external_link_url()}
+			placeholder="https://..."
+		/>
 	</div>
 
 	{#snippet footer()}
 		<div class="flex gap-2">
 			{#if editingLinkId}
-				<Button variant="danger" size="md" onclick={deleteCustomLink} aria-label="削除">
+				<Button
+					variant="danger"
+					size="md"
+					onclick={deleteCustomLink}
+					aria-label={m.action_delete()}
+				>
 					<Trash2 size={16} />
 				</Button>
 			{/if}
