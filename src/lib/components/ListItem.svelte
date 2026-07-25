@@ -49,7 +49,10 @@
 
 <GlassContainer
 	variant="card"
-	class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200 {klass}"
+	glow={Boolean(href || onclick)}
+	distortion="medium"
+	elevation={href || onclick ? 'lg' : 'md'}
+	class="rounded-card transition-all duration-200 {klass}"
 >
 	{#if resolvedHref && !disabled}
 		<!-- eslint-disable svelte/no-navigation-without-resolve -->

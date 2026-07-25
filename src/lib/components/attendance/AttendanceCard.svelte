@@ -97,10 +97,7 @@
 	}
 </script>
 
-<GlassContainer
-	variant="card"
-	class="space-y-4 rounded-card border border-[var(--color-surface-border)]/80 p-4 shadow-apple-md"
->
+<GlassContainer variant="card" glow={true} distortion="medium" class="space-y-4 rounded-card p-4">
 	<!-- Header: course name + color dot + rate ring -->
 	<div class="flex items-center gap-3">
 		<span

@@ -4,18 +4,15 @@
   Escape / backdrop click / × ボタン で閉じる。
 
   Apple Design 準拠:
-  - §12 Materials: 正確なすりガラス実装 (backdrop-blur-3xl + 明るい上辺ボーダー)
-  - §7  Spatial consistency: scale + fade アニメーション
-  - §14 Reduced motion: `prefers-reduced-motion` 時は opacity fade のみ
+  - §12 Materials: GlassContainer animateIn で Liquid Glass マテリアライズ
+  - §7  Spatial consistency: 同一アニメーションで entrance/exit
+  - §14 Reduced motion: GlassContainer が自動で css animation を無効化
   - §16 Accessibility: aria-labelledby, フォーカストラップ
 -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { fade, scale } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
 	import { X } from '@lucide/svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { APPLE_MATERIALS } from '$lib/apple-design';
 	import IconButton from './IconButton.svelte';
 	import GlassContainer from './GlassContainer.svelte';
 
@@ -41,7 +38,7 @@
 		footer
 	}: Props = $props();
 
-	// フォーカストラップ: モーダルが開いたら最初の focusable 要素にフォーカス
+	// フォーカストラップ
 	let dialogEl = $state<HTMLDivElement | null>(null);
 	let previousFocus: HTMLElement | null = null;
 
@@ -50,17 +47,15 @@
 	$effect(() => {
 		if (open) {
 			previousFocus = document.activeElement as HTMLElement;
-			// 次のフレームでフォーカスを移動（transition 完了後）
-			requestAnimationFrame(() => {
+			// animateIn が 300ms → 完了後にフォーカス
+			setTimeout(() => {
 				if (!dialogEl) return;
 				const focusable = dialogEl.querySelectorAll<HTMLElement>(
 					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
 				);
-				const first = focusable[0];
-				if (first) first.focus();
-			});
+				focusable[0]?.focus();
+			}, 320);
 		} else {
-			// モーダルが閉じたら元の要素に戻す
 			previousFocus?.focus();
 			previousFocus = null;
 		}
@@ -68,40 +63,31 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (!open) return;
-
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			onclose();
 			return;
 		}
 
-		// フォーカストラップ: Tab / Shift+Tab でダイアログ内を循環
 		if (e.key === 'Tab' && dialogEl) {
 			const focusable = dialogEl.querySelectorAll<HTMLElement>(
 				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 			);
-			const focusArray = Array.from(focusable);
-			const first = focusArray[0];
-			const last = focusArray[focusArray.length - 1];
-
-			if (e.shiftKey) {
-				if (document.activeElement === first) {
-					e.preventDefault();
-					last?.focus();
-				}
-			} else {
-				if (document.activeElement === last) {
-					e.preventDefault();
-					first?.focus();
-				}
+			const fa = Array.from(focusable);
+			const first = fa[0];
+			const last = fa[fa.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last?.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first?.focus();
 			}
 		}
 	}
 
 	function handleBackdrop(e: MouseEvent) {
-		if (closeOnBackdrop && e.target === e.currentTarget) {
-			onclose();
-		}
+		if (closeOnBackdrop && e.target === e.currentTarget) onclose();
 	}
 
 	$effect(() => {
@@ -117,37 +103,36 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if open}
+	<!--
+		アニメーションは GlassContainer の animateIn だけに任せる。
+		外側の div に transition:fade をかけると 150ms vs 300ms でタイミングがずれ、
+		描画の途中ハーフ状態が視認されるバグの原因になっていた。
+		代わりに opacity-0 → animation 完了で auto 表示。
+	-->
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+		class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby={title ? titleId : undefined}
 		aria-label={title ? undefined : m.modal_close()}
-		transition:fade={{ duration: 150 }}
 	>
-		<!-- backdrop -->
-		<button
-			type="button"
-			class="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity"
-			aria-label={m.modal_close()}
+		<!-- backdrop — シンプルな semi-transparent overlay -->
+		<div
+			class="absolute inset-0 bg-black/40 backdrop-blur-md"
 			onclick={handleBackdrop}
+			role="button"
 			tabindex="-1"
-		></button>
+			aria-label={m.modal_close()}
+		></div>
 
-		<!-- dialog panel -->
+		<!-- §12 Materials: GlassContainer static render — backdrop-filter animation は compositing artifact を起こす -->
 		<GlassContainer
 			variant="modal"
-			class="modal-panel relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden rounded-card
-			       border border-[var(--color-surface-border)]/80
-			       shadow-apple-xl transition-all"
+			elevation="xl"
+			class="modal-panel relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden rounded-card"
 			style="max-width: {maxWidth}"
 		>
-			<div
-				bind:this={dialogEl}
-				class="flex h-full w-full flex-col overflow-hidden"
-				transition:scale={{ duration: 250, start: 0.94, easing: cubicOut }}
-			>
-				<!-- 明るい上辺ボーダー: Apple §12 Materials — bright top edge = light catching the material -->
+			<div bind:this={dialogEl} class="flex h-full w-full flex-col overflow-hidden">
 				<div
 					class="absolute inset-x-0 top-0 h-px bg-white/20 rounded-t-card pointer-events-none z-20"
 					aria-hidden="true"
@@ -172,9 +157,7 @@
 					{@render children()}
 				</div>
 				{#if footer}
-					<footer
-						class="shrink-0 border-t border-[var(--color-surface-border)]/60 bg-[var(--color-surface-page)]/80 px-5 py-3.5"
-					>
+					<footer class="shrink-0 border-t border-[var(--color-surface-border)]/60 px-5 py-3.5">
 						{@render footer()}
 					</footer>
 				{/if}

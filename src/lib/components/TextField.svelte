@@ -116,11 +116,11 @@
 				{onblur}
 				onfocus={onfocus as HTMLTextAreaElement['onfocus']}
 				onkeydown={onkeydown as HTMLTextAreaElement['onkeydown']}
-				class="block w-full min-h-[44px] rounded-chip border bg-[var(--color-surface-card)]/90 backdrop-blur-md px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
+				class="block w-full min-h-[44px] rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/70 backdrop-blur-2xl px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
 					? 'pl-10'
 					: ''} {Trailing ? 'pr-10' : ''} {hasError
 					? 'border-[var(--color-attendance-absent-fg)]'
-					: 'border-[var(--color-surface-border)]/80'} resize-none overflow-y-hidden"
+					: 'border-[var(--color-surface-border)]/60'} resize-none overflow-y-hidden"
 				bind:this={textareaElement}></textarea>
 		{:else if type === 'select'}
 			<div class="relative w-full">
@@ -131,11 +131,11 @@
 					{required}
 					{disabled}
 					{onchange}
-					class="block w-full min-h-[44px] appearance-none rounded-chip border bg-[var(--color-surface-card)]/90 backdrop-blur-md px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
+					class="block w-full min-h-[44px] appearance-none rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/70 backdrop-blur-2xl px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
 						? 'pl-10'
 						: ''} pr-10 {hasError
 						? 'border-[var(--color-attendance-absent-fg)]'
-						: 'border-[var(--color-surface-border)]/80'} cursor-pointer hover:bg-[var(--color-surface-muted)]/40"
+						: 'border-[var(--color-surface-border)]/60'} cursor-pointer hover:bg-[var(--color-surface-muted)]/40"
 					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 				>
 					{#each options as opt (opt.value)}
@@ -166,11 +166,11 @@
 				{onblur}
 				onfocus={onfocus as HTMLInputElement['onfocus']}
 				onkeydown={onkeydown as HTMLInputElement['onkeydown']}
-				class="block w-full min-h-[44px] rounded-chip border bg-[var(--color-surface-card)]/90 backdrop-blur-md px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
+				class="block w-full min-h-[44px] rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/70 backdrop-blur-2xl px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-apple-sm transition-all duration-200 focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20 disabled:opacity-50 {Leading
 					? 'pl-10'
 					: ''} {Trailing ? 'pr-10' : ''} {hasError
 					? 'border-[var(--color-attendance-absent-fg)]'
-					: 'border-[var(--color-surface-border)]/80'}"
+					: 'border-[var(--color-surface-border)]/60'}"
 			/>
 		{/if}
 

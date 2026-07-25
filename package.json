@@ -84,7 +84,6 @@
 		"idb-keyval": "^6.2.5",
 		"jspdf": "^4.2.1",
 		"katex": "^0.17.0",
-		"liquid-glass-svelte": "github:danilofiumi/liquid-glass-svelte",
 		"marked": "^18.0.5",
 		"mermaid": "^11.16.0",
 		"remotestoragejs": "2.0.0-beta.9"

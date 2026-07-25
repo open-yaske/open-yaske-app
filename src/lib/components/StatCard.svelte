@@ -30,7 +30,9 @@
 
 <GlassContainer
 	variant="card"
-	class="flex flex-col justify-between gap-1 rounded-card border border-[var(--color-surface-border)]/80 px-4 py-3.5 shadow-apple-sm {klass}"
+	glow={true}
+	distortion="medium"
+	class="flex flex-col justify-between gap-1 rounded-card px-4 py-3.5 {klass}"
 >
 	<span class="text-xs font-medium text-[var(--color-nav-inactive)]">{label}</span>
 	<div class="flex items-baseline gap-1">

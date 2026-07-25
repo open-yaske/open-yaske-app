@@ -23,3 +23,4 @@ export { default as Emoji } from './Emoji.svelte';
 export { default as BentoCard } from './BentoCard.svelte';
 export { default as SpotlightSearch } from './SpotlightSearch.svelte';
 export { default as GlassContainer } from './GlassContainer.svelte';
+export { default as LiquidGlassButton } from './LiquidGlassButton.svelte';

@@ -37,6 +37,7 @@
 	import TodoWidget from '$lib/components/dashboard/TodoWidget.svelte';
 	import CalendarWidget from '$lib/components/dashboard/CalendarWidget.svelte';
 	import AttendanceWidget from '$lib/components/dashboard/AttendanceWidget.svelte';
+	import TransitWidget from '$lib/components/dashboard/TransitWidget.svelte';
 	import FeatureLinkCard from '$lib/components/dashboard/FeatureLinkCard.svelte';
 
 	type HomeLink = {
@@ -602,6 +603,8 @@
 						<CalendarWidget />
 					{:else if fid === 'attendance' && layout === 'widget'}
 						<AttendanceWidget />
+					{:else if fid === 'transit' && layout === 'widget'}
+						<TransitWidget />
 					{:else if fid !== 'dashboard'}
 						<FeatureLinkCard id={fid} />
 					{/if}

@@ -3,7 +3,13 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { locales, localizeHref, setLocale } from '$lib/paraglide/runtime';
-	import { themeStore, settingsStore, userDataStore, publicDataStore } from '$lib/stores';
+	import {
+		themeStore,
+		settingsStore,
+		userDataStore,
+		publicDataStore,
+		transitStore
+	} from '$lib/stores';
 	import { initRemoteStorage } from '$lib/remotestorage';
 	import { BottomTabBar, SideNav } from '$lib/components';
 	import { Home, Calendar, BookOpen, CheckSquare, BarChart3, MoreHorizontal } from '@lucide/svelte';
@@ -35,6 +41,44 @@
 			navigator.serviceWorker.register('/service-worker.js').catch((err) => {
 				console.error('Service worker registration failed:', err);
 			});
+		}
+	});
+
+	// 天気の位置情報（settings.lat/lng）の変更を検知して、運行情報の最寄り駅を自動更新
+	$effect(() => {
+		if (settingsStore.initialized) {
+			const lat = settingsStore.settings.lat;
+			const lng = settingsStore.settings.lng;
+			const lastLat = settingsStore.settings.transitLastLat;
+			const lastLng = settingsStore.settings.transitLastLng;
+
+			// 初回設定または位置情報が前回の割り出し位置から0.0001度（約10m）以上動いた場合
+			const diff = Math.abs(lat - lastLat) + Math.abs(lng - lastLng);
+			if (diff > 0.0001 || !settingsStore.settings.transitStationId) {
+				void (async () => {
+					try {
+						const res = await fetch(
+							`https://api.transit.ls8h.com/api/v1/places/reverse?lat=${lat}&lon=${lng}&radiusMeters=500&limit=10`
+						);
+						if (res.ok) {
+							const data = await res.json();
+							const stations = (data.places || []).filter(
+								(p: any) =>
+									(p.kind === 'station' || p.kind === 'stop') &&
+									!p.id.startsWith('transit:') &&
+									!p.id.startsWith('osm:') &&
+									!p.id.startsWith('geocoder:')
+							);
+							if (stations.length > 0) {
+								const nearest = stations[0];
+								await transitStore.setStation(nearest.id, nearest.name, lat, lng);
+							}
+						}
+					} catch (err) {
+						console.error('Failed to auto-update transit station on location change:', err);
+					}
+				})();
+			}
 		}
 	});
 
@@ -70,6 +114,7 @@
 		currentLocaleSignal;
 
 		const barFeatures = settingsStore.settings.barFeatures || [
+			'dashboard',
 			'timetable',
 			'todo',
 			'calendar',

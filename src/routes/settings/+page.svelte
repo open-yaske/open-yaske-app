@@ -44,7 +44,7 @@
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
-	const appVersion = '2026.07.19';
+	const appVersion = '2026.07.25';
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -968,6 +968,17 @@
 			<Switch
 				checked={settingsStore.settings.homeShowWeather}
 				onchange={(v) => settingsStore.update({ homeShowWeather: v })}
+			/>
+		</div>
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]"
+				>{m.settings_weather_show_transit()}</span
+			>
+			<Switch
+				checked={settingsStore.settings.weatherShowTransit}
+				onchange={(v) => settingsStore.update({ weatherShowTransit: v })}
 			/>
 		</div>
 		<div

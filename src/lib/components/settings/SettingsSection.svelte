@@ -5,6 +5,7 @@
 -->
 <script lang="ts">
 	import SectionHeader from '../SectionHeader.svelte';
+	import GlassContainer from '../GlassContainer.svelte';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -28,9 +29,7 @@
 	{#if description}
 		<p class="mb-2 px-1 text-xs text-[var(--color-nav-inactive)]">{description}</p>
 	{/if}
-	<div
-		class="overflow-hidden rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)]"
-	>
+	<GlassContainer variant="card" class="overflow-hidden rounded-xl">
 		{@render children()}
-	</div>
+	</GlassContainer>
 </section>

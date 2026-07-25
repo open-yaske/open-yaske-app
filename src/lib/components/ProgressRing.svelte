@@ -59,7 +59,22 @@
 	aria-valuemax={100}
 	aria-label={ariaLabel}
 >
-	<svg width={size} height={size} class="-rotate-90" aria-hidden="true">
+	<!-- §12 背景ガラス円 -->
+	<svg width={size} height={size} class="absolute inset-0" aria-hidden="true">
+		<defs>
+			<filter id="ring-glass-bg">
+				<feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+			</filter>
+		</defs>
+		<circle
+			cx={center}
+			cy={center}
+			r={radius + strokeWidth / 2}
+			fill="color-mix(in srgb, var({trackColor}) 30%, transparent)"
+			class="backdrop-blur-sm"
+		/>
+	</svg>
+	<svg width={size} height={size} class="-rotate-90 relative z-10" aria-hidden="true">
 		<circle
 			cx={center}
 			cy={center}

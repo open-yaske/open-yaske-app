@@ -10,7 +10,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 
-	type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+	type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'glass';
 	type Size = 'sm' | 'md' | 'lg';
 
 	type ClickHandler = (event: MouseEvent) => void;
@@ -67,7 +67,9 @@
 				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/80 hover:bg-[var(--color-surface-muted)] shadow-apple-sm',
 			ghost: 'bg-transparent text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]',
 			danger:
-				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 shadow-apple-sm'
+				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 shadow-apple-sm',
+			glass:
+				'backdrop-blur-2xl bg-[var(--color-surface-card)]/70 border border-[var(--color-surface-border)]/60 text-[var(--color-nav-active)] hover:bg-[var(--color-surface-card)]/90 hover:shadow-apple-md shadow-apple-sm'
 		}[variant]
 	);
 

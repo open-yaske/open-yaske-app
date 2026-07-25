@@ -41,11 +41,11 @@
 	const variantClass = $derived(
 		{
 			ghost:
-				'text-[var(--color-nav-inactive)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]',
+				'text-[var(--color-nav-inactive)] hover:backdrop-blur-xl hover:bg-[var(--color-surface-card)]/40 hover:shadow-apple-sm hover:text-[var(--color-nav-active)]',
 			primary:
 				'bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] shadow-apple-sm hover:shadow-apple-md',
 			subtle:
-				'bg-[var(--color-surface-muted)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-border)]/80',
+				'bg-[var(--color-surface-muted)] backdrop-blur-md text-[var(--color-nav-active)] hover:bg-[var(--color-surface-border)]/80',
 			danger:
 				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 shadow-apple-sm'
 		}[variant]

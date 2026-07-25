@@ -1,13 +1,21 @@
 <!--
   QuickAccess.svelte
   ホーム画面のクイックアクセスショートカット。
-  横スクロール可能なアイコンボタンの行。時間割 / TODO / カレンダー / 出席 へリンク。
+  横スクロール可能な Liquid Glass アイコンボタンの行。
+  時間割 / TODO / カレンダー / 出席 へリンク。
+
+  Apple Design 準拠:
+  - §12 Materials: LiquidGlass カード
+  - §1 Response: pointer-down 即フィードバック
+  - §10 Gesture: 44px 最小タップターゲット
 -->
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { BookOpen, CheckSquare, Calendar, BarChart3 } from '@lucide/svelte';
 	import type { Component } from 'svelte';
+	import GlassContainer from './GlassContainer.svelte';
+	import { APPLE_PRESS } from '$lib/apple-design';
 
 	interface Shortcut {
 		href: string;
@@ -27,18 +35,20 @@
 	class="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
 >
 	{#each shortcuts as item (item.href)}
-		<!-- eslint-disable svelte/no-navigation-without-resolve -->
-		<a
-			href={item.href}
-			class="flex shrink-0 flex-col items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-surface-muted)]"
-		>
-			<span
-				class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"
+		<GlassContainer variant="card" glow={true} distortion="medium" class="shrink-0 rounded-2xl">
+			<!-- eslint-disable svelte/no-navigation-without-resolve -->
+			<a
+				href={item.href}
+				class="flex flex-col items-center gap-2 px-5 py-4 select-none {APPLE_PRESS.card}"
 			>
-				<item.icon size={22} />
-			</span>
-			<span class="text-xs font-medium text-[var(--color-nav-active)]">{item.label}</span>
-		</a>
-		<!-- eslint-enable svelte/no-navigation-without-resolve -->
+				<span
+					class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"
+				>
+					<item.icon size={22} />
+				</span>
+				<span class="text-xs font-medium text-[var(--color-nav-active)]">{item.label}</span>
+			</a>
+			<!-- eslint-enable svelte/no-navigation-without-resolve -->
+		</GlassContainer>
 	{/each}
 </div>

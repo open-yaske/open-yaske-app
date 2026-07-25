@@ -5,3 +5,4 @@ allowBuilds:
   esbuild: true
   sharp: true
   liquid-glass-svelte: true
+  liquid-glass-svelte@https://codeload.github.com/danilofiumi/liquid-glass-svelte/tar.gz/e20ec17e9b34feda5ec1dfbf201ffb1fb5c66e36: true

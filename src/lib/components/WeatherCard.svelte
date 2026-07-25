@@ -4,9 +4,9 @@
 -->
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { weatherStore, settingsStore } from '$lib/stores';
+	import { weatherStore, settingsStore, transitStore, formatDepartureTime } from '$lib/stores';
 	import { weatherCodeToLabel, weatherCodeToEmoji } from '$lib/weather';
-	import { CloudOff, MapPin } from '@lucide/svelte';
+	import { CloudOff, MapPin, Train } from '@lucide/svelte';
 	import EmptyState from './EmptyState.svelte';
 	import Emoji from './Emoji.svelte';
 	import BentoCard from './BentoCard.svelte';
@@ -113,16 +113,26 @@
 	}
 
 	$effect(() => {
-		const lat = settingsStore.settings.lat;
-		const lng = settingsStore.settings.lng;
+		const lat = settings.lat;
+		const lng = settings.lng;
 		if (typeof lat === 'number' && typeof lng === 'number') {
 			void weatherStore.load(lat, lng);
+		}
+		if (settings.weatherShowTransit && settings.transitStationId) {
+			void transitStore.loadDepartures();
 		}
 	});
 
 	const weatherUrl = $derived(
 		'https://www.google.com/search?q=' +
 			encodeURIComponent((settings.locationName || '調布') + ' 天気')
+	);
+
+	// 未発車の電車を WeatherCard 内で最大2件表示
+	const cardTransitDepartures = $derived(
+		transitStore.departures
+			.filter((d) => d.departureSecs >= transitStore.currentElapsedSecs)
+			.slice(0, 2)
 	);
 </script>
 
@@ -234,6 +244,65 @@
 						</div>
 					{/each}
 				</div>
+			{/if}
+
+			{#if settings.weatherShowTransit && settings.transitStationId && cardTransitDepartures.length > 0}
+				<a
+					href="/transit"
+					class="block border-t border-[var(--color-surface-border)]/50 pt-3.5 mt-1 hover:opacity-85 transition active:scale-[0.99] origin-center cursor-pointer"
+				>
+					<div
+						class="flex items-center justify-between text-[10px] font-bold text-[var(--color-nav-inactive)] mb-2"
+					>
+						<span class="inline-flex items-center gap-1 leading-none">
+							<Train size={11} />
+							{settings.transitStationName}
+							{m.transit_title()}
+						</span>
+					</div>
+					<div class="flex flex-col gap-1.5">
+						{#each cardTransitDepartures as dep (dep.tripId + dep.departureSecs)}
+							{@const remaining = dep.departureSecs - transitStore.currentElapsedSecs}
+							<div class="flex items-center justify-between text-[11px] font-medium">
+								<div class="flex items-center gap-2 min-w-0 flex-1">
+									<span
+										class="h-2 w-2 rounded-full shrink-0 border border-black/5"
+										style="background-color: #{dep.color || '666666'}"
+									></span>
+									<span class="font-semibold text-[var(--color-nav-active)] truncate">
+										{dep.headsign}
+									</span>
+								</div>
+								<div class="text-right shrink-0 flex items-center gap-3">
+									<span class="text-[11px] font-mono font-bold text-[var(--color-nav-active)]">
+										{formatDepartureTime(dep.departureSecs)}
+									</span>
+									<div
+										class="w-12 text-right font-mono font-semibold text-[10px] text-[var(--color-nav-inactive)]"
+									>
+										{#if remaining <= 0}
+											<span class="text-[var(--color-danger-500)] font-bold animate-pulse">
+												{m.transit_departs_just_now()}
+											</span>
+										{:else}
+											{@const mins = Math.floor(remaining / 60)}
+											{@const secs = remaining % 60}
+											<span
+												class={remaining < 180 ? 'text-[var(--color-danger-500)] font-bold' : ''}
+											>
+												{#if mins > 0}
+													{mins}:{secs.toString().padStart(2, '0')}
+												{:else}
+													{secs}秒
+												{/if}
+											</span>
+										{/if}
+									</div>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</a>
 			{/if}
 		</div>
 	{:else if !loading}

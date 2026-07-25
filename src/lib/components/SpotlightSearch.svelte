@@ -104,7 +104,10 @@
 <div class="relative w-full search-container-relative {klass}">
 	<GlassContainer
 		variant="input"
-		class="rounded-full border border-[var(--color-surface-border)]/80 shadow-apple-md transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:border-[var(--color-primary-500)]/40 hover:shadow-apple-lg"
+		glow={true}
+		distortion="high"
+		elevation="lg"
+		class="rounded-full transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:shadow-apple-lg"
 	>
 		<form
 			onsubmit={handleSubmit}
@@ -153,11 +156,10 @@
 				size="sm"
 				type="submit"
 				disabled={!query.trim()}
-				class="ml-2 !rounded-full !px-3.5 shrink-0"
+				class="ml-2 !rounded-full !p-2.5 shrink-0 flex items-center justify-center"
 				aria-label={m.action_search()}
 			>
-				<Search size={14} class="md:hidden" aria-hidden="true" />
-				<span class="hidden md:inline text-xs">{m.action_search()}</span>
+				<Search size={14} aria-hidden="true" />
 			</Button>
 		</form>
 	</GlassContainer>

@@ -44,7 +44,10 @@
 >
 	<GlassContainer
 		variant="bar"
-		class="flex h-full w-full flex-col border-r border-[var(--color-surface-border)]/80"
+		glow={true}
+		distortion="high"
+		elevation="lg"
+		class="flex h-full w-full flex-col"
 	>
 		<div
 			class="flex h-16 items-center px-4"

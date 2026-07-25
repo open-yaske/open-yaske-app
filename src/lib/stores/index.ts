@@ -4,3 +4,4 @@ export { weatherStore } from './weather.svelte';
 export { uiStore } from './ui.svelte';
 export { userDataStore } from './userData.svelte';
 export { publicDataStore } from './publicData.svelte';
+export { transitStore, formatDepartureTime } from './transit.svelte';

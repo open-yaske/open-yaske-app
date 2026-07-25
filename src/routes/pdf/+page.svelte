@@ -4,11 +4,15 @@
 	import Container from '$lib/components/Container.svelte';
 	import IconButton from '$lib/components/IconButton.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import BentoCard from '$lib/components/BentoCard.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 	import { DocumentScanner } from '@capgo/capacitor-document-scanner';
 	import { Capacitor } from '@capacitor/core';
+	import { m } from '$lib/paraglide/messages';
+	import { APPLE_PRESS } from '$lib/apple-design';
 
-	let fileInput: HTMLInputElement;
-	let cameraInput: HTMLInputElement;
+	let fileInput = $state<HTMLInputElement | null>(null);
+	let cameraInput = $state<HTMLInputElement | null>(null);
 	let images = $state<{ name: string; url: string }[]>([]);
 	let filename = $state('');
 	let pageSize = $state<'a4' | 'original'>('a4');
@@ -21,7 +25,7 @@
 	}
 
 	function triggerSelectFiles() {
-		fileInput.click();
+		fileInput?.click();
 	}
 
 	async function startScan() {
@@ -31,7 +35,7 @@
 				if (status === 'success' && scannedImages && scannedImages.length > 0) {
 					error = '';
 					if (images.length + scannedImages.length > 30) {
-						error = '画像は最大30枚まで選択できます。';
+						error = m.pdf_error_max_images();
 						return;
 					}
 
@@ -41,18 +45,16 @@
 							images = [...images, { name: `scan_${Date.now()}.jpg`, url: dataUrl }];
 						} catch (err) {
 							console.error('Failed to convert scanned image to data URL:', err);
-							error = 'スキャン画像の読み込みに失敗しました。';
+							error = m.pdf_error_failed_to_load();
 						}
 					}
 				}
 			} catch (e) {
 				console.error('Document scanning failed:', e);
-				error = 'ドキュメントスキャンに失敗しました。';
+				error = m.pdf_error_failed_to_scan();
 			}
 		} else {
-			if (cameraInput) {
-				cameraInput.click();
-			}
+			cameraInput?.click();
 		}
 	}
 
@@ -76,14 +78,14 @@
 
 		const files = Array.from(target.files);
 		if (images.length + files.length > 30) {
-			error = '画像は最大30枚まで選択できます。';
+			error = m.pdf_error_max_images();
 			return;
 		}
 
 		error = '';
 		for (const file of files) {
 			if (!file.type.startsWith('image/')) {
-				error = '画像ファイルのみ選択してください。';
+				error = m.pdf_error_image_only();
 				continue;
 			}
 
@@ -103,7 +105,7 @@
 
 	async function handleExport() {
 		if (images.length === 0) {
-			error = 'PDFにする画像を追加してください。';
+			error = m.pdf_error_no_images();
 			return;
 		}
 
@@ -112,14 +114,13 @@
 			const doc = new jsPDF({
 				orientation: 'portrait',
 				unit: 'mm',
-				format: pageSize === 'a4' ? 'a4' : 'a4' // 元のサイズでもA4に出力
+				format: 'a4'
 			});
 
 			images.forEach((img, index) => {
 				if (index > 0) {
 					doc.addPage();
 				}
-				// 余白10mmで画像を全面に配置
 				doc.addImage(img.url, 'JPEG', 10, 10, 190, 277);
 			});
 
@@ -130,22 +131,28 @@
 
 			doc.save(outName);
 		} catch (e) {
-			error = 'PDFの生成に失敗しました。';
+			error = m.pdf_error_failed_to_export();
 			console.error(e);
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>写真 → PDF | OpenYASKE</title>
+	<title>{m.more_pdf()} | OpenYASKE</title>
 </svelte:head>
 
-<div class="min-h-screen bg-[var(--color-surface-page)] pb-10">
+<div class="min-h-screen bg-[var(--color-surface-page)] pb-16">
 	{#snippet leadingSnippet()}
-		<IconButton icon={X} ariaLabel="閉じる" onclick={handleClose} variant="subtle" size="sm" />
+		<IconButton
+			icon={X}
+			ariaLabel={m.course_cancel()}
+			onclick={handleClose}
+			variant="subtle"
+			size="sm"
+		/>
 	{/snippet}
 
-	<PageHeader title="写真 → PDF" leading={leadingSnippet} />
+	<PageHeader title={m.more_pdf()} leading={leadingSnippet} />
 
 	<Container size="narrow" class="py-4 space-y-6">
 		<input
@@ -167,147 +174,137 @@
 		/>
 
 		<!-- 画像追加エリア -->
-		<div
-			class="rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-5 space-y-5"
-		>
+		<BentoCard padding="p-5" class="space-y-5">
 			<div class="flex flex-col items-center justify-center py-4 text-center">
 				<div
-					class="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)] mb-3"
+					class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] mb-4 shadow-apple-sm"
 				>
 					<Camera size={26} />
 				</div>
-				<h3 class="text-base font-bold text-[var(--color-nav-active)]">PDF にする画像を追加</h3>
-				<p class="text-xs text-[var(--color-nav-inactive)] mt-1">
-					書類のスキャンがおすすめ (自動でまっすぐ補正)
+				<h3 class="text-base font-bold text-[var(--color-nav-active)]">{m.pdf_add_image()}</h3>
+				<p class="text-xs text-[var(--color-nav-inactive)] mt-1.5 font-medium">
+					{m.pdf_scan_tip()}
 				</p>
 			</div>
 
 			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<!-- スキャン風（実際はカメラ起動またはファイル選択） -->
+				<!-- 書類をスキャン -->
 				<button
 					type="button"
 					onclick={startScan}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3.5 text-[var(--color-primary-50)] transition-all hover:bg-[var(--color-primary-900)]"
+					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3 px-4 text-[var(--color-primary-50)] shadow-apple-sm min-h-[52px] {APPLE_PRESS.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
 						<Camera size={18} />
-						書類をスキャン
+						{m.pdf_scan_button()}
 					</span>
-					<span class="text-[10px] text-[var(--color-primary-100)]"
-						>複数ページを連続で取り込めます</span
-					>
+					<span class="text-[9px] text-[var(--color-primary-200)]">{m.pdf_scan_desc()}</span>
 				</button>
 
 				<!-- 写真を選ぶ -->
 				<button
 					type="button"
 					onclick={triggerSelectFiles}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-surface-card)] py-3.5 text-[var(--color-primary-800)] transition-all hover:bg-[var(--color-primary-50)]"
+					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-3 px-4 text-[var(--color-nav-active)] shadow-apple-sm min-h-[52px] {APPLE_PRESS.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
-						<Image size={18} />
-						写真を選ぶ
+						<Image size={18} class="text-[var(--color-primary-600)]" />
+						{m.pdf_select_button()}
 					</span>
-					<span class="text-[10px] text-[var(--color-nav-inactive)]">アルバムから最大30枚</span>
+					<span class="text-[9px] text-[var(--color-nav-inactive)]">{m.pdf_select_desc()}</span>
 				</button>
 			</div>
 
 			<!-- エラーメッセージ -->
 			{#if error}
-				<p class="text-xs font-semibold text-red-500 text-center">{error}</p>
+				<p
+					class="text-xs font-semibold text-[var(--color-attendance-absent-fg)] text-center bg-[var(--color-attendance-absent-bg)] rounded-xl py-2 px-3 shadow-apple-sm border border-[var(--color-surface-border)]/50"
+				>
+					{error}
+				</p>
 			{/if}
 
 			<!-- アドバイス -->
 			<div
-				class="rounded-xl bg-[var(--color-surface-muted)] p-4 space-y-2 text-xs text-[var(--color-nav-active)]"
+				class="rounded-xl bg-[var(--color-surface-muted)]/80 p-4 space-y-2 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/40 shadow-apple-sm"
 			>
-				<p class="font-bold flex items-center gap-1.5 text-[var(--color-primary-800)]">
+				<p class="font-bold flex items-center gap-1.5 text-[var(--color-primary-600)]">
 					<Lightbulb size={14} />
-					きれいに取り込むには
+					{m.pdf_advice_title()}
 				</p>
-				<ul class="space-y-1.5 pl-1 text-[var(--color-surface-mutedForeground)]">
+				<ul class="space-y-1.5 pl-1 text-[var(--color-nav-inactive)]">
 					<li class="flex items-start gap-1.5">
 						<CheckCircle2 size={12} class="mt-0.5 text-[var(--color-primary-600)] shrink-0" />
-						<span>明るい場所で、紙全体が入るようにする</span>
+						<span>{m.pdf_advice_1()}</span>
 					</li>
 					<li class="flex items-start gap-1.5">
 						<CheckCircle2 size={12} class="mt-0.5 text-[var(--color-primary-600)] shrink-0" />
-						<span>机と紙の色が分かれると認識しやすい</span>
+						<span>{m.pdf_advice_2()}</span>
 					</li>
 					<li class="flex items-start gap-1.5">
 						<CheckCircle2 size={12} class="mt-0.5 text-[var(--color-primary-600)] shrink-0" />
-						<span>撮影後に四隅を直せます (画面の指示に従って保存)</span>
+						<span>{m.pdf_advice_3()}</span>
 					</li>
 				</ul>
 			</div>
-		</div>
+		</BentoCard>
 
 		<!-- プレビューエリア -->
 		{#if images.length > 0}
-			<div
-				class="rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4"
-			>
+			<BentoCard padding="p-4">
 				<h4 class="text-xs font-bold text-[var(--color-nav-inactive)] mb-3">
-					選択された画像 ({images.length}枚)
+					{m.pdf_preview_title({ count: images.length })}
 				</h4>
 				<div class="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
 					{#each images as img, index (img.url)}
 						<div
-							class="relative aspect-[3/4] rounded-lg border border-[var(--color-surface-border)] overflow-hidden bg-[var(--color-surface-muted)] group"
+							class="relative aspect-[3/4] rounded-lg border border-[var(--color-surface-border)] overflow-hidden bg-[var(--color-surface-muted)]/50 group"
 						>
 							<img src={img.url} alt={img.name} class="h-full w-full object-cover" />
 							<button
 								type="button"
 								onclick={() => removeImage(index)}
-								class="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
-								aria-label="削除"
+								class="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all {APPLE_PRESS.icon}"
+								aria-label={m.course_delete()}
 							>
 								<X size={12} />
 							</button>
 						</div>
 					{/each}
 				</div>
-			</div>
+			</BentoCard>
 		{/if}
 
 		<!-- 設定エリア -->
-		<div
-			class="rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-5 space-y-4"
-		>
+		<BentoCard padding="p-5" class="space-y-4">
 			<!-- ファイル名 -->
 			<div class="space-y-1.5">
-				<label for="pdf-filename" class="text-xs font-bold text-[var(--color-nav-inactive)]"
-					>ファイル名</label
-				>
-				<div class="relative flex items-center">
-					<input
-						id="pdf-filename"
-						type="text"
-						placeholder="名前の先頭 (任意)"
-						bind:value={filename}
-						class="w-full rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] px-4 py-3 pr-24 text-sm text-[var(--color-nav-active)] focus:border-[var(--color-primary-500)] focus:outline-none"
-					/>
-					<span class="absolute right-4 text-xs font-medium text-[var(--color-nav-inactive)]">
-						+日付時刻.pdf
-					</span>
-				</div>
-				<p class="text-[10px] text-[var(--color-nav-inactive)]">
-					共有時のファイル名は「名前_YYYYMMDD_HHmmss.pdf」です。空欄のときは photos_日付時刻.pdf
-					になります。
+				<TextField
+					bind:value={filename}
+					id="pdf-filename"
+					label={m.pdf_filename_label()}
+					placeholder={m.pdf_filename_placeholder()}
+				/>
+				<p class="text-[10px] text-[var(--color-nav-inactive)] pl-1 leading-normal">
+					{m.pdf_filename_desc()}
 				</p>
 			</div>
 
 			<!-- ページサイズ -->
 			<div class="space-y-2">
-				<span class="text-xs font-bold text-[var(--color-nav-inactive)]">ページサイズ</span>
-				<div class="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-surface-muted)]">
+				<span class="text-xs font-semibold text-[var(--color-nav-inactive)] pl-1"
+					>{m.pdf_pagesize_label()}</span
+				>
+				<div
+					class="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-surface-muted)]/80 border border-[var(--color-surface-border)]/50 shadow-apple-sm"
+				>
 					<button
 						type="button"
 						onclick={() => (pageSize = 'a4')}
-						class="rounded-lg py-2 text-xs font-bold text-center transition-all"
-						class:bg-white={pageSize === 'a4'}
-						class:text-[var(--color-nav-active)]={pageSize === 'a4'}
-						class:shadow-sm={pageSize === 'a4'}
+						class="rounded-lg py-2 text-xs font-bold text-center transition-all {APPLE_PRESS.tab}"
+						class:bg-[var(--color-surface-card)]={pageSize === 'a4'}
+						class:text-[var(--color-primary-600)]={pageSize === 'a4'}
+						class:shadow-apple-sm={pageSize === 'a4'}
 						class:text-[var(--color-nav-inactive)]={pageSize !== 'a4'}
 					>
 						A4
@@ -315,27 +312,27 @@
 					<button
 						type="button"
 						onclick={() => (pageSize = 'original')}
-						class="rounded-lg py-2 text-xs font-bold text-center transition-all"
-						class:bg-white={pageSize === 'original'}
-						class:text-[var(--color-nav-active)]={pageSize === 'original'}
-						class:shadow-sm={pageSize === 'original'}
+						class="rounded-lg py-2 text-xs font-bold text-center transition-all {APPLE_PRESS.tab}"
+						class:bg-[var(--color-surface-card)]={pageSize === 'original'}
+						class:text-[var(--color-primary-600)]={pageSize === 'original'}
+						class:shadow-apple-sm={pageSize === 'original'}
 						class:text-[var(--color-nav-inactive)]={pageSize !== 'original'}
 					>
-						元のサイズ
+						{m.pdf_pagesize_original()}
 					</button>
 				</div>
 			</div>
-		</div>
+		</BentoCard>
 
 		<!-- PDF生成ボタン -->
 		<Button
 			onclick={handleExport}
 			variant="primary"
 			size="lg"
-			class="w-full rounded-xl font-bold py-3.5 shadow-sm bg-[var(--color-primary-800)] hover:bg-[var(--color-primary-900)] text-white"
+			class="w-full font-bold shadow-apple-md"
 			disabled={images.length === 0}
 		>
-			PDF を保存・共有する
+			{m.pdf_submit_button()}
 		</Button>
 	</Container>
 </div>

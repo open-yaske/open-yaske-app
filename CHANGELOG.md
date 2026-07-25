@@ -4,6 +4,57 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - 2026-07-25
+
+### Added
+
+- **共通エラー画面コンポーネント (`src/routes/+error.svelte`) の追加**:
+  - SvelteKitの共通エラーハンドリング機能を利用し、404（Not Found）や503（Service Unavailable）などのエラー発生時にプレーンテキストではなく、美しく統一されたエラー画面を表示するコンポーネントを新規作成しました。
+  - Svelte 5 の Runes (`$state`, `$derived`) を使用し、`page.status` および `page.error` に基づく動的なエラー切り替えを行います。
+  - Apple Design Guidelines に完全準拠し、すりガラス質感（`APPLE_MATERIALS.card`）、滑らかなイージング（`APPLE_EASING.default`）による登場アニメーション、押し込みフィードバック（`APPLE_PRESS.button`）を備えたボタンを提供します。
+  - 前のページに戻る（`history.back()`）およびローカライズされたホームへの遷移ボタンを用意。
+  - 開発者やデバッグ向けに、エラーのスタックトレースや詳細メッセージをアコーディオンで展開できるデバッグ表示を実装しました。
+- **運行情報（発車標・カウントダウン）機能の新規実装 (`src/routes/transit/`)**:
+  - `https://api.transit.ls8h.com/` を用いた最寄り駅の発車時刻カウントダウン機能を新規作成しました。
+  - `src/lib/stores/transit.svelte.ts` を新規作成。位置情報（緯度経度）からの逆ジオコーディング（近くの駅検索）やキーワード検索、ダイヤ情報の取得、IndexedDB キャッシュ（TTL制御）、電車発車時の自動リロード機能をカプセル化した Svelte 5 ストアです。
+  - 駅検索時、ダイヤデータを持たない単なる地図上のピンやランドマーク（`transit:` や `osm:`, `geocoder:` プレフィックスで始まるID）を自動的にフィルタリングして除外する仕組みを実装しました。
+  - `src/lib/components/dashboard/TransitWidget.svelte` を新規作成。Bento Card スタイルのウィジェットで、設定後は次の電車（最大5件）を秒単位でリアルタイムカウントダウン表示します。
+  - `src/routes/transit/+page.svelte` を新規作成。詳細な発車標（最大20件）を表示するとともに、キーワード検索や位置情報検索から駅を設定・解除できる画面です。
+  - `src/routes/+layout.svelte` にて、天気の位置情報（`settings.lat`/`lng`）が変更された際に自動的に逆ジオコーディングを行い、新しい最寄り駅（運行データを持つ実在駅）へ自動的に切り替えて設定を更新する連動ロジック（`$effect`）を実装しました。
+  - 運行情報ストアの単体テストコード `src/lib/stores/transit.spec.ts` を追加し、逆ジオコーディング、IDフィルタリング、およびキャッシュの挙動をモック環境で検証できるようにしました。
+
+### Changed
+
+- **エラー表示関連の多言語翻訳キーの追加**:
+  - `messages/{ja,en,zh,ko}.json` に、エラータイトル、各ステータスコードに応じたエラータイトル and 説明メッセージ、およびボタン用のラベルなどの翻訳キー（計10キー）をすべてのサポート言語に追加しました。
+- **天気カードへの運行情報の結合表示と表示改善**:
+  - `src/lib/components/WeatherCard.svelte` を修正。設定から「天気カードに運行情報を表示」を有効にした際、天気カードの下部に設定された駅の直近の電車情報（最大2件）を表示する機能を追加しました。
+  - 天気カード内の結合表示にて、電車の定刻発車時刻（`HH:MM`）を併記し、残り時間のカウントダウンをスマートな `mm:ss` 形式に変更しました。また、不要な「自動で更新されます」の注記ラベルを削除しました。
+- **ユーザー設定項目への運行情報関連オプションとデフォルト値の追加**:
+  - `src/lib/types.ts` の `UserSettings` 和 `DEFAULT_USER_SETTINGS` に `transitStationId`, `transitStationName`, `transitLastLat`, `transitLastLng`, `weatherShowTransit` を追加しました。デフォルト設定で、初期値の座標に対応する「調布駅 (`tokyo-keio-rail:Chofu`)」が最初から設定されるよう変更しました。
+  - `src/lib/features.ts` の `APP_FEATURES` に `transit` 機能を追加登録し、ナビゲーションバー並び替えやホームレイアウトカスタマイズに自動連動させました。
+  - `src/routes/+page.svelte` (ダッシュボード) および `src/routes/settings/+page.svelte` (設定) にて、新機能のウィジェット表示分岐や、トグルスイッチ設定を追加しました。
+  - `messages/{ja,en,zh,ko}.json` に、運行情報および天気カード結合設定に関する多言語翻訳キーを追加しました。
+
+- **初期設定のナビゲーションバー（ボトムバー・サイドバー）に「ダッシュボード（ホーム）」を追加**:
+  - `src/lib/types.ts` および `src/routes/+layout.svelte` にて、`barFeatures` の初期設定/フォールバック値に `'dashboard'` を追加し、初期状態でダッシュボードがバーに含まれるように修正しました。
+
+- **Liquid Glass エフェクト実装を nikdelvin/liquid-glass 方式に置き換え**:
+  - `danilofiumi/liquid-glass-svelte` npm パッケージへの依存を完全に排除し、依存ゼロの自前実装に移行しました。
+  - `src/lib/liquid-glass/displacement.ts` を新規作成。SVG `feDisplacementMap` による物理ベースのガラス屈折マップを動的生成するユーティリティです。要素サイズと `border-radius` に合わせてX/Y方向グラデーションを mix-blend-mode: screen で合成し、角丸対応の屈折マップを生成します。
+  - `src/lib/liquid-glass/LiquidGlassEffect.svelte` を新規作成。`ResizeObserver` で要素サイズを監視し、SVG `<filter>` 定義を `<body>` に動的注入、`backdrop-filter: url(#id)` でリアルな屈折を適用する Svelte 5 コンポーネントです。Chromium では本物の屈折エフェクト、Safari/Firefox は glassmorphism blur に自動フォールバックします。
+  - `GlassContainer.svelte` を新実装に書き換え。Props インターフェース（`variant`, `contrast`, `distortion`, `glow`, `elevation`）は後方互換を維持したまま、`LiquidGlassEffect` を内部で使用します。
+  - `LiquidGlassButton.svelte` を新実装に書き換え。`liquid-glass-svelte/GlassedButton.svelte` への import を削除し、自前の Liquid Glass ボタン実装に置き換えました。
+  - `src/lib/liquid-glass-svelte.d.ts` の旧型定義をクリア（パッケージ削除に伴い不要）。
+
+- **モバイルアプリアイコンの更新**:
+  - Webで現在使用されている最新のアイコン画像 `static/icon-512.png` をルートのモバイルアプリ用アイコンソース `app-icon.png` および `OpenYASKE.png` に適用し、モバイル/Webの各種アセット（Capacitor用およびFavicon類）を再生成・同期しました。
+- **PDF・シラバス・データ管理画面のUI刷新 ＆ 検索バーアイコン統一**:
+  - **検索バーのアイコン統一**: `SpotlightSearch.svelte` にて、デスクトップ表示時に「検索」の文字列ボタンになっていた部分を、モバイル同様のアイコン（`Search`）のみのスマートな円形ボタン表示に統一しました。
+  - **PDF変換画面のUIリニューアル (`src/routes/pdf/+page.svelte`)**: 各種設定や画像追加エリアを `BentoCard` に刷新し、アクションボタンへ `APPLE_PRESS` イージングと最小タップ領域 `min-h-[44px]` を設定。また、ハードコードされていた日本語を Paraglide (`m.xxx()`) メッセージ化し、多言語対応を行いました。
+  - **シラバス閲覧画面のUIリニューアル (`src/routes/syllabus/+page.svelte`)**: 固定検索ヘッダーをすりガラス化し、授業カードを `BentoCard` のように美しい境界線、ホバー浮き上がり、`APPLE_PRESS` 反応を持つタイルへと刷新。曜日・時限・ドロップダウンフィルター等のコントロールのスタイルを整理しました。
+  - **データ管理画面のUIリニューアル (`src/routes/data-management/+page.svelte`)**: 各種同期ステータスやクレジットバナーに `GlassContainer` や `BentoCard` を適用してすりガラス質感の角丸タイルに刷新し、アクションボタン群に `APPLE_PRESS` 物理プレスフィードバックと最小タップ領域を適用しました。
+
 ## [Unreleased] - 2026-07-19
 
 ### Added

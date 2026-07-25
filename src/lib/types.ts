@@ -223,12 +223,23 @@ export type UserSettings = {
 	bgImageAllPages: boolean;
 	/** カスタムマークダウンメモ */
 	customMemo: string;
+	/** 運行情報の最寄り駅ID */
+	transitStationId: string;
+	/** 運行情報の最寄り駅名 */
+	transitStationName: string;
+	/** 最寄り駅検索時の最終緯度 */
+	transitLastLat: number;
+	/** 最寄り駅検索時の最終経度 */
+	transitLastLng: number;
+	/** 天気カードに運行情報を結合して表示するか */
+	weatherShowTransit: boolean;
 	/** カスタマイズ：アプリの表示名 */
 	customAppName?: string;
 	/** カスタマイズ：アプリのロゴ（Base64形式の画像データ） */
 	customLogoData?: string;
 	/** 設定の最終更新時刻 */
 	updatedAt?: number;
+	settingsThemePackIdCustom?: string;
 };
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
@@ -282,12 +293,13 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 	externalLinks: [],
 	dashboardCardOrder: [],
 	hiddenDashboardCards: [],
-	barFeatures: ['timetable', 'todo', 'calendar', 'attendance'],
+	barFeatures: ['dashboard', 'timetable', 'todo', 'calendar', 'attendance'],
 	homeFeatures: [
 		'timetable',
 		'todo',
 		'calendar',
 		'attendance',
+		'transit',
 		'gpa',
 		'pdf',
 		'syllabus',
@@ -299,6 +311,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 		todo: 'widget',
 		calendar: 'widget',
 		attendance: 'widget',
+		transit: 'widget',
 		gpa: 'button',
 		pdf: 'button',
 		syllabus: 'button',
@@ -317,6 +330,11 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 	fontFamily: 'system',
 	bgImageAllPages: false,
 	customMemo: '',
+	transitStationId: 'tokyo-keio-rail:Chofu',
+	transitStationName: '調布',
+	transitLastLat: 35.6586,
+	transitLastLng: 139.7454,
+	weatherShowTransit: true,
 	customAppName: '',
 	customLogoData: '',
 	updatedAt: 0

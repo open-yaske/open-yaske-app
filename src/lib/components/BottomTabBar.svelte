@@ -35,7 +35,10 @@
 >
 	<GlassContainer
 		variant="bar"
-		class="rounded-full border border-[var(--color-surface-border)]/80 p-1.5 shadow-apple-xl"
+		glow={true}
+		distortion="high"
+		elevation="xl"
+		class="rounded-full p-1.5 shadow-apple-xl"
 	>
 		<ul class="flex items-center justify-around">
 			{#each tabs as tab (tab.href)}
@@ -50,7 +53,7 @@
 					>
 						{#if active}
 							<div
-								class="absolute inset-0 rounded-full bg-[var(--color-primary-500)]/15 backdrop-blur-md transition-all duration-200"
+								class="absolute inset-0 rounded-full bg-[var(--color-primary-500)]/20 backdrop-blur-2xl border border-[var(--color-primary-500)]/30 shadow-apple-sm transition-all duration-200"
 							></div>
 						{/if}
 						<div class="relative z-10 flex flex-col items-center w-full min-w-0 px-0.5">

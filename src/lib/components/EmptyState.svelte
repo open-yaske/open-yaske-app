@@ -10,6 +10,7 @@
 <script lang="ts">
 	import type { Component } from 'svelte';
 	import { APPLE_PRESS } from '$lib/apple-design';
+	import GlassContainer from './GlassContainer.svelte';
 
 	interface Props {
 		/** lucide-svelte のアイコンコンポーネント */
@@ -40,13 +41,12 @@
 </script>
 
 <div class="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center {klass}">
-	<!-- アイコンコンテナ: aria-hidden で装飾として扱う -->
-	<div
-		class="flex items-center justify-center rounded-full bg-[var(--color-surface-muted)] p-4"
-		aria-hidden="true"
-	>
-		<Icon size={iconSize} color="var(--color-nav-inactive)" stroke-width={1.5} />
-	</div>
+	<!-- §12アイコンコンテナ: Liquid Glass すりガラス背景 -->
+	<GlassContainer variant="subtle" class="rounded-full p-4">
+		<div aria-hidden="true">
+			<Icon size={iconSize} color="var(--color-nav-inactive)" stroke-width={1.5} />
+		</div>
+	</GlassContainer>
 	<div class="space-y-1">
 		<p class="text-sm font-medium text-[var(--color-nav-active)]">{message}</p>
 		{#if submessage}

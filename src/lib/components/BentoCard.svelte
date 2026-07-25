@@ -79,7 +79,7 @@
 	);
 </script>
 
-<GlassContainer variant="card" class={containerClass}>
+<GlassContainer variant="card" glow={interactive} class={containerClass}>
 	{#if href}
 		<a {...rest as HTMLAnchorAttributes} {href} class={innerClass} {onclick}>
 			{@render content()}
