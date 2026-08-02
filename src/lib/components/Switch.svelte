@@ -37,10 +37,10 @@
 		class:bg-[var(--color-primary-500)]={checked}
 		class:bg-[var(--color-surface-card)]={!checked}
 		class:backdrop-blur-md={!checked}
-		class:shadow-apple-sm={!checked}
+		class:shadow-[var(--shadow-card)]={!checked}
 	>
 		<span
-			class="inline-block h-5 w-5 transform rounded-full bg-white shadow-apple-sm transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:w-6"
+			class="inline-block h-5 w-5 transform rounded-full bg-white shadow-[var(--shadow-card)] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:w-6"
 			class:translate-x-5={checked}
 			class:translate-x-0.5={!checked}
 		></span>

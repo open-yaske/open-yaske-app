@@ -42,7 +42,7 @@
 	variant="header"
 	glow={true}
 	distortion="medium"
-	class="sticky top-0 z-20 px-4 py-2.5"
+	class="sticky top-0 z-20 px-4 py-2.5 bg-[var(--color-surface-page)]/70"
 >
 	<div class="grid min-h-[44px] grid-cols-[5rem_minmax(0,1fr)_5rem] items-center">
 		<div class="flex min-h-[44px] items-center justify-start gap-2 overflow-visible">

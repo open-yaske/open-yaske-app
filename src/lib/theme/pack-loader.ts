@@ -8,6 +8,8 @@ import defaultPack from './defaults/default.json' with { type: 'json' };
 import uecPack from './defaults/uec.json' with { type: 'json' };
 import dangoPack from './defaults/dango.json' with { type: 'json' };
 import darkPack from './defaults/dark.json' with { type: 'json' };
+import highContrastPack from './defaults/high-contrast.json' with { type: 'json' };
+import highContrastDarkPack from './defaults/high-contrast-dark.json' with { type: 'json' };
 
 /** HEX カラー正規表現 (#RGB, #RGBA, #RRGGBB, #RRGGBBAA) または rgba() / css カラー */
 const COLOR_RE = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$|^rgba?\(/;
@@ -180,7 +182,9 @@ export const BUILTIN_PACKS: readonly ThemePack[] = [
 	defaultPack as ThemePack,
 	uecPack as ThemePack,
 	dangoPack as ThemePack,
-	darkPack as ThemePack
+	darkPack as ThemePack,
+	highContrastPack as ThemePack,
+	highContrastDarkPack as ThemePack
 ] as const;
 
 /**

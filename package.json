@@ -1,7 +1,7 @@
 {
 	"name": "open-yaske",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
 		"prebuild": "node tools/update-project-name.cjs && node tools/generate-assets.cjs",
@@ -73,6 +73,8 @@
 		"vitest-browser-svelte": "^2.1.1"
 	},
 	"dependencies": {
+		"@bubble-labs/capacitor-plugin-siri-shorts": "^8.0.1",
+		"@capacitor/app": "^8.1.1",
 		"@capacitor/browser": "^8.0.3",
 		"@capacitor/cli": "^8.4.1",
 		"@capacitor/core": "^8.4.1",

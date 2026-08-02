@@ -12,7 +12,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import SettingsSection from '$lib/components/settings/SettingsSection.svelte';
-	import { settingsStore, themeStore, uiStore, userDataStore } from '$lib/stores';
+	import { settingsStore, themeStore, uiStore, userDataStore, styleStore } from '$lib/stores';
 	import { BUILTIN_PACKS, getLocalizedText } from '$lib/theme';
 	import type { ThemePack } from '$lib/theme';
 	import {
@@ -44,7 +44,7 @@
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
-	const appVersion = '2026.07.25';
+	const appVersion = '2026.08.02';
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -203,22 +203,22 @@
 		{
 			category: m.settings_theme(),
 			label: m.settings_theme_mode(),
-			sectionId: 'settings-appearance'
+			sectionId: 'settings-theme'
 		},
 		{
 			category: m.settings_theme(),
 			label: m.settings_theme_light(),
-			sectionId: 'settings-appearance'
+			sectionId: 'settings-theme'
 		},
 		{
 			category: m.settings_theme(),
 			label: m.settings_theme_dark(),
-			sectionId: 'settings-appearance'
+			sectionId: 'settings-theme'
 		},
 		{
 			category: m.settings_theme(),
 			label: m.settings_theme_system(),
-			sectionId: 'settings-appearance'
+			sectionId: 'settings-theme'
 		},
 		{
 			category: m.settings_theme(),
@@ -233,6 +233,26 @@
 		{
 			category: m.settings_theme(),
 			label: m.settings_font_family(),
+			sectionId: 'settings-appearance'
+		},
+		{
+			category: m.settings_theme(),
+			label: m.settings_visual_style(),
+			sectionId: 'settings-theme'
+		},
+		{
+			category: m.settings_theme(),
+			label: m.settings_quick_customize(),
+			sectionId: 'settings-appearance'
+		},
+		{
+			category: m.settings_theme(),
+			label: m.settings_primary_color(),
+			sectionId: 'settings-appearance'
+		},
+		{
+			category: m.settings_theme(),
+			label: m.settings_border_radius(),
 			sectionId: 'settings-appearance'
 		},
 		{
@@ -410,6 +430,12 @@
 		{ value: 'outfit', label: 'Outfit (Latin)' },
 		{ value: 'sans', label: m.settings_font_sans() },
 		{ value: 'serif', label: m.settings_font_serif() }
+	];
+
+	const radiusOptions = [
+		{ value: '8px', label: m.settings_radius_small() },
+		{ value: '16px', label: m.settings_radius_medium() },
+		{ value: '24px', label: m.settings_radius_large() }
 	];
 
 	const searchProviderOptions: { value: SearchProviderId; label: string }[] = [
@@ -651,12 +677,34 @@
 		</div>
 	</SettingsSection>
 
-	<!-- ===== Theme Pack ===== -->
+	<!-- ===== Theme ===== -->
 	<SettingsSection
 		id="settings-theme"
-		title={m.settings_theme_pack()}
+		title={m.settings_theme()}
 		class={visibleSections['settings-theme'] ? '' : 'hidden'}
 	>
+		<!-- テーマモード -->
+		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5 space-y-2">
+			<div class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_theme_mode()}
+			</div>
+			<div class="grid grid-cols-3 gap-2">
+				{#each themeModeOptions as opt (opt.value)}
+					<button
+						type="button"
+						class="rounded-chip border px-2 py-2 text-center text-sm transition-colors {settingsStore
+							.settings.theme === opt.value
+							? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-600)]'
+							: 'border-[var(--color-surface-border)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'}"
+						onclick={() => handleSegmentSelect('theme', opt.value)}
+					>
+						{opt.label}
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- ライトテーマパック -->
 		<div
 			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
 		>
@@ -685,7 +733,9 @@
 				</span>
 			</label>
 		</div>
-		<div class="flex items-center justify-between px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_theme_dark()}
 			</span>
@@ -711,6 +761,150 @@
 				</span>
 			</label>
 		</div>
+
+		<!-- クイックカスタマイズ -->
+		<div
+			class="flex items-center border-b border-[var(--color-surface-border)] bg-[var(--color-surface-muted)] px-4 py-2"
+		>
+			<span class="text-xs font-bold uppercase tracking-widest text-[var(--color-nav-inactive)]">
+				{m.settings_quick_customize()}
+			</span>
+		</div>
+
+		<!-- テーマのデフォルトを使う -->
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_use_theme_default()}
+			</span>
+			<Switch
+				checked={!settingsStore.settings.themeOverrides}
+				onchange={(val: boolean) => {
+					if (val) {
+						settingsStore.update({ themeOverrides: undefined });
+					} else {
+						settingsStore.update({ themeOverrides: {} });
+					}
+				}}
+			/>
+		</div>
+
+		{#if settingsStore.settings.themeOverrides}
+			<!-- プライマリカラー -->
+			<div
+				class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+			>
+				<span class="text-sm font-medium text-[var(--color-nav-active)]">
+					{m.settings_primary_color()}
+				</span>
+				<input
+					type="color"
+					value={settingsStore.settings.themeOverrides.primaryColor || '#007aff'}
+					oninput={(e) => {
+						const val = (e.currentTarget as HTMLInputElement).value;
+						settingsStore.update({ themeOverrides: { primaryColor: val } });
+					}}
+					class="h-8 w-12 cursor-pointer rounded-md border border-[var(--color-surface-border)] bg-transparent p-0.5"
+				/>
+			</div>
+
+			<!-- ページ背景色 -->
+			<div
+				class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+			>
+				<span class="text-sm font-medium text-[var(--color-nav-active)]">
+					{m.settings_surface_page_color()}
+				</span>
+				<input
+					type="color"
+					value={settingsStore.settings.themeOverrides.surfacePage || '#f2f2f7'}
+					oninput={(e) => {
+						const val = (e.currentTarget as HTMLInputElement).value;
+						settingsStore.update({ themeOverrides: { surfacePage: val } });
+					}}
+					class="h-8 w-12 cursor-pointer rounded-md border border-[var(--color-surface-border)] bg-transparent p-0.5"
+				/>
+			</div>
+
+			<!-- 角丸プリセット -->
+			<div class="px-4 py-3.5 space-y-2">
+				<div class="text-sm font-medium text-[var(--color-nav-active)]">
+					{m.settings_border_radius()}
+				</div>
+				<div class="grid grid-cols-3 gap-2">
+					{#each radiusOptions as opt (opt.value)}
+						<button
+							type="button"
+							class="rounded-chip border px-2 py-2 text-center text-sm transition-colors {settingsStore
+								.settings.themeOverrides?.borderRadius === opt.value
+								? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-600)]'
+								: 'border-[var(--color-surface-border)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'}"
+							onclick={() => settingsStore.update({ themeOverrides: { borderRadius: opt.value } })}
+						>
+							{opt.label}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
+
+		<!-- 画面スタイル（ビジュアルスタイル） -->
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_visual_style()}
+			</span>
+			<label class="relative inline-flex items-center">
+				<select
+					value={settingsStore.settings.visualStyle}
+					onchange={(e) => {
+						const target = e.currentTarget as HTMLSelectElement;
+						const val = target.value as NonNullable<typeof settingsStore.settings.visualStyle>;
+						const prev = settingsStore.settings.visualStyle;
+						settingsStore.update({ visualStyle: val });
+						styleStore.set(val);
+						// ハイコントラストスタイル選択時は対応テーマを自動適用（直前のテーマを保存）
+						if (val === 'high-contrast' && prev !== 'high-contrast') {
+							settingsStore.update({
+								prevThemePackIdLight: settingsStore.settings.themePackIdLight,
+								prevThemePackIdDark: settingsStore.settings.themePackIdDark,
+								themePackIdLight: 'high-contrast',
+								themePackIdDark: 'high-contrast-dark'
+							});
+						} else if (val !== 'high-contrast' && prev === 'high-contrast') {
+							// ハイコントラストから離れたら直前のテーマを復元
+							const restoreLight = settingsStore.settings.prevThemePackIdLight || 'default';
+							const restoreDark = settingsStore.settings.prevThemePackIdDark || 'dark';
+							settingsStore.update({
+								themePackIdLight: restoreLight,
+								themePackIdDark: restoreDark,
+								prevThemePackIdLight: undefined,
+								prevThemePackIdDark: undefined
+							});
+						}
+					}}
+					class="h-8 min-w-[7.5rem] cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 pl-3 pr-8 text-right text-xs font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
+					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
+				>
+					<option value="apple">{m.style_apple()}</option>
+					<option value="material">{m.style_material()}</option>
+					<option value="neumorphism">{m.style_neumorphism()}</option>
+					<option value="brutalism">{m.style_brutalism()}</option>
+					<option value="cyberpunk">{m.style_cyberpunk()}</option>
+					<option value="flat">{m.style_flat()}</option>
+					<option value="high-contrast">{m.style_high_contrast()}</option>
+					<option value="win95">{m.style_win95()}</option>
+					<option value="winxp">{m.style_winxp()}</option>
+				</select>
+				<span
+					class="pointer-events-none absolute right-2.5 top-1/2 flex -translate-y-1/2 text-[var(--color-nav-inactive)]"
+				>
+					<ChevronDown size={12} />
+				</span>
+			</label>
+		</div>
 		<a
 			href={resolve(localizeHref('/theme-editor') as RouteId)}
 			class="flex items-center justify-between border-t border-[var(--color-surface-border)] px-4 py-3.5 text-sm text-[var(--color-nav-active)] transition-colors hover:bg-[var(--color-surface-muted)]"
@@ -726,53 +920,13 @@
 	<!-- ===== Appearance ===== -->
 	<SettingsSection
 		id="settings-appearance"
-		title={m.settings_theme()}
+		title={m.settings_display()}
 		class={visibleSections['settings-appearance'] ? '' : 'hidden'}
 	>
-		<!-- テーマ選択 -->
-		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5 space-y-2">
-			<div class="text-sm font-medium text-[var(--color-nav-active)]">
-				{m.settings_theme_mode()}
-			</div>
-			<div class="grid grid-cols-3 gap-2">
-				{#each themeModeOptions as opt (opt.value)}
-					<button
-						type="button"
-						class="rounded-chip border px-2 py-2 text-center text-sm transition-colors {settingsStore
-							.settings.theme === opt.value
-							? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-600)]'
-							: 'border-[var(--color-surface-border)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'}"
-						onclick={() => handleSegmentSelect('theme', opt.value)}
-					>
-						{opt.label}
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<!-- 絵文字スタイル -->
-		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5 space-y-2">
-			<div class="text-sm font-medium text-[var(--color-nav-active)]">
-				{m.settings_emoji_style()}
-			</div>
-			<div class="grid grid-cols-2 gap-2">
-				{#each emojiStyleOptions as opt (opt.value)}
-					<button
-						type="button"
-						class="rounded-chip border px-2 py-2 text-center text-sm transition-colors {settingsStore
-							.settings.emojiStyle === opt.value
-							? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-600)]'
-							: 'border-[var(--color-surface-border)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'}"
-						onclick={() => handleSegmentSelect('emojiStyle', opt.value)}
-					>
-						{opt.label}
-					</button>
-				{/each}
-			</div>
-		</div>
-
 		<!-- フォントファミリー -->
-		<div class="flex items-center justify-between px-4 py-3.5">
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">
 				{m.settings_font_family()}
 			</span>
@@ -796,6 +950,75 @@
 					<ChevronDown size={12} />
 				</span>
 			</label>
+		</div>
+
+		<!-- 文字サイズ -->
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_font_scale()}
+			</span>
+			<div class="flex items-center gap-3">
+				<span class="text-xs text-[var(--color-nav-inactive)]">{m.settings_font_scale_small()}</span
+				>
+				<input
+					type="range"
+					min="0.7"
+					max="1.5"
+					step="0.05"
+					value={settingsStore.settings.fontScale}
+					oninput={(e) => {
+						const val = parseFloat((e.currentTarget as HTMLInputElement).value);
+						settingsStore.update({ fontScale: val });
+						document.documentElement.style.fontSize = `${val * 100}%`;
+					}}
+					class="w-28 h-1.5 cursor-pointer appearance-none rounded-full bg-[var(--color-surface-border)] accent-[var(--color-primary-500)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-primary-500)] [&::-webkit-slider-thumb]:shadow-apple-sm"
+				/>
+				<span class="text-xs text-[var(--color-nav-inactive)]">{m.settings_font_scale_large()}</span
+				>
+			</div>
+		</div>
+
+		<!-- アニメーション削減 -->
+		<div
+			class="flex items-center justify-between border-b border-[var(--color-surface-border)] px-4 py-3.5"
+		>
+			<span class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_reduce_motion()}
+			</span>
+			<Switch
+				checked={settingsStore.settings.reduceMotion}
+				onchange={(val: boolean) => {
+					settingsStore.update({ reduceMotion: val });
+					if (val) {
+						document.documentElement.classList.add('reduce-motion');
+					} else {
+						document.documentElement.classList.remove('reduce-motion');
+					}
+				}}
+			/>
+		</div>
+
+		<!-- 絵文字スタイル -->
+		<div class="border-b border-[var(--color-surface-border)] px-4 py-3.5 space-y-2">
+			<div class="text-sm font-medium text-[var(--color-nav-active)]">
+				{m.settings_emoji_style()}
+			</div>
+			<div class="grid grid-cols-2 gap-2">
+				{#each emojiStyleOptions as opt (opt.value)}
+					<button
+						type="button"
+						class="rounded-chip border px-2 py-2 text-center text-sm transition-colors {settingsStore
+							.settings.emojiStyle === opt.value
+							? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-600)]'
+							: 'border-[var(--color-surface-border)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'}"
+						onclick={() => handleSegmentSelect('emojiStyle', opt.value)}
+					>
+						{opt.label}
+					</button>
+				{/each}
+			</div>
 		</div>
 	</SettingsSection>
 

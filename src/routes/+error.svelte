@@ -5,7 +5,7 @@
 	import { resolve } from '$app/paths';
 	import type { Pathname } from '$app/types';
 	import { AlertCircle, Home, ArrowLeft, ChevronDown, ChevronUp } from '@lucide/svelte';
-	import { APPLE_EASING, APPLE_PRESS, APPLE_MATERIALS, APPLE_TYPOGRAPHY } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
 
 	// エラーのステータスコードとメッセージをリアクティブに監視
 	const status = $derived(page.status);
@@ -48,8 +48,9 @@
 
 <div class="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
 	<div
-		class="w-full max-w-md p-8 {APPLE_MATERIALS.card} text-[var(--color-nav-active)] transition-all duration-300"
-		style="animation: slide-in 0.4s {APPLE_EASING.default} forwards;"
+		class="w-full max-w-md p-8 {styleStore.pack.materials
+			.card} text-[var(--color-nav-active)] transition-all duration-300"
+		style="animation: slide-in 0.4s {styleStore.pack.easing.default} forwards;"
 	>
 		<!-- Icon Container -->
 		<div class="mb-6 flex justify-center">
@@ -63,13 +64,14 @@
 
 		<!-- Status Code -->
 		<span
-			class="mb-2 block text-5xl font-extrabold tracking-tight opacity-90 {APPLE_TYPOGRAPHY.numeric}"
+			class="mb-2 block text-5xl font-extrabold tracking-tight opacity-90 {styleStore.pack
+				.typography.numeric}"
 		>
 			{status}
 		</span>
 
 		<!-- Error Title -->
-		<h1 class="mb-3 text-2xl font-bold tracking-tight {APPLE_TYPOGRAPHY.heading}">
+		<h1 class="mb-3 text-2xl font-bold tracking-tight {styleStore.pack.typography.heading}">
 			{info.title}
 		</h1>
 
@@ -82,7 +84,8 @@
 		<div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
 			<button
 				onclick={goBack}
-				class="flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-muted)]/50 transition-all duration-150 {APPLE_PRESS.button}"
+				class="flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium border border-[var(--color-surface-border)] hover:bg-[var(--color-surface-muted)]/50 transition-all duration-150 {styleStore
+					.pack.press.button}"
 			>
 				<ArrowLeft size={16} />
 				{m.error_go_back()}
@@ -90,7 +93,8 @@
 
 			<a
 				href={resolve(localizeHref('/') as Pathname)}
-				class="flex items-center justify-center gap-2 rounded-full bg-[var(--color-primary-500)] text-white px-5 py-3 text-sm font-medium hover:bg-[var(--color-primary-600)] transition-all duration-150 {APPLE_PRESS.button}"
+				class="flex items-center justify-center gap-2 rounded-full bg-[var(--color-primary-500)] text-white px-5 py-3 text-sm font-medium hover:bg-[var(--color-primary-600)] transition-all duration-150 {styleStore
+					.pack.press.button}"
 			>
 				<Home size={16} />
 				{m.error_go_home()}
@@ -115,12 +119,12 @@
 				{#if showDetails}
 					<div
 						class="mt-3 max-h-40 overflow-y-auto rounded-lg bg-[var(--color-surface-page)] p-3 text-xs font-mono opacity-80 leading-relaxed break-all"
-						style="animation: expand-accordion 0.2s {APPLE_EASING.default} forwards;"
+						style="animation: expand-accordion 0.2s {styleStore.pack.easing.default} forwards;"
 					>
 						{error.message}
-						{#if (error as Record<string, unknown>).stack}
+						{#if (error as unknown as Record<string, unknown>).stack}
 							<pre class="mt-2 whitespace-pre-wrap opacity-60 text-[10px]">{(
-									error as Record<string, unknown>
+									error as unknown as Record<string, unknown>
 								).stack}</pre>
 						{/if}
 					</div>

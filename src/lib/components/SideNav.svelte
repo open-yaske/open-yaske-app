@@ -10,7 +10,8 @@
 	import { PanelLeftClose, PanelLeftOpen } from '@lucide/svelte';
 	import type { RouteId } from '$app/types';
 	import { m } from '$lib/paraglide/messages';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 	import GlassContainer from './GlassContainer.svelte';
 
 	interface NavItem {
@@ -30,6 +31,8 @@
 
 	let { items, footer, collapsed = false, ontoggle, appName, logoData }: Props = $props();
 
+	const r = $derived(resolveRadius(styleStore.pack));
+
 	function isActive(href: string): boolean {
 		const pathname = page.url.pathname;
 		return pathname === href || pathname.startsWith(href + '/');
@@ -37,7 +40,7 @@
 </script>
 
 <aside
-	class="sticky top-0 hidden h-screen shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:flex z-30 select-none shadow-apple-sm"
+	class="sticky top-0 hidden h-screen shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:flex z-30 select-none shadow-[var(--shadow-card)]"
 	class:w-16={collapsed}
 	class:w-64={!collapsed}
 	aria-label="Sidebar navigation"
@@ -59,7 +62,7 @@
 					<img
 						src={logoData || `${base}/favicon.png`}
 						alt="Logo"
-						class="h-8 w-8 rounded-lg shrink-0 object-cover border border-[var(--color-surface-border)]/50 shadow-apple-sm"
+						class="h-8 w-8 {r.chip} shrink-0 object-cover border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-card)]"
 					/>
 					<span class="truncate font-bold tracking-tight text-[var(--color-nav-active)] text-base">
 						{appName || m.app_name()}
@@ -69,7 +72,9 @@
 			<button
 				type="button"
 				onclick={ontoggle}
-				class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--color-nav-inactive)] transition-all duration-150 {APPLE_PRESS.icon} hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]"
+				class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--color-nav-inactive)] transition-all duration-150 {styleStore
+					.pack.press
+					.icon} hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-nav-active)]"
 				aria-label={collapsed ? 'サイドバーを展開' : 'サイドバーをたたむ'}
 			>
 				{#if collapsed}
@@ -87,7 +92,8 @@
 					<li>
 						<a
 							href={resolve(item.href)}
-							class="group relative flex min-h-[44px] items-center rounded-full py-2.5 text-sm font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] {APPLE_PRESS.card}"
+							class="group relative flex min-h-[44px] items-center {r.pill} py-2.5 text-sm font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] {styleStore
+								.pack.press.card}"
 							class:justify-center={collapsed}
 							class:gap-3={!collapsed}
 							class:px-4={!collapsed}
@@ -100,11 +106,11 @@
 						>
 							{#if active}
 								<div
-									class="absolute inset-0 rounded-full bg-[var(--color-primary-500)]/15 border border-[var(--color-primary-500)]/20 shadow-apple-sm"
+									class="absolute inset-0 {r.pill} bg-[var(--color-primary-500)]/15 border border-[var(--color-primary-500)]/20 shadow-[var(--shadow-card)]"
 								></div>
 							{:else}
 								<div
-									class="absolute inset-0 rounded-full bg-transparent group-hover:bg-[var(--color-surface-muted)]/60 transition-colors"
+									class="absolute inset-0 {r.pill} bg-transparent group-hover:bg-[var(--color-surface-muted)]/60 transition-colors"
 								></div>
 							{/if}
 							<div class="relative z-10 flex items-center gap-3">

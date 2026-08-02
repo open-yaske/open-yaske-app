@@ -8,9 +8,11 @@
 		settingsStore,
 		userDataStore,
 		publicDataStore,
-		transitStore
+		transitStore,
+		styleStore
 	} from '$lib/stores';
 	import { initRemoteStorage } from '$lib/remotestorage';
+	import { applyFontVars } from '$lib/theme';
 	import { BottomTabBar, SideNav } from '$lib/components';
 	import { Home, Calendar, BookOpen, CheckSquare, BarChart3, MoreHorizontal } from '@lucide/svelte';
 	import { m } from '$lib/paraglide/messages';
@@ -30,7 +32,7 @@
 	let currentLocaleSignal = $state('ja');
 	let sideNavCollapsed = $state(false);
 
-	// クライアントサイドでストアを初期化
+	// クライアントサイドでストアを初期化 + アクセシビリティ設定を反映
 	$effect(() => {
 		initRemoteStorage();
 		themeStore.init();
@@ -42,6 +44,47 @@
 				console.error('Service worker registration failed:', err);
 			});
 		}
+	});
+
+	// 保存済み設定の反映（settingsStore.initialized 後に実行）
+	$effect(() => {
+		if (!settingsStore.initialized) return;
+
+		// ビジュアルスタイル
+		if (settingsStore.settings.visualStyle) {
+			styleStore.set(settingsStore.settings.visualStyle);
+		}
+
+		// アクセシビリティ: アニメーション削減
+		if (browser) {
+			if (settingsStore.settings.reduceMotion) {
+				document.documentElement.classList.add('reduce-motion');
+			} else {
+				document.documentElement.classList.remove('reduce-motion');
+			}
+		}
+
+		// 文字サイズ
+		if (browser) {
+			const scale = settingsStore.settings.fontScale || 1.0;
+			document.documentElement.style.fontSize = `${scale * 100}%`;
+		}
+	});
+
+	// スタイルパックが影なし（flat/high-contrast/win95 等）の場合、全影を無効化
+	$effect(() => {
+		if (typeof document === 'undefined') return;
+		const sh = styleStore.pack.shadow;
+		const noShadows = sh.sm === 'none' && sh.md === 'none' && sh.lg === 'none' && sh.xl === 'none';
+		document.documentElement.classList.toggle('style-shadows-none', noShadows);
+	});
+
+	// 文字サイズ変更の即時反映（settings 更新時）
+	$effect(() => {
+		if (!settingsStore.initialized) return;
+		if (!browser) return;
+		const scale = settingsStore.settings.fontScale || 1.0;
+		document.documentElement.style.fontSize = `${scale * 100}%`;
 	});
 
 	// 天気の位置情報（settings.lat/lng）の変更を検知して、運行情報の最寄り駅を自動更新
@@ -145,63 +188,13 @@
 
 	const navItems = $derived(tabs);
 
-	const fontFamilyStyle = $derived.by(() => {
-		const font = settingsStore.settings.fontFamily;
-		const locale = currentLocaleSignal;
-
-		// 1) サンセリフ (ゴシック体) および Noto (互換用)
-		if (font === 'sans' || font === 'noto') {
-			if (locale === 'zh') {
-				return "font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;";
-			} else if (locale === 'ko') {
-				return "font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;";
-			} else if (locale === 'ja') {
-				return "font-family: 'Noto Sans JP', sans-serif;";
-			}
-			return "font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;";
-		}
-
-		// 2) セリフ (明朝体)
-		if (font === 'serif') {
-			if (locale === 'zh') {
-				return "font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;";
-			} else if (locale === 'ko') {
-				return "font-family: 'Noto Serif KR', 'Batang', 'AppleMyungjo', serif;";
-			} else if (locale === 'ja') {
-				return "font-family: 'Noto Serif JP', 'BIZ UDMincho', serif;";
-			}
-			return "font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;";
-		}
-
-		// 3) さわらびゴシック (CJKフォールバック含む)
-		if (font === 'sawarabi') {
-			if (locale === 'zh') {
-				return "font-family: 'Sawarabi Gothic', 'Noto Sans SC', 'PingFang SC', sans-serif;";
-			} else if (locale === 'ko') {
-				return "font-family: 'Sawarabi Gothic', 'Noto Sans KR', 'Malgun Gothic', sans-serif;";
-			}
-			return "font-family: 'Sawarabi Gothic', 'Noto Sans JP', sans-serif;";
-		}
-
-		// 4) Outfit (欧文メイン + 多言語フォールバック)
-		if (font === 'outfit') {
-			if (locale === 'zh') {
-				return "font-family: 'Outfit', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;";
-			} else if (locale === 'ko') {
-				return "font-family: 'Outfit', 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;";
-			} else if (locale === 'ja') {
-				return "font-family: 'Outfit', 'Noto Sans JP', sans-serif;";
-			}
-			return "font-family: 'Outfit', system-ui, -apple-system, sans-serif;";
-		}
-
-		// 5) デフォルト / システムフォント
-		if (locale === 'zh') {
-			return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Microsoft YaHei', sans-serif;";
-		} else if (locale === 'ko') {
-			return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;";
-		}
-		return "font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;";
+// フォント変数を適用（テーマパックまたはロケール変更時）
+$effect(() => {
+	const pack = themeStore.pack;
+	const locale = currentLocaleSignal;
+	if (pack && locale) {
+		applyFontVars(pack, locale);
+	}
 	});
 
 	let osDark = $state(false);
@@ -249,7 +242,8 @@
 {#key currentLocaleSignal}
 	<div
 		class="min-h-screen bg-[var(--color-surface-page)] text-[var(--color-nav-active)]"
-		style={fontFamilyStyle +
+		class:bg-image-active={Boolean(settingsStore.settings.timetableBgImage && settingsStore.settings.bgImageAllPages)}
+		style={`font-family: var(--font-family);` +
 			(settingsStore.settings.timetableBgImage && settingsStore.settings.bgImageAllPages
 				? ` background-image: url(${settingsStore.settings.timetableBgImage}); background-size: cover; background-position: center; background-attachment: fixed;`
 				: '')}

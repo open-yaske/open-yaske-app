@@ -10,9 +10,10 @@
 	import { m } from '$lib/paraglide/messages';
 	import { DAY_OF_WEEK_LIST, PERIOD_LIST } from '$lib/types';
 	import type { Course, DayOfWeek, Period } from '$lib/types';
-	import { themeStore, settingsStore } from '$lib/stores';
+	import { themeStore, settingsStore, styleStore } from '$lib/stores';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { resolveColorHex } from '$lib/theme';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		courses: Course[];
@@ -60,6 +61,9 @@
 	const gridTemplateColumns = $derived(
 		`minmax(1.25rem, 1.75rem) repeat(${dayRange}, minmax(0, 1fr))`
 	);
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 </script>
 
 <div class="w-full overflow-x-auto px-1 sm:px-4">
@@ -99,7 +103,7 @@
 					<!-- 授業カード: 複数時限にまたがる (span) -->
 					<button
 						type="button"
-						class="m-0.5 flex min-h-[56px] sm:min-h-[64px] cursor-pointer flex-col gap-0.5 sm:gap-1 rounded-card p-1.5 sm:p-2.5 transition-all hover:scale-[0.99] active:scale-[0.97] overflow-hidden w-full text-left"
+						class="m-0.5 flex min-h-[56px] sm:min-h-[64px] cursor-pointer flex-col gap-0.5 sm:gap-1 {r.card} p-1.5 sm:p-2.5 transition-all hover:scale-[0.99] active:scale-[0.97] overflow-hidden w-full text-left"
 						style="background-color: {color}; grid-column: {d + 2}; grid-row: {p +
 							2} / span {course.span};"
 						class:text-white={!isDarkTheme}
@@ -128,7 +132,7 @@
 					<!-- 空セル: タップして追加 -->
 					<button
 						type="button"
-						class="m-0.5 flex min-h-[64px] w-full cursor-pointer items-center justify-center rounded-card border border-dashed transition-all hover:scale-[0.99] active:scale-[0.97] {settingsStore
+						class="m-0.5 flex min-h-[64px] w-full cursor-pointer items-center justify-center {r.card} border border-dashed transition-all hover:scale-[0.99] active:scale-[0.97] {settingsStore
 							.settings.timetableTransparent
 							? 'border-[var(--color-surface-muted)] bg-[var(--color-surface-card)]/40 backdrop-blur-xs hover:bg-[var(--color-surface-muted)]/60'
 							: 'border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:bg-[var(--color-surface-muted)]'}"

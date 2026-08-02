@@ -4,9 +4,96 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased] - 2026-07-25
+## [0.1.0] - 2026-08-02
 
 ### Added
+
+- **コントラスト検査基盤 (`src/lib/theme/contrast-matrix.ts`)**:
+  - コードベースの実使用箇所から逆引きした全57チェックのコントラスト検査マトリックスを定義。
+  - `validateThemePackContrast()` で全テーマの WCAG 2.1 適合を自動検証。新テーマは合格が必須。
+- **スタイル対応の角丸システム (`resolveRadius`)**:
+  - `src/lib/styles/components.ts` に `resolveRadius(pack)` を追加。`layout.borderRadius`（従来は未使用の死に設定）を実効化。
+  - Win95/Brutalism は角ゼロ、Neumorphism は大きな角丸、Apple はピル形状と、スタイルごとに特徴的な角丸が自動適用。
+  - `resolveComponents()` が input/card の角丸を自動適用。14コンポーネント超をスタイル対応角丸に移行。
+- **ハイコントラストテーマのバンドル**:
+  - `src/lib/theme/defaults/high-contrast.json`（ライト）/ `high-contrast-dark.json`（ダーク）を新規追加。
+  - ハイコントラストスタイル選択時に対応テーマを自動適用。離脱時は直前のテーマを復元（`prevThemePackIdLight/Dark`）。
+- **影の完全制御 (`style-shadows-none`)**:
+  - flat / high-contrast / win95 等の影なしスタイルで、アプリ全体の影を強制無効化する機構を追加。
+  - DEFAULT_COMPONENTS とコンポーネントのハードコード shadow を CSS 変数（`--shadow-card` 等）に統一。
+- **テーマオーバーライド (`themeOverrides`)**:
+  - テーマのデフォルトの上に、プライマリカラー・ページ背景色・フォント・角丸を個別カスタマイズ可能。
+  - 設定画面に「クイックカスタマイズ」セクションを追加。
+- **Neumorphism 派生変数 (`--neumo-*`)**:
+  - `css-bridge.ts` がテーマの表面色から凹凸シャドウ色を動的計算。明るい/暗いテーマ両方で正しい凹凸を自動生成。
+- **背景画像の可読性確保**:
+  - 背景画像有効時に `color-mix` スクリム（ページ色55%）を全面に重ね、ガラス質感を保ちつつテキストの可読性を確保。
+
+### Changed
+
+- **VisualStylePack の品質向上と差別化**:
+  - Apple / Material / Flat を明確に差別化（Apple=すりガラス、Material=トーナル+elevation、Flat=影ゼロ+ミュート塗り）。
+  - Neumorphism: inner ring ハイライト、focus リング、インセット見出しで一体感を強化（v5）。
+  - Brutalism: カラーブロック、hover 色シフト、反転セクションヘッダーを追加（v4）。
+  - Cyberpunk: ネオンボタン、text-shadow 発光見出し、グロー強化（v4）。
+  - Windows XP: 鮮やかな青グラデーションのタイトルバー/タスクバー、XP ブルーボタンで本物の Luna テーマ風に（v5）。
+  - Win95/WinXP: ハードコード色（`bg-white`/`text-black`）を CSS 変数化し、全テーマで 3D ベベルが追従（v4）。
+- **設定画面の再編**:
+  - 「テーマパック」「外観」「クイックカスタマイズ」の3セクションを「テーマ」「表示」の2セクションに統合。
+  - クイックカスタマイズをテーマエディタリンクと画面スタイルの間に配置。
+- **トップバーのコントラスト改善**: PageHeader に不透明バッキングを追加し、ガラス透過時でもテキストの可読性を確保。
+- **検索UIの統一**: ホーム/More/設定の検索入力がすべてスタイル対応の角丸に追従するよう統一。
+- **4テーマのカラーパレットを更新**: iOS 風/大学ブランド/和菓子テーマに洗練。スケール重複（700=800）を修正し、全コントラストチェック合格。
+
+### Fixed
+
+- ハイコントラストスタイルから別のスタイルに戻したとき、以前のテーマが復元されない問題を修正。
+- 9コンポーネント14箇所のハードコード `rounded-card` がスタイル切替に追従しない問題を修正。
+- SpotlightSearch の検索ボタンが縦長になる問題を修正（36×36 正方形に固定して正円化）。
+
+## [Unreleased] - 2026-07-27
+
+### Added
+
+- **Liquid Glass を削除し、Windows 95 / XP スタイルパックを追加**:
+  - Liquid Glass パックを削除（Apple と被るため）。
+  - `src/lib/styles/win95.ts`: 3D レイズド/サンクン枠、角ゼロ、MS Sans Serif 風タイポグラフィ。
+  - `src/lib/styles/winxp.ts`: XP Luna 風の青いアクセント・グラデーション・Tahoma 調タイポ。
+  - 全7スタイル（apple/material/neumorphism/brutalism/cyberpunk/win95/winxp）に整理。
+- **設定画面に「画面スタイル」セレクターを追加**:
+  - `settingsStore.settings.visualStyle` に永続化。`styleStore` と連動。
+  - 設定画面 > 外観にドロップダウンセレクターを配置。
+  - i18n: 4言語対応のスタイル名メッセージを追加。
+
+- **Neumorphism / Brutalism / Cyberpunk スタイルパックを追加**:
+  - `src/lib/styles/neumorphism.ts`: Soft UI。極端な内外シャドウで凹凸表現。ガラス効果なし・ベタ塗り。
+  - `src/lib/styles/brutalism.ts`: ハードオフセットシャドウ・太枠・スクエア角・大文字タイポグラフィ。
+  - `src/lib/styles/cyberpunk.ts`: ネオン発光シャドウ（primary色依存）、2px solid ボーダー、光彩フィードバック。
+  - `src/routes/layout.css`: 各スタイル用 shadow-\* CSS クラスを追加（shadow-neumo-, shadow-brutal-, shadow-cyber-）。
+  - 全6スタイルを `styleStore` に登録。`styleStore.set('cyberpunk')` で即切替可能。
+
+- **Material Design 3 / Liquid Glass スタイルパックを追加**:
+  - `src/lib/styles/material.ts`: Material Design 3 準拠。ソリッドサーフェス、Elevation シャドウ、MD3 イージング。
+  - `src/lib/styles/liquid-glass.ts`: Liquid Glass。Appleより劇的なガラス・反射・発光、強めの影とバウンス。
+  - `src/lib/stores/style.svelte.ts`: 3スタイル（apple / material / liquid-glass）を登録。`styleStore.set('material')` で即切替可能。
+  - `src/routes/layout.css`: Material / Liquid Glass 用の shadow-\* CSS クラスを追加。
+  - `GlassContainer.svelte`: Material スタイル選択時は SVG distortion をスキップ（ソリッドサーフェス）。
+
+- **ビジュアルスタイルパックシステム (`src/lib/styles/`) を新設**:
+  - `src/lib/styles/types.ts`: `VisualStylePack` 型定義 — press/materials/easing/shadow/typography をパック化。
+  - `src/lib/styles/apple.ts`: Apple Design Guidelines 準拠の Apple スタイルパックを実装（既存の挙動を完全維持）。
+  - `src/lib/stores/style.svelte.ts`: `styleStore` — テーマパックと同様のリアクティブストア。将来 Material / Liquid Glass スタイルを追加可能。
+  - `src/lib/apple-design.ts`: 実体を applePack に移行し、後方互換エイリアスとして再構成。
+  - `GlassContainer.svelte`: `data-style` 属性を追加。スタイル切り替えに備えた設計に。
+- **ダークテーマの改善**: `dark.json` の `surface.page` を `#000000`（ピュア黒）から `#0f172a`（スレート）に変更。`GlassContainer.svelte` のダークモードrgba値も同様にソフト化。
+
+- **Siri Shortcuts / Android App Actions 対応**:
+  - iOS: `@bubble-labs/capacitor-plugin-siri-shorts@8.0.1` を追加。4つの機能（時間割/TODO/カレンダー/出席）をSiriに寄贈し、音声で起動可能に。
+  - Android: `res/xml/shortcuts.xml` に App Actions（BII: `OPEN_APP_FEATURE`）＋静的ショートカットを定義。`yaske://shortcuts/{feature}` のディープリンクで機能を直接開けるように。
+  - 共通: `src/lib/shortcuts.ts` で両プラットフォームの統合リスナーを実装。`@capacitor/app@8.1.1` でディープリンクを受信。
+  - i18n: 4言語（ja/en/zh/ko）に対応したSiri呼び出しフレーズと使用許諾説明文を追加。
+  - iOS設定: `Info.plist` に `NSUserActivityTypes`、`NSSiriUsageDescription`、`CFBundleURLTypes` を追加。
+  - Android設定: `AndroidManifest.xml` に `yaske://shortcuts/*` のVIEWインテントフィルターとショートカットメタデータを追加。`MainActivity.java` で `onNewIntent` をハンドリング。
 
 - **共通エラー画面コンポーネント (`src/routes/+error.svelte`) の追加**:
   - SvelteKitの共通エラーハンドリング機能を利用し、404（Not Found）や503（Service Unavailable）などのエラー発生時にプレーンテキストではなく、美しく統一されたエラー画面を表示するコンポーネントを新規作成しました。

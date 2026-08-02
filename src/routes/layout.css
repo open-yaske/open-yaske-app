@@ -6,31 +6,184 @@
 	--radius-card: var(--radius-card);
 	--radius-chip: var(--radius-chip);
 	--radius-pill: var(--radius-pill);
+
+	/* 影 */
+	--shadow-sheet: var(--shadow-sheet);
+	--shadow-card: var(--shadow-card);
+	--shadow-modal: var(--shadow-modal);
+
+	/* サーフェス色 */
+	--color-surface-page: var(--color-surface-page);
+	--color-surface-card: var(--color-surface-card);
+	--color-surface-border: var(--color-surface-border);
+
+	/* ナビ色 */
+	--color-nav-bg: var(--color-nav-bg);
+	--color-nav-active: var(--color-nav-active);
+	--color-nav-inactive: var(--color-nav-inactive);
+
+	/* フォント */
+	--font-family: var(--font-family);
 }
 
-/* Apple Design (SKILL.md) 固有の自然な多層シャドウ */
+/* 新スタイルフォールバック: スタイルパックの shadow 値をCSS変数経由で適用 */
+.shadow-style-sm { box-shadow: var(--shadow-style-sm, none); }
+.shadow-style-md { box-shadow: var(--shadow-style-md, none); }
+.shadow-style-lg { box-shadow: var(--shadow-style-lg, none); }
+.shadow-style-xl { box-shadow: var(--shadow-style-xl, none); }
+
+/* ThemePack シャドウ制御: テーマがすべてのシャドウを "none" に設定した場合、
+   ページ上の全 `shadow-*` クラスを強制無効化する（flat 等） */
+html.theme-shadows-none [class*="shadow-"] {
+	box-shadow: none !important;
+}
+
+/* スタイルパックが影なし（flat / high-contrast / win95 等）の場合、全影を強制無効化 */
+html.style-shadows-none [class*="shadow-"] {
+	box-shadow: none !important;
+}
+
+/* ── 背景画像有効時の可読性確保 ── */
+/* ルートにスクリムを重ね、画像の上でもテキストを読めるようにする */
+.bg-image-active::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: color-mix(in srgb, var(--color-surface-page) 55%, transparent);
+}
+/* スクリムよりコンテンツを前面に */
+.bg-image-active > * {
+	position: relative;
+	z-index: 1;
+}
+
+/* ── Apple Design シャドウ ── */
 .shadow-apple-sm {
-	box-shadow:
-		0 2px 8px rgba(0, 0, 0, 0.04),
-		0 1px 2px rgba(0, 0, 0, 0.02);
+	box-shadow: var(--shadow-apple-sm, 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02));
 }
 
 .shadow-apple-md {
-	box-shadow:
-		0 4px 16px rgba(0, 0, 0, 0.08),
-		0 2px 4px rgba(0, 0, 0, 0.03);
+	box-shadow: var(--shadow-apple-md, 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03));
 }
 
 .shadow-apple-lg {
-	box-shadow:
-		0 12px 32px rgba(0, 0, 0, 0.12),
-		0 4px 12px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--shadow-apple-lg, 0 12px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05));
 }
 
 .shadow-apple-xl {
+	box-shadow: var(--shadow-apple-xl, 0 24px 48px rgba(0, 0, 0, 0.16), 0 8px 16px rgba(0, 0, 0, 0.08));
+}
+
+/* ── Material Design 3 シャドウ（Elevation 1-4）── */
+.shadow-material-sm {
+	box-shadow: var(--shadow-material-sm, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+.shadow-material-md {
+	box-shadow: var(--shadow-material-md, 0 3px 6px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+.shadow-material-lg {
+	box-shadow: var(--shadow-material-lg, 0 6px 12px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.14));
+}
+
+.shadow-material-xl {
+	box-shadow: var(--shadow-material-xl, 0 8px 18px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.14));
+}
+
+/* ── Neumorphism (Soft UI) シャドウ ── */
+.shadow-neumo-sm {
+	box-shadow: var(--shadow-neumo-sm, 3px 3px 6px rgba(0, 0, 0, 0.09), -3px -3px 6px rgba(255, 255, 255, 0.7));
+}
+
+:root.dark .shadow-neumo-sm {
+	box-shadow: var(--shadow-neumo-sm, 3px 3px 6px rgba(0, 0, 0, 0.35), -3px -3px 6px rgba(255, 255, 255, 0.05));
+}
+
+.shadow-neumo-md {
+	box-shadow: var(--shadow-neumo-md, 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.7));
+}
+
+:root.dark .shadow-neumo-md {
+	box-shadow: var(--shadow-neumo-md, 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.05));
+}
+
+.shadow-neumo-lg {
+	box-shadow: var(--shadow-neumo-lg, 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.7));
+}
+
+:root.dark .shadow-neumo-lg {
+	box-shadow: var(--shadow-neumo-lg, 10px 10px 20px rgba(0, 0, 0, 0.45), -10px -10px 20px rgba(255, 255, 255, 0.05));
+}
+
+.shadow-neumo-xl {
+	box-shadow: var(--shadow-neumo-xl, 14px 14px 28px rgba(0, 0, 0, 0.12), -14px -14px 28px rgba(255, 255, 255, 0.7));
+}
+
+:root.dark .shadow-neumo-xl {
+	box-shadow: var(--shadow-neumo-xl, 14px 14px 28px rgba(0, 0, 0, 0.5), -14px -14px 28px rgba(255, 255, 255, 0.05));
+}
+
+/* ── Brutalism シャドウ — ハードオフセット ── */
+.shadow-brutal-sm {
+	box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.9);
+}
+
+:root.dark .shadow-brutal-sm {
+	box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.9);
+}
+
+.shadow-brutal-md {
+	box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.9);
+}
+
+:root.dark .shadow-brutal-md {
+	box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.9);
+}
+
+.shadow-brutal-lg {
+	box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.9);
+}
+
+:root.dark .shadow-brutal-lg {
+	box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.9);
+}
+
+.shadow-brutal-xl {
+	box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.9);
+}
+
+:root.dark .shadow-brutal-xl {
+	box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.9);
+}
+
+/* ── Cyberpunk シャドウ — ネオン発光 ── */
+.shadow-cyber-sm {
 	box-shadow:
-		0 24px 48px rgba(0, 0, 0, 0.16),
-		0 8px 16px rgba(0, 0, 0, 0.08);
+		0 0 6px var(--color-primary-400, #0ea5e9),
+		0 0 12px var(--color-primary-400, #0ea5e9);
+}
+
+.shadow-cyber-md {
+	box-shadow:
+		0 0 10px var(--color-primary-400, #0ea5e9),
+		0 0 20px var(--color-primary-400, #0ea5e9);
+}
+
+.shadow-cyber-lg {
+	box-shadow:
+		0 0 15px var(--color-primary-400, #0ea5e9),
+		0 0 30px var(--color-primary-400, #0ea5e9),
+		0 0 60px var(--color-primary-400, #0ea5e9);
+}
+
+.shadow-cyber-xl {
+	box-shadow:
+		0 0 20px var(--color-primary-400, #0ea5e9),
+		0 0 40px var(--color-primary-400, #0ea5e9),
+		0 0 80px var(--color-primary-400, #0ea5e9);
 }
 
 /* =====================================================
@@ -39,6 +192,15 @@
    opacity クロスフェードに置き換える。
    フィードバック自体は消さない — 穏やかな等価物に。
    ===================================================== */
+.reduce-motion,
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+	transition-duration: 0ms !important;
+	animation-duration: 0ms !important;
+	animation: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	/* Sheet / Modal: transform アニメーションをフェードのみに */
 	.sheet-panel,

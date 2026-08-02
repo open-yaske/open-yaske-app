@@ -179,6 +179,7 @@
 	"attendance_max_absences": "欠席上限",
 	"settings_title": "設定",
 	"settings_theme": "テーマ",
+	"settings_display": "表示",
 	"settings_theme_pack": "テーマパック",
 	"settings_theme_mode": "外観",
 	"settings_theme_light": "ライト",
@@ -500,5 +501,36 @@
 	"error_go_back": "前のページに戻る",
 	"error_go_home": "ホームに戻る",
 	"error_show_details": "詳細情報を表示",
-	"error_hide_details": "詳細情報を非表示"
+	"error_hide_details": "詳細情報を非表示",
+
+	"shortcut_timetable_invocation": "時間割を開いて",
+	"shortcut_todo_invocation": "TODOを開いて",
+	"shortcut_calendar_invocation": "カレンダーを開いて",
+	"shortcut_attendance_invocation": "出席を開いて",
+	"siri_usage_description": "Siriを使って時間割などの機能に素早くアクセスします。",
+
+	"settings_visual_style": "画面スタイル",
+	"style_apple": "Apple",
+	"style_material": "Material Design",
+	"style_neumorphism": "Neumorphism",
+	"style_brutalism": "Brutalism",
+	"style_cyberpunk": "Cyberpunk",
+	"style_flat": "Flat",
+	"style_high_contrast": "ハイコントラスト",
+	"style_win95": "Windows 95",
+	"style_winxp": "Windows XP",
+
+	"settings_reduce_motion": "アニメーションを減らす",
+	"settings_font_scale": "文字サイズ",
+	"settings_font_scale_small": "小",
+	"settings_font_scale_large": "大",
+
+	"settings_quick_customize": "クイックカスタマイズ",
+	"settings_use_theme_default": "テーマのデフォルトを使う",
+	"settings_primary_color": "プライマリカラー",
+	"settings_surface_page_color": "ページ背景色",
+	"settings_border_radius": "角丸",
+	"settings_radius_small": "小",
+	"settings_radius_medium": "中",
+	"settings_radius_large": "大"
 }

@@ -12,13 +12,14 @@
 	import { m } from '$lib/paraglide/messages';
 	import { DAY_OF_WEEK_LIST, PERIOD_LIST } from '$lib/types';
 	import type { Course, CourseType, DayOfWeek, Period } from '$lib/types';
-	import { userDataStore, themeStore, settingsStore, publicDataStore } from '$lib/stores';
+	import { userDataStore, themeStore, settingsStore, publicDataStore, styleStore } from '$lib/stores';
 	import type { PublicCourse } from '$lib/types/public';
 	import Sheet from '$lib/components/Sheet.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import ColorPicker from '$lib/components/ColorPicker.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { Trash2, BookOpen, Search, X, Check } from '@lucide/svelte';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		open: boolean;
@@ -213,6 +214,9 @@
 
 	const coursePalette = $derived(themeStore.pack.palette.courseColors);
 
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
+
 	async function handleSave() {
 		if (name.trim() === '') return;
 
@@ -255,7 +259,7 @@
 			<!-- リンク済みシラバス表示 -->
 			{#if linkedPublicCourse && !syllabusSearchOpen}
 				<div
-					class="flex items-center gap-3 rounded-card border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2.5"
+					class="flex items-center gap-3 {r.card} border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-2.5"
 				>
 					<BookOpen size={16} class="shrink-0 text-[var(--color-primary-600)]" />
 					<div class="flex-1 min-w-0">
@@ -294,7 +298,7 @@
 				<button
 					type="button"
 					onclick={() => (syllabusSearchOpen = true)}
-					class="flex w-full items-center gap-2 rounded-card border border-dashed border-[var(--color-surface-border)] px-3 py-2.5 text-sm text-[var(--color-nav-inactive)] hover:border-[var(--color-primary-400)] hover:text-[var(--color-primary-600)] transition-colors"
+					class="flex w-full items-center gap-2 {r.card} border border-dashed border-[var(--color-surface-border)] px-3 py-2.5 text-sm text-[var(--color-nav-inactive)] hover:border-[var(--color-primary-400)] hover:text-[var(--color-primary-600)] transition-colors"
 				>
 					<Search size={15} class="shrink-0" />
 					<span>シラバスから科目を検索して自動入力</span>
@@ -304,7 +308,7 @@
 			<!-- 検索パネル（展開時） -->
 			{#if syllabusSearchOpen}
 				<div
-					class="rounded-card border border-[var(--color-primary-300)] bg-[var(--color-surface-card)] overflow-hidden"
+					class="{r.card} border border-[var(--color-primary-300)] bg-[var(--color-surface-card)] overflow-hidden"
 				>
 					<!-- 検索フィールド (DESIGN 準拠) -->
 					<div class="flex items-center gap-2 border-b border-[var(--color-surface-border)] p-3">

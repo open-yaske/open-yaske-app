@@ -5,8 +5,9 @@
 -->
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { themeStore, userDataStore } from '$lib/stores';
+	import { themeStore, userDataStore, styleStore } from '$lib/stores';
 	import { resolveColorHex } from '$lib/theme';
+	import { resolveRadius } from '$lib/styles';
 	import { calculateRate, getTodayStatus, isDangerous } from '$lib/attendance';
 	import type { Course, AttendanceRecord, AttendanceStatus } from '$lib/types';
 	import ProgressRing from '$lib/components/ProgressRing.svelte';
@@ -47,6 +48,9 @@
 	const ringColor = $derived(
 		isDangerous(summary) ? '--color-attendance-absent-fg' : '--color-primary-500'
 	);
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	// Stats for the 4-count row
 	const stats = $derived([
@@ -97,7 +101,7 @@
 	}
 </script>
 
-<GlassContainer variant="card" glow={true} distortion="medium" class="space-y-4 rounded-card p-4">
+<GlassContainer variant="card" glow={true} distortion="medium" class="space-y-4 {r.card} p-4">
 	<!-- Header: course name + color dot + rate ring -->
 	<div class="flex items-center gap-3">
 		<span

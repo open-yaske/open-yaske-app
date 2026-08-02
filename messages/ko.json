@@ -179,6 +179,7 @@
 	"attendance_max_absences": "결석 한도",
 	"settings_title": "설정",
 	"settings_theme": "테마",
+	"settings_display": "표시",
 	"settings_theme_pack": "테마 팩",
 	"settings_theme_mode": "외관",
 	"settings_theme_light": "라이트",
@@ -500,5 +501,36 @@
 	"error_go_back": "이전 페이지로 돌아가기",
 	"error_go_home": "홈으로 돌아가기",
 	"error_show_details": "상세 정보 표시",
-	"error_hide_details": "상세 정보 숨기기"
+	"error_hide_details": "상세 정보 숨기기",
+
+	"shortcut_timetable_invocation": "시간표 열기",
+	"shortcut_todo_invocation": "TODO 열기",
+	"shortcut_calendar_invocation": "캘린더 열기",
+	"shortcut_attendance_invocation": "출석 열기",
+	"siri_usage_description": "Siri를 사용하여 시간표 및 기타 기능에 빠르게 접근합니다.",
+
+	"settings_visual_style": "화면 스타일",
+	"style_apple": "Apple",
+	"style_material": "Material Design",
+	"style_neumorphism": "Neumorphism",
+	"style_brutalism": "Brutalism",
+	"style_cyberpunk": "Cyberpunk",
+	"style_flat": "Flat",
+	"style_high_contrast": "고대비",
+	"style_win95": "Windows 95",
+	"style_winxp": "Windows XP",
+
+	"settings_reduce_motion": "애니메이션 줄이기",
+	"settings_font_scale": "글자 크기",
+	"settings_font_scale_small": "작게",
+	"settings_font_scale_large": "크게",
+
+	"settings_quick_customize": "빠른 사용자 정의",
+	"settings_use_theme_default": "테마 기본값 사용",
+	"settings_primary_color": "기본 색상",
+	"settings_surface_page_color": "페이지 배경색",
+	"settings_border_radius": "둥근 모서리",
+	"settings_radius_small": "작게",
+	"settings_radius_medium": "중간",
+	"settings_radius_large": "크게"
 }

@@ -14,7 +14,8 @@
 	import { settingsStore } from '$lib/stores';
 	import { m } from '$lib/paraglide/messages';
 	import { sanitize } from '$lib/html-renderer';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 	import type {
 		DashboardCard,
 		HtmlInternalCard,
@@ -96,6 +97,7 @@
 
 	let { card }: Props = $props();
 	const settings = $derived(settingsStore.settings);
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	// --- アイコン名 → lucide コンポーネントのマッピング ---
 	const iconMap: Record<
@@ -234,7 +236,7 @@
 {#if card.type === 'html-internal'}
 	{@const c = card as HtmlInternalCard}
 	<div
-		class="flex flex-col overflow-hidden rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl shadow-apple-sm"
+		class="flex flex-col overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl shadow-[var(--shadow-card)]"
 		class:col-span-2={isBanner}
 	>
 		<div class="flex items-center gap-2.5 px-4 pt-4">
@@ -279,7 +281,8 @@
 				void openLink(c.url, true);
 			}
 		}}
-		class="flex flex-col items-start gap-2.5 rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-apple-sm hover:shadow-apple-md {APPLE_PRESS.card} select-none"
+		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card)] {styleStore
+			.pack.press.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">
 			{#if isLucideIcon}
@@ -296,7 +299,8 @@
 	<button
 		type="button"
 		onclick={() => openWebviewPopup(c)}
-		class="flex flex-col items-start gap-2.5 rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-apple-sm hover:shadow-apple-md {APPLE_PRESS.card} select-none"
+		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card)] {styleStore
+			.pack.press.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">
 			{#if isLucideIcon}

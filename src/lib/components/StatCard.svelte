@@ -5,6 +5,8 @@
 -->
 <script lang="ts">
 	import GlassContainer from './GlassContainer.svelte';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		/** ラベル（i18n key または文字列） */
@@ -26,13 +28,16 @@
 		valueColor = '--color-nav-active',
 		class: klass = ''
 	}: Props = $props();
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 </script>
 
 <GlassContainer
 	variant="card"
 	glow={true}
 	distortion="medium"
-	class="flex flex-col justify-between gap-1 rounded-card px-4 py-3.5 {klass}"
+	class="flex flex-col justify-between gap-1 {r.card} px-4 py-3.5 {klass}"
 >
 	<span class="text-xs font-medium text-[var(--color-nav-inactive)]">{label}</span>
 	<div class="flex items-baseline gap-1">

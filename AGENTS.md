@@ -43,30 +43,74 @@
 
 ## 🎨 色定義は `src/lib/theme/` に集約（HEX 直書き禁止）
 
-**テーマパックシステム** で UI 色 / 科目色 / TODO 色 / イベント色 / 出席色を統合管理。
+**テーマパックシステム（ThemePack）** で UI 色 / 科目色 / TODO 色 / イベント色 / 出席色を統合管理。
+色のカスタマイズはテーマパック単位。各スケール段は独立したマルチヒュー色（WCAGコントラスト合格が品質基準）。
 
 ```
 src/lib/theme/
 ├── index.ts            # 公開 API
-├── types.ts            # ThemePack 型定義
-├── defaults/           # 同梱テーマ（default, uec, dango, dark）
+├── types.ts            # ThemePack 型定義（Typography, Meta 含む）
+├── defaults/           # 同梱テーマ（default, uec, dango, dark, high-contrast, high-contrast-dark）
 ├── pack-loader.ts      # JSON ロード + バリデーション
 ├── tokens.ts           # パレット解決
-└── css-bridge.ts       # CSS 変数への適用
+├── css-bridge.ts       # CSS 変数への適用 + シャドウ抑制
+├── contrast.ts         # WCAG 2.1 コントラスト計算
+├── contrast-matrix.ts  # 全57チェックのコントラスト検査マトリックス
+└── font-resolver.ts    # フォントファミリー解決（6種×4ロケール）
 ```
 
 - **ESLint ルール**: `theme-tokens/no-raw-hex` で HEX 直書きを禁止（`src/lib/theme/` 配下のみ例外）
 - コンポーネントは `var(--color-primary-500)` のような CSS 変数経由で参照
 - カスタムパックはユーザーが作成可能（Settings > テーマ）
 
+## 🎭 ビジュアルスタイルは `src/lib/styles/` で管理（ThemePack とは別）
+
+**ビジュアルスタイルパック（VisualStylePack）** は色以外の視覚表現（押し込み感、マテリアル質感、影、イージング）を管理。
+ThemePack が「色のテーマ」を担当し、VisualStylePack が「質感のスタイル」を担当する。両者は独立して切り替え可能。
+
+```
+src/lib/styles/
+├── index.ts       # バレルエクスポート
+├── types.ts       # VisualStylePack 型定義（press, materials, easing, spring, shadow, typography, layout）
+├── registry.ts    # 動的スタイル登録レジストリ（拡張性: 新スタイル追加時に style.svelte.ts 編集不要）
+├── apple.ts       # Apple Design Guidelines（すりガラス、スプリング物理）
+├── material.ts    # Material Design 3（ソリッドサーフェス、easing のみ）
+├── neumorphism.ts # Neumorphism（ソフトUI、インセットシャドウ）
+├── brutalism.ts   # Brutalism（ハードオフセット、steps(2)）
+├── cyberpunk.ts   # Cyberpunk（ネオン発光、グリッチイージング）
+├── flat.ts        # Flat Design（シャドウなし、linearイージング）
+├── win95.ts       # Windows 95（3D枠線、step-end）
+└── winxp.ts       # Windows XP（グラデーション、Luna風）
+```
+
+**使い分けの指針**:
+- 色を変えたい（プライマリカラー、背景色など）→ `src/lib/theme/` の ThemePack
+- 質感を変えたい（押し込み方、影のスタイル、アニメーションの種類）→ `src/lib/styles/` の VisualStylePack
+- 両方を同時に切り替えたい → 設定画面でテーマとビジュアルスタイルを個別選択
+
+**新スタイルの追加方法**:
+1. `src/lib/styles/{id}.ts` に VisualStylePack 定義を作成
+2. `registry.ts` または呼び出し元で `registerStyle(pack)` を実行
+3. コンポーネント修正は不要（`styleStore.pack.*` で自動解決）
+
+### シャドウ制御
+- `ThemePack.ui.shadow` の全値が `"none"` の場合、`<html>` に `theme-shadows-none` クラスが付与される
+- これにより全 `shadow-*` CSS クラスが強制無効化され、high-contrast / flat 等で一貫したノーシャドウ表示が可能
+- CSS 変数 `--shadow-card` 等も同時に `"none"` に設定される
+
+### BottomTabBar のドッキング動作
+ボトムナビゲーションバーは VisualStylePack の `layout.cardSurface` に応じて表示形態が変化:
+- `glass`（Apple, Cyberpunk）: 浮遊ガラスピル（中央寄せ、丸み、歪みエフェクト）
+- `solid` / `neumorphic` / `brutal`（Material, Flat 等）: 画面下端固定のソリッドバー
+- `chiseled`（Win95）: 3D レイズド枠線のバー
+- `gradient`（WinXP）: グラデーションのバー
+
 ## 📐 デザイン原則（Apple Design Guidelines）
 
-アプリ全体のビジュアル設計および物理インタラクションは、**Apple Design Guidelines (`src/lib/apple-design.ts`)** に完全準拠してください。
+アプリ全体のビジュアル設計および物理インタラクションは、**Apple Design Guidelines (`src/lib/apple-design.ts`)** に完全準拠してください。ただし各ビジュアルスタイル（Material, Brutalism 等）は独自のデザイン言語を持つため、`styleStore.pack.*` を優先して参照すること。
 
-- **中央デザインシステムの利用**: `src/lib/apple-design.ts` から `APPLE_EASING`, `APPLE_PRESS`, `APPLE_MATERIALS` をインポート・参照し、一貫したイージングと質感を実現します。
-- **即時フィードバックと流動的アニメーション (Response & Interruptibility)**: タッチ/クリック可能要素には `:active` 時の押し込みフィードバック (`APPLE_PRESS`) やスプリングイージング (`APPLE_EASING`) を適用し、操作遅延をゼロにします。
-- **エレガントな多層影とすりガラス (Elevation & Vibrancy)**: iOS/macOS 特有の柔らかく自然な多層影 (`shadow-apple-sm`, `shadow-apple-md`, `shadow-apple-lg`) と高級感のあるすりガラス質感 (`backdrop-blur-xl`) を活用します。
-- **角丸と最小タップターゲットの統一**: コンテンツカードには `rounded-card` (`rounded-2xl` / `rounded-3xl`)、チップ・ボタンには `rounded-chip` / `rounded-full` を使用し、モバイルでの最小タップターゲット領域 (44px) を確保します。
+- **旧 `apple-design.ts` の定数は非推奨（deprecated）**: `APPLE_PRESS` 等の直参照ではなく `styleStore.pack.press.*` を使用すること
+- **コントラスト品質の自動検証**: `validateThemePackContrast()` で全57チェック実行。新テーマは合格必須。
 
 ## 📦 データ層
 

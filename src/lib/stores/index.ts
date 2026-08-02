@@ -1,4 +1,5 @@
 export { themeStore } from './theme.svelte';
+export { styleStore } from './style.svelte';
 export { settingsStore } from './settings.svelte';
 export { weatherStore } from './weather.svelte';
 export { uiStore } from './ui.svelte';

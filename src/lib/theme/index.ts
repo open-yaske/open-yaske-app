@@ -13,4 +13,5 @@ export {
 	loadPackFromUrl,
 	parsePack
 } from './pack-loader';
-export { packToCssVars, applyTheme, clearTheme } from './css-bridge';
+export { packToCssVars, applyTheme, clearTheme, applyFontVars } from './css-bridge';
+export { resolveFontFamily, getFontFamilyDisplayName, AVAILABLE_FONT_FAMILIES, normalizeLocale, type FontFamilyId } from './font-resolver';

@@ -10,7 +10,8 @@
 <script lang="ts">
 	import { Search, X } from '@lucide/svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { resolveRadius } from '$lib/styles';
+	import { styleStore } from '$lib/stores';
 	import Button from './Button.svelte';
 	import GlassContainer from './GlassContainer.svelte';
 
@@ -40,6 +41,7 @@
 	let listEl = $state<HTMLUListElement | null>(null);
 	let activeIndex = $state(-1);
 	const effectivePlaceholder = $derived(placeholder || m.action_search());
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -107,7 +109,7 @@
 		glow={true}
 		distortion="high"
 		elevation="lg"
-		class="rounded-full transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:shadow-apple-lg"
+		class="{r.pill} transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:shadow-[var(--shadow-card)]"
 	>
 		<form
 			onsubmit={handleSubmit}
@@ -156,7 +158,7 @@
 				size="sm"
 				type="submit"
 				disabled={!query.trim()}
-				class="ml-2 !rounded-full !p-2.5 shrink-0 flex items-center justify-center"
+				class="ml-2 !rounded-full !h-9 !w-9 !min-h-0 !p-0 shrink-0 flex items-center justify-center"
 				aria-label={m.action_search()}
 			>
 				<Search size={14} aria-hidden="true" />
@@ -167,7 +169,7 @@
 	{#if showSuggestions && suggestions.length > 0}
 		<GlassContainer
 			variant="card"
-			class="absolute left-0 right-0 z-50 mt-2.5 overflow-hidden rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-xl max-h-60 overflow-y-auto origin-top transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+			class="absolute left-0 right-0 z-50 mt-2.5 overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 shadow-[var(--shadow-modal)] max-h-60 overflow-y-auto origin-top transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
 		>
 			<ul
 				bind:this={listEl}
@@ -197,7 +199,8 @@
 							}}
 							role="option"
 							aria-selected={activeIndex === i}
-							class="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)] {APPLE_PRESS.card}"
+							class="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)] {styleStore
+								.pack.press.card}"
 							class:bg-[var(--color-surface-muted)]={activeIndex === i}
 						>
 							<Search

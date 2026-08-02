@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Android App Actions: Google Assistant Built-in Intents (BIIs).
+        When a user says "Hey Google, open timetable on OpenYASKE",
+        the Assistant fires a VIEW intent with the feature parameter.
+    -->
+    <capability android:name="actions.intent.OPEN_APP_FEATURE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.openyaske.app"
+            android:targetClass="com.openyaske.app.MainActivity"
+            android:data="yaske://shortcuts/{#feature}">
+            <parameter android:name="feature" android:key="feature" />
+        </intent>
+    </capability>
+
+    <!--
+        Static shortcuts for app icon long-press menu.
+        These appear when the user long-presses the app icon on the home screen.
+    -->
+    <shortcut
+        android:shortcutId="timetable"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/nav_timetable"
+        android:shortcutLongLabel="@string/nav_timetable">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.openyaske.app"
+            android:targetClass="com.openyaske.app.MainActivity"
+            android:data="yaske://shortcuts/timetable" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="todo"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/nav_todo"
+        android:shortcutLongLabel="@string/nav_todo">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.openyaske.app"
+            android:targetClass="com.openyaske.app.MainActivity"
+            android:data="yaske://shortcuts/todo" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="calendar"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/nav_calendar"
+        android:shortcutLongLabel="@string/nav_calendar">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.openyaske.app"
+            android:targetClass="com.openyaske.app.MainActivity"
+            android:data="yaske://shortcuts/calendar" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="attendance"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/nav_attendance"
+        android:shortcutLongLabel="@string/nav_attendance">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.openyaske.app"
+            android:targetClass="com.openyaske.app.MainActivity"
+            android:data="yaske://shortcuts/attendance" />
+    </shortcut>
+
+</shortcuts>

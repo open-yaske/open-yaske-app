@@ -9,7 +9,7 @@
 	import { DocumentScanner } from '@capgo/capacitor-document-scanner';
 	import { Capacitor } from '@capacitor/core';
 	import { m } from '$lib/paraglide/messages';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
 
 	let fileInput = $state<HTMLInputElement | null>(null);
 	let cameraInput = $state<HTMLInputElement | null>(null);
@@ -192,7 +192,8 @@
 				<button
 					type="button"
 					onclick={startScan}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3 px-4 text-[var(--color-primary-50)] shadow-apple-sm min-h-[52px] {APPLE_PRESS.button}"
+					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3 px-4 text-[var(--color-primary-50)] shadow-apple-sm min-h-[52px] {styleStore
+						.pack.press.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
 						<Camera size={18} />
@@ -205,7 +206,8 @@
 				<button
 					type="button"
 					onclick={triggerSelectFiles}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-3 px-4 text-[var(--color-nav-active)] shadow-apple-sm min-h-[52px] {APPLE_PRESS.button}"
+					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-3 px-4 text-[var(--color-nav-active)] shadow-apple-sm min-h-[52px] {styleStore
+						.pack.press.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
 						<Image size={18} class="text-[var(--color-primary-600)]" />
@@ -264,7 +266,8 @@
 							<button
 								type="button"
 								onclick={() => removeImage(index)}
-								class="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all {APPLE_PRESS.icon}"
+								class="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all {styleStore
+									.pack.press.icon}"
 								aria-label={m.course_delete()}
 							>
 								<X size={12} />
@@ -301,7 +304,8 @@
 					<button
 						type="button"
 						onclick={() => (pageSize = 'a4')}
-						class="rounded-lg py-2 text-xs font-bold text-center transition-all {APPLE_PRESS.tab}"
+						class="rounded-lg py-2 text-xs font-bold text-center transition-all {styleStore.pack
+							.press.tab}"
 						class:bg-[var(--color-surface-card)]={pageSize === 'a4'}
 						class:text-[var(--color-primary-600)]={pageSize === 'a4'}
 						class:shadow-apple-sm={pageSize === 'a4'}
@@ -312,7 +316,8 @@
 					<button
 						type="button"
 						onclick={() => (pageSize = 'original')}
-						class="rounded-lg py-2 text-xs font-bold text-center transition-all {APPLE_PRESS.tab}"
+						class="rounded-lg py-2 text-xs font-bold text-center transition-all {styleStore.pack
+							.press.tab}"
 						class:bg-[var(--color-surface-card)]={pageSize === 'original'}
 						class:text-[var(--color-primary-600)]={pageSize === 'original'}
 						class:shadow-apple-sm={pageSize === 'original'}

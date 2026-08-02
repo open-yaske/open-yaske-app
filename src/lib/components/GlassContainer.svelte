@@ -10,6 +10,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { themeStore } from '$lib/stores';
+	import { styleStore } from '$lib/stores';
 	import LiquidGlassEffect from '$lib/liquid-glass/LiquidGlassEffect.svelte';
 
 	type V = 'card' | 'bar' | 'modal' | 'header' | 'subtle' | 'input';
@@ -92,6 +93,28 @@
 	);
 	const cab = $derived(chromaticAberration ?? (variant === 'bar' || variant === 'modal' ? 1.5 : 1));
 
+	// スタイルパックの cardSurface に基づいて歪みエフェクトを適用
+	// 'glass' のみ liquid-glass の屈折効果（それ以外のスタイルはソリッド）
+	const useDistortion = $derived(styleStore.pack.layout.cardSurface === 'glass' && strength > 0);
+
+	// スタイルパックの materials 定義を variant に応じて適用
+	const styleClass = $derived.by(() => {
+		const pack = styleStore.pack;
+		switch (variant) {
+			case 'card':
+				return pack.materials.card;
+			case 'modal':
+				return pack.materials.glassModal;
+			case 'header':
+				return pack.materials.glassHeader;
+			case 'bar':
+			case 'subtle':
+			case 'input':
+			default:
+				return pack.materials.glass;
+		}
+	});
+
 	const useGlow = $derived(glow ?? false);
 
 	let reduced = $state(false);
@@ -109,13 +132,30 @@
 	let noMotion = $state(false);
 	$effect(() => {
 		if (typeof window === 'undefined') return;
-		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-		noMotion = mq.matches;
-		const h = (e: MediaQueryListEvent) => {
-			noMotion = e.matches;
+
+		function checkNoMotion() {
+			// OS の prefers-reduced-motion または手動の .reduce-motion クラス
+			const osPref = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const manualToggle = document.documentElement.classList.contains('reduce-motion');
+			return osPref || manualToggle;
+		}
+
+		noMotion = checkNoMotion();
+
+		const osMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const osHandler = () => { noMotion = checkNoMotion(); };
+		osMq.addEventListener('change', osHandler);
+
+		const observer = new MutationObserver(() => { noMotion = checkNoMotion(); });
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['class']
+		});
+
+		return () => {
+			osMq.removeEventListener('change', osHandler);
+			observer.disconnect();
 		};
-		mq.addEventListener('change', h);
-		return () => mq.removeEventListener('change', h);
 	});
 
 	let dark = $state(false);
@@ -158,17 +198,22 @@
 	<div
 		class="lg-root {mode === 'dark' || mode === 'dark-contrast' ? 'lg-dark' : 'lg-light'}
 			{animateIn && !noMotion ? 'lg-in' : ''}
+			{styleClass}
 			{klass}"
 		style="--lg-elv:{elevation};{style}"
 		data-contrast={mode}
 		data-variant={variant}
+		data-style={styleStore.id}
+		data-glass-overlay={styleStore.pack.layout.glassOverlay ? 'true' : 'false'}
 		{...rest}
 	>
-		<!-- ベースカラーオーバーレイ (z:1) -->
-		<div class="lg-overlay-bg absolute inset-0 z-[1] pointer-events-none rounded-[inherit]"></div>
+		<!-- ベースカラーオーバーレイ (z:1) — glassOverlay が true のスタイルのみ -->
+		{#if styleStore.pack.layout.glassOverlay}
+			<div class="lg-overlay-bg absolute inset-0 z-[1] pointer-events-none rounded-[inherit]"></div>
+		{/if}
 
-		<!-- feDisplacementMap 屈折レイヤー (z:2) -->
-		{#if strength > 0}
+		<!-- feDisplacementMap 屈折レイヤー (z:2) — cardSurface が glass 以外ではスキップ -->
+		{#if useDistortion}
 			<LiquidGlassEffect
 				{filterId}
 				{strength}
@@ -209,6 +254,12 @@
 		isolation: isolate;
 		overflow: hidden;
 		transition: box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+
+	/* ガラスオーバーレイ無効（glassOverlay=false）のスタイルは ::before/::after のシーン/ボーダーを無効化 */
+	.lg-root[data-glass-overlay='false']::before,
+	.lg-root[data-glass-overlay='false']::after {
+		content: none !important;
 	}
 
 	/* ::before = 内部ハイライト sheen */
@@ -316,9 +367,9 @@
 	.lg-dark .lg-overlay-bg {
 		background: linear-gradient(
 			-75deg,
-			rgba(15, 15, 20, 0.3),
-			rgba(20, 20, 28, 0.45),
-			rgba(15, 15, 20, 0.3)
+			rgba(18, 28, 48, 0.35),
+			rgba(24, 36, 58, 0.5),
+			rgba(18, 28, 48, 0.35)
 		);
 	}
 
@@ -327,18 +378,18 @@
 		.lg-dark .lg-overlay-bg {
 			background: linear-gradient(
 				-75deg,
-				rgba(10, 10, 15, 0.5),
-				rgba(15, 15, 22, 0.65),
-				rgba(10, 10, 15, 0.5)
+				rgba(15, 25, 45, 0.55),
+				rgba(20, 32, 54, 0.7),
+				rgba(15, 25, 45, 0.55)
 			);
 		}
 	}
 
 	.lg-dark {
 		box-shadow:
-			inset 0 1px 1px rgba(255, 255, 255, 0.12),
-			inset 0 -1px 1px rgba(0, 0, 0, 0.4),
-			0 8px 32px -4px rgba(0, 0, 0, 0.5);
+			inset 0 1px 1px rgba(255, 255, 255, 0.08),
+			inset 0 -1px 1px rgba(0, 0, 0, 0.3),
+			0 8px 32px -4px rgba(0, 0, 0, 0.4);
 	}
 
 	.lg-dark::before {
@@ -373,13 +424,13 @@
 			rgba(255, 255, 255, 0.35)
 		);
 	}
-	/* ダーク: 深みのある半透明。pure black ベースでグレーにならない */
+	/* ダーク: 深みのある半透明。slate ベース */
 	.lg-dark[data-variant='bar'] .lg-overlay-bg {
 		background: linear-gradient(
 			-75deg,
-			rgba(8, 8, 12, 0.55),
-			rgba(12, 12, 18, 0.68),
-			rgba(8, 8, 12, 0.55)
+			rgba(15, 25, 45, 0.55),
+			rgba(20, 32, 55, 0.68),
+			rgba(15, 25, 45, 0.55)
 		);
 	}
 	/* bar は常に強めの box-shadow で浮遊感を強調 */
@@ -392,10 +443,10 @@
 	}
 	.lg-dark[data-variant='bar'] {
 		box-shadow:
-			inset 0 1px 0 rgba(255, 255, 255, 0.18),
-			inset 0 -1px 0 rgba(0, 0, 0, 0.5),
-			0 8px 32px -4px rgba(0, 0, 0, 0.6),
-			0 2px 8px -1px rgba(0, 0, 0, 0.4);
+			inset 0 1px 0 rgba(255, 255, 255, 0.12),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+			0 8px 32px -4px rgba(0, 0, 0, 0.5),
+			0 2px 8px -1px rgba(0, 0, 0, 0.3);
 	}
 
 	/* ── Solid (reduced-transparency) ── */
@@ -414,13 +465,13 @@
 	.lg-solid.lg-dark {
 		background: linear-gradient(
 			-75deg,
-			rgba(30, 30, 30, 0.9),
-			rgba(40, 40, 40, 0.95),
-			rgba(30, 30, 30, 0.9)
+			rgba(24, 36, 56, 0.9),
+			rgba(30, 42, 62, 0.95),
+			rgba(24, 36, 56, 0.9)
 		);
 		box-shadow:
-			inset 0 1px 2px rgba(255, 255, 255, 0.08),
-			0 8px 32px rgba(0, 0, 0, 0.5);
+			inset 0 1px 2px rgba(255, 255, 255, 0.06),
+			0 8px 32px rgba(0, 0, 0, 0.4);
 	}
 
 	/* ── ELEVATION ── */
@@ -447,23 +498,23 @@
 
 	.lg-dark[style*='--lg-elv:sm'] {
 		box-shadow:
-			inset 0 1px 1px rgba(255, 255, 255, 0.12),
-			inset 0 -1px 1px rgba(0, 0, 0, 0.4),
-			0 4px 16px -2px rgba(0, 0, 0, 0.3);
+			inset 0 1px 1px rgba(255, 255, 255, 0.08),
+			inset 0 -1px 1px rgba(0, 0, 0, 0.3),
+			0 4px 16px -2px rgba(0, 0, 0, 0.25);
 	}
 
 	.lg-dark[style*='--lg-elv:lg'] {
 		box-shadow:
-			inset 0 1px 1px rgba(255, 255, 255, 0.15),
-			inset 0 -1px 1px rgba(0, 0, 0, 0.45),
-			0 16px 48px -8px rgba(0, 0, 0, 0.6);
+			inset 0 1px 1px rgba(255, 255, 255, 0.1),
+			inset 0 -1px 1px rgba(0, 0, 0, 0.35),
+			0 16px 48px -8px rgba(0, 0, 0, 0.45);
 	}
 
 	.lg-dark[style*='--lg-elv:xl'] {
 		box-shadow:
-			inset 0 1px 1px rgba(255, 255, 255, 0.15),
-			inset 0 -1px 1px rgba(0, 0, 0, 0.45),
-			0 32px 80px -16px rgba(0, 0, 0, 0.7);
+			inset 0 1px 1px rgba(255, 255, 255, 0.1),
+			inset 0 -1px 1px rgba(0, 0, 0, 0.35),
+			0 32px 80px -16px rgba(0, 0, 0, 0.55);
 	}
 
 	/* ── Glow ── */

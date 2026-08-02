@@ -2,9 +2,17 @@
  * src/lib/theme/contrast.ts
  * WCAG 2.1 基準に基づくカラーコントラスト比（Contrast Ratio）計算および
  * ThemePack アクセシビリティ診断ユーティリティ。
+ *
+ * v2: コントラスト検査マトリックス（contrast-matrix.ts）駆動の包括的診断に対応。
  */
 
 import type { ThemePack } from './types';
+import {
+	getAllContrastChecks,
+	THRESHOLD_VALUES,
+	type ContrastCategory,
+	type WcagThreshold
+} from './contrast-matrix';
 
 /** RGB カラー構造体 */
 export interface RgbColor {
@@ -191,4 +199,110 @@ export function diagnoseThemePackContrast(pack: ThemePack): ContrastCheckResult[
 	check('Attendance Cancelled', pack.attendance.cancelled.fg, pack.attendance.cancelled.bg);
 
 	return results;
+}
+
+// ═══════════════════════════════════════════════════════════
+// v2: マトリックス駆動の包括的コントラスト診断
+// ═══════════════════════════════════════════════════════════
+
+/** 拡張されたコントラスト診断結果（マトリックス駆動） */
+export interface EnhancedContrastResult {
+	/** チェック定義の一意ID */
+	checkId: string;
+	/** 人間可読ラベル */
+	label: string;
+	/** カテゴリ */
+	category: ContrastCategory;
+	/** 前景色（解決済み） */
+	fgColor: string;
+	/** 背景色（解決済み） */
+	bgColor: string;
+	/** 計算されたコントラスト比 */
+	ratio: number;
+	/** 適用される閾値 */
+	threshold: WcagThreshold;
+	/** 閾値の数値 */
+	thresholdValue: number;
+	/** 合格したか */
+	passed: boolean;
+	/** 後方互換: AA (4.5:1) 合格 */
+	passAA: boolean;
+	/** 後方互換: AA Large (3.0:1) 合格 */
+	passAALarge: boolean;
+}
+
+/** テーマ全体のコントラスト検証レポート */
+export interface ContrastReport {
+	/** 合格したチェック数 */
+	passed: number;
+	/** 不合格のチェック数 */
+	failed: number;
+	/** 総チェック数 */
+	total: number;
+	/** 全結果 */
+	results: EnhancedContrastResult[];
+	/** 合格率 (0-1) */
+	passRate: number;
+	/** 全チェック合格か */
+	isValid: boolean;
+	/** 不合格結果のみ */
+	failures: EnhancedContrastResult[];
+}
+
+/**
+ * コントラスト検査マトリックスに基づき、ThemePack の全色組み合わせを検証する。
+ *
+ * 静的チェック（テキスト・コンポーネント・枠線・出席）+
+ * 動的チェック（パレット色: テーマごとにエントリ数が異なる）を
+ * すべて実行し、包括的なレポートを返す。
+ *
+ * @example
+ * ```ts
+ * const report = validateThemePackContrast(defaultPack);
+ * if (!report.isValid) {
+ *   for (const f of report.failures) {
+ *     console.warn(`${f.checkId}: ${f.ratio} < ${f.thresholdValue} (${f.label})`);
+ *   }
+ * }
+ * ```
+ */
+export function validateThemePackContrast(pack: ThemePack): ContrastReport {
+	const checks = getAllContrastChecks(pack);
+	const baseBg = pack.ui.surface.page;
+	const results: EnhancedContrastResult[] = [];
+
+	for (const check of checks) {
+		const fgColor = check.fg(pack);
+		const bgColor = check.bg(pack);
+		const checkBaseBg = check.baseBg ? check.baseBg(pack) : baseBg;
+		const ratio = calculateContrastRatio(fgColor, bgColor, checkBaseBg);
+		const thresholdValue = THRESHOLD_VALUES[check.threshold];
+
+		results.push({
+			checkId: check.id,
+			label: check.label,
+			category: check.category,
+			fgColor,
+			bgColor,
+			ratio,
+			threshold: check.threshold,
+			thresholdValue,
+			passed: ratio >= thresholdValue,
+			passAA: ratio >= 4.5,
+			passAALarge: ratio >= 3.0
+		});
+	}
+
+	const passed = results.filter((r) => r.passed).length;
+	const failures = results.filter((r) => !r.passed);
+
+	return {
+		passed,
+		failed: failures.length,
+		total: results.length,
+		results,
+		passRate: results.length > 0 ? passed / results.length : 1,
+		isValid: failures.length === 0,
+		failures
+	};
 }

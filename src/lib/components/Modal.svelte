@@ -15,6 +15,8 @@
 	import { m } from '$lib/paraglide/messages';
 	import IconButton from './IconButton.svelte';
 	import GlassContainer from './GlassContainer.svelte';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		open: boolean;
@@ -37,6 +39,9 @@
 		children,
 		footer
 	}: Props = $props();
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	// フォーカストラップ
 	let dialogEl = $state<HTMLDivElement | null>(null);
@@ -129,7 +134,7 @@
 		<GlassContainer
 			variant="modal"
 			elevation="xl"
-			class="modal-panel relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden rounded-card"
+			class="modal-panel relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden {r.card}"
 			style="max-width: {maxWidth}"
 		>
 			<div bind:this={dialogEl} class="flex h-full w-full flex-col overflow-hidden">

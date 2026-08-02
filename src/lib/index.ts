@@ -37,6 +37,9 @@ export type {
 } from './types/public';
 export { PUBLIC_DATA_SCHEMA_VERSION } from './types/public';
 
+// ショートカット（Siri Shortcuts / Android App Actions）
+export * from './shortcuts';
+
 // データレイヤー
 export * from './attendance';
 export * from './holidays';
@@ -46,6 +49,10 @@ export * from './markdown';
 export * from './publicData';
 export * from './pdf';
 export * as remoteStorage from './remotestorage';
+
+// ビジュアルスタイル
+export { styleStore } from '$lib/stores/style.svelte';
+export type { VisualStylePack, StyleId } from '$lib/styles/types';
 
 // テーマ（ColorToken は types と重複するので type のみ）
 export type {

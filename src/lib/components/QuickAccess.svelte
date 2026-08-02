@@ -15,7 +15,7 @@
 	import { BookOpen, CheckSquare, Calendar, BarChart3 } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 	import GlassContainer from './GlassContainer.svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
 
 	interface Shortcut {
 		href: string;
@@ -39,7 +39,7 @@
 			<!-- eslint-disable svelte/no-navigation-without-resolve -->
 			<a
 				href={item.href}
-				class="flex flex-col items-center gap-2 px-5 py-4 select-none {APPLE_PRESS.card}"
+				class="flex flex-col items-center gap-2 px-5 py-4 select-none {styleStore.pack.press.card}"
 			>
 				<span
 					class="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"

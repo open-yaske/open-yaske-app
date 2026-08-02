@@ -29,7 +29,7 @@
 		ChevronDown,
 		ChevronUp
 	} from '@lucide/svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
 
 	const settings = $derived(settingsStore.settings);
 
@@ -366,7 +366,8 @@
 				<div class="border-t border-[var(--color-surface-border)]/50 pt-4 mt-2">
 					<button
 						type="button"
-						class="flex w-full items-center justify-between py-1.5 text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-all cursor-pointer {APPLE_PRESS.card}"
+						class="flex w-full items-center justify-between py-1.5 text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-all cursor-pointer {styleStore
+							.pack.press.card}"
 						onclick={() => (showAdvanced = !showAdvanced)}
 					>
 						<span>{m.school_data_advanced_settings()}</span>

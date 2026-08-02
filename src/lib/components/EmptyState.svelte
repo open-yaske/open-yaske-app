@@ -9,7 +9,8 @@
 -->
 <script lang="ts">
 	import type { Component } from 'svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 	import GlassContainer from './GlassContainer.svelte';
 
 	interface Props {
@@ -38,6 +39,9 @@
 		iconSize = 48,
 		class: klass = ''
 	}: Props = $props();
+
+	// スタイルパックの components レシピを解決
+	const c = $derived(resolveComponents(styleStore.pack));
 </script>
 
 <div class="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center {klass}">
@@ -57,10 +61,9 @@
 		<button
 			type="button"
 			onclick={onAction}
-			class="min-h-[44px] rounded-full bg-[var(--color-primary-500)] px-5 py-2.5 text-sm font-medium text-white shadow-apple-sm
-			       hover:bg-[var(--color-primary-600)] hover:shadow-apple-md
+			class="min-h-[44px] rounded-full px-5 py-2.5 text-sm font-medium {c.button.primary}
 			       focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2
-			       {APPLE_PRESS.button}"
+			       {styleStore.pack.press.button}"
 		>
 			{actionLabel}
 		</button>

@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@bubble-labs/capacitor-plugin-siri-shorts':
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.4.1)
+      '@capacitor/app':
+        specifier: ^8.1.1
+        version: 8.1.1(@capacitor/core@8.4.1)
       '@capacitor/browser':
         specifier: ^8.0.3
         version: 8.0.3(@capacitor/core@8.4.1)
@@ -236,10 +242,20 @@ packages:
   '@braintree/sanitize-url@7.1.2':
     resolution: {integrity: sha512-jigsZK+sMF/cuiB7sERuo9V7N9jx+dhmHHnQyDSVdpZwVutaBu7WvNYqMDLSgFgfB30n452TP3vjDAvFC973mA==}
 
+  '@bubble-labs/capacitor-plugin-siri-shorts@8.0.1':
+    resolution: {integrity: sha512-sfbJOZtGMvqvj2kTC/iZN4Ft9pSrlAI+p5QT1XlkmEnv5N9j/e6OUNVEML0u9YfnKoQZTH3fe4YaiXdgXoR3jw==}
+    peerDependencies:
+      '@capacitor/core': ^8.0.0
+
   '@capacitor/android@8.4.1':
     resolution: {integrity: sha512-igtDCJ7QQn0P2qHFD9p4KXaa6V1b2PRNt+MxjVwtjTm/BJvqmiazOJq6rPjwFSZnfHm6iFoZk8TfzHd44pyBGw==}
     peerDependencies:
       '@capacitor/core': ^8.4.0
+
+  '@capacitor/app@8.1.1':
+    resolution: {integrity: sha512-xM2ZTX5jK60tFtmjsmJv+Cdj1Qsb6NcavkqmdEnCPQBeya9oKhamZJxYOnQNj1ZvcJM7sWfG6BEtSLx42pisbA==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@capacitor/assets@3.0.5':
     resolution: {integrity: sha512-ohz/OUq61Y1Fc6aVSt0uDrUdeOA7oTH4pkWDbv/8I3UrPjH7oPkzYhShuDRUjekNp9RBi198VSFdt0CetpEOzw==}
@@ -4720,7 +4736,15 @@ snapshots:
 
   '@braintree/sanitize-url@7.1.2': {}
 
+  '@bubble-labs/capacitor-plugin-siri-shorts@8.0.1(@capacitor/core@8.4.1)':
+    dependencies:
+      '@capacitor/core': 8.4.1
+
   '@capacitor/android@8.4.1(@capacitor/core@8.4.1)':
+    dependencies:
+      '@capacitor/core': 8.4.1
+
+  '@capacitor/app@8.1.1(@capacitor/core@8.4.1)':
     dependencies:
       '@capacitor/core': 8.4.1
 

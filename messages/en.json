@@ -179,6 +179,7 @@
 	"attendance_max_absences": "Max absences",
 	"settings_title": "Settings",
 	"settings_theme": "Theme",
+	"settings_display": "Display",
 	"settings_theme_pack": "Theme pack",
 	"settings_theme_mode": "Appearance",
 	"settings_theme_light": "Light",
@@ -500,5 +501,36 @@
 	"error_go_back": "Go Back",
 	"error_go_home": "Go Home",
 	"error_show_details": "Show Details",
-	"error_hide_details": "Hide Details"
+	"error_hide_details": "Hide Details",
+
+	"shortcut_timetable_invocation": "Open timetable",
+	"shortcut_todo_invocation": "Open TODO",
+	"shortcut_calendar_invocation": "Open calendar",
+	"shortcut_attendance_invocation": "Open attendance",
+	"siri_usage_description": "Use Siri to quickly access your timetable and other features.",
+
+	"settings_visual_style": "Visual Style",
+	"style_apple": "Apple",
+	"style_material": "Material Design",
+	"style_neumorphism": "Neumorphism",
+	"style_brutalism": "Brutalism",
+	"style_cyberpunk": "Cyberpunk",
+	"style_flat": "Flat",
+	"style_high_contrast": "High Contrast",
+	"style_win95": "Windows 95",
+	"style_winxp": "Windows XP",
+
+	"settings_reduce_motion": "Reduce motion",
+	"settings_font_scale": "Text size",
+	"settings_font_scale_small": "Small",
+	"settings_font_scale_large": "Large",
+
+	"settings_quick_customize": "Quick Customize",
+	"settings_use_theme_default": "Use theme defaults",
+	"settings_primary_color": "Primary color",
+	"settings_surface_page_color": "Page background",
+	"settings_border_radius": "Corner radius",
+	"settings_radius_small": "Small",
+	"settings_radius_medium": "Medium",
+	"settings_radius_large": "Large"
 }

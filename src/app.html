@@ -42,7 +42,18 @@
 					var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 					var isDark = themeMode === 'dark' || (themeMode === 'system' && prefersDark);
 					var root = document.documentElement;
+
+					// シャドウ抑制: flat テーマは全シャドウなし
+					if (packId === 'flat') {
+						root.classList.add('theme-shadows-none');
+					}
+
 					if (isDark) {
+						root.setAttribute('data-theme', 'dark');
+						root.style.setProperty('--color-surface-page', '#0f172a');
+						root.style.setProperty('--color-surface-card', '#1e293b');
+						root.style.setProperty('--color-surface-border', '#334155');
+						root.style.setProperty('--color-surface-muted', '#1e293b');
 						root.setAttribute('data-theme', 'dark');
 						root.style.setProperty('--color-surface-page', '#0f172a');
 						root.style.setProperty('--color-surface-card', '#1e293b');

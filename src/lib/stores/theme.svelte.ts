@@ -1,17 +1,56 @@
 /**
  * テーマアクティブストア
  * ユーザーの選択中テーマを管理し、CSS 変数として <html> に適用する
+ *
+ * オーバーライド機能:
+ * settingsStore.settings.themeOverrides が設定されている場合、
+ * 適用時にベースパックにマージしてから CSS 変数に反映する。
+ * ベースパック自体は変更されないため、「Default + overrides」のような
+ * 表示が可能。
  */
 
 import { browser } from '$app/environment';
 import { applyTheme, BUILTIN_PACKS, getBuiltinPack } from '$lib/theme';
 import type { ThemePack } from '$lib/theme';
 import * as remoteStorage from '$lib/remotestorage';
+import type { UserSettings } from '$lib/types';
 
 import { STORAGE_KEY_PREFIX } from '$lib/constants';
 
 const STORAGE_KEY = STORAGE_KEY_PREFIX + 'active-theme';
 const CUSTOM_PACKS_KEY = STORAGE_KEY_PREFIX + 'custom-packs';
+
+/**
+ * ベースパックにユーザーオーバーライドをマージした新しいパックを返す。
+ * オーバーライドがない場合はベースパックをそのまま返す。
+ * 元のパックは変更しない（immutable）。
+ */
+function mergeOverrides(pack: ThemePack, overrides: UserSettings['themeOverrides']): ThemePack {
+	if (!overrides) return pack;
+
+	const merged: ThemePack = structuredClone(pack);
+
+	if (overrides.fontFamily) {
+		if (!merged.typography) merged.typography = {};
+		merged.typography.fontFamily = overrides.fontFamily;
+	}
+	if (overrides.primaryColor) {
+		// primary.500 を上書き（他の段は変更しない）
+		merged.ui.primary[500] = overrides.primaryColor;
+	}
+	if (overrides.surfacePage) {
+		merged.ui.surface.page = overrides.surfacePage;
+	}
+	if (overrides.surfaceCard) {
+		merged.ui.surface.card = overrides.surfaceCard;
+	}
+	if (overrides.borderRadius) {
+		merged.ui.radius.card = overrides.borderRadius;
+		merged.ui.radius.chip = overrides.borderRadius;
+	}
+
+	return merged;
+}
 
 class ThemeStore {
 	pack = $state<ThemePack>(BUILTIN_PACKS[0]);
@@ -44,7 +83,8 @@ class ThemeStore {
 				this.pack = custom ?? BUILTIN_PACKS[0];
 			}
 		}
-		applyTheme(this.pack);
+		// オーバーライドを考慮して適用
+		void this.applyCurrent();
 	}
 
 	set(pack: ThemePack) {
@@ -53,9 +93,35 @@ class ThemeStore {
 		this.pack = pack;
 		if (browser) {
 			localStorage.setItem(STORAGE_KEY, pack.id);
-			applyTheme(pack);
+			void this.applyCurrent();
 		}
 		void this.syncActiveThemeToRS();
+	}
+
+	/**
+	 * 現在のパックにオーバーライドをマージしてCSS変数として適用する。
+	 * settingsStore のインポートを避けるため、オーバーライドは this._overrides から取得。
+	 * 外部から setOverrides() で設定される。
+	 */
+	private _overrides: UserSettings['themeOverrides'] = undefined;
+
+	/**
+	 * オーバーライドを設定する。設定画面の変更時に呼び出す。
+	 */
+	setOverrides(overrides: UserSettings['themeOverrides']): void {
+		this._overrides = overrides;
+		if (browser) {
+			void this.applyCurrent();
+		}
+	}
+
+	/**
+	 * 現在のパックにオーバーライドをマージしてCSS変数として適用する。
+	 */
+	private async applyCurrent(): Promise<void> {
+		if (!browser) return;
+		const effective = mergeOverrides(this.pack, this._overrides);
+		applyTheme(effective);
 	}
 
 	setById(id: string) {

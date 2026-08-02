@@ -1,0 +1,54 @@
+{
+	"id": "high-contrast",
+	"name": { "ja": "ハイコントラスト", "en": "High Contrast", "zh": "高对比度", "ko": "고대비" },
+	"description": { "ja": "視認性を最大化したアクセシビリティテーマ", "en": "Maximum visibility accessibility theme", "zh": "最大化可见性的无障碍主题", "ko": "가시성을 극대화한 접근성 테마" },
+	"version": 1,
+	"builtIn": true,
+	"ui": {
+		"primary": { "50": "#e6f0ff", "100": "#b3d4ff", "200": "#6699ff", "300": "#1a66ff", "400": "#0040cc", "500": "#0033aa", "600": "#002888", "700": "#001d66", "800": "#001244", "900": "#000822" },
+		"surface": { "page": "#ffffff", "card": "#ffffff", "border": "#000000", "muted": "#e0e0e0", "mutedForeground": "#000000" },
+		"nav": { "bg": "#ffffff", "active": "#000000", "inactive": "#1a1a1a", "hover": "#cccccc" },
+		"shadow": { "sheet": "none", "card": "none", "modal": "none" },
+		"radius": { "pill": "4px", "card": "4px", "chip": "2px" }
+	},
+	"palette": {
+		"courseColors": [
+			{ "id": "blue", "name": { "ja": "青", "en": "Blue", "zh": "蓝色", "ko": "파랑" }, "hex": "#0000cc" },
+			{ "id": "green", "name": { "ja": "緑", "en": "Green", "zh": "绿色", "ko": "초록" }, "hex": "#006600" },
+			{ "id": "orange", "name": { "ja": "オレンジ", "en": "Orange", "zh": "橙色", "ko": "주황" }, "hex": "#b34700" },
+			{ "id": "red", "name": { "ja": "赤", "en": "Red", "zh": "红色", "ko": "빨강" }, "hex": "#cc0000" },
+			{ "id": "purple", "name": { "ja": "紫", "en": "Purple", "zh": "紫色", "ko": "보라" }, "hex": "#660099" },
+			{ "id": "teal", "name": { "ja": "ティール", "en": "Teal", "zh": "青色", "ko": "청록" }, "hex": "#006666" },
+			{ "id": "gray", "name": { "ja": "グレー", "en": "Gray", "zh": "灰色", "ko": "회색" }, "hex": "#333333" }
+		],
+		"todoColors": [
+			{ "id": "blue", "name": { "ja": "青", "en": "Blue", "zh": "蓝色", "ko": "파랑" }, "hex": "#0000cc" },
+			{ "id": "green", "name": { "ja": "緑", "en": "Green", "zh": "绿色", "ko": "초록" }, "hex": "#006600" },
+			{ "id": "orange", "name": { "ja": "オレンジ", "en": "Orange", "zh": "橙色", "ko": "주황" }, "hex": "#b34700" },
+			{ "id": "red", "name": { "ja": "赤", "en": "Red", "zh": "红色", "ko": "빨강" }, "hex": "#cc0000" },
+			{ "id": "purple", "name": { "ja": "紫", "en": "Purple", "zh": "紫色", "ko": "보라" }, "hex": "#660099" },
+			{ "id": "teal", "name": { "ja": "ティール", "en": "Teal", "zh": "青色", "ko": "청록" }, "hex": "#006666" }
+		],
+		"eventColors": [
+			{ "id": "blue", "name": { "ja": "青", "en": "Blue", "zh": "蓝色", "ko": "파랑" }, "hex": "#0000cc" },
+			{ "id": "green", "name": { "ja": "緑", "en": "Green", "zh": "绿色", "ko": "초록" }, "hex": "#006600" },
+			{ "id": "orange", "name": { "ja": "オレンジ", "en": "Orange", "zh": "橙色", "ko": "주황" }, "hex": "#b34700" },
+			{ "id": "red", "name": { "ja": "赤", "en": "Red", "zh": "红色", "ko": "빨강" }, "hex": "#cc0000" },
+			{ "id": "purple", "name": { "ja": "紫", "en": "Purple", "zh": "紫色", "ko": "보라" }, "hex": "#660099" },
+			{ "id": "teal", "name": { "ja": "ティール", "en": "Teal", "zh": "青色", "ko": "청록" }, "hex": "#006666" },
+			{ "id": "pink", "name": { "ja": "ピンク", "en": "Pink", "zh": "粉色", "ko": "분홍" }, "hex": "#cc0066" },
+			{ "id": "indigo", "name": { "ja": "インディゴ", "en": "Indigo", "zh": "靛蓝", "ko": "남색" }, "hex": "#3300cc" },
+			{ "id": "amber", "name": { "ja": "アンバー", "en": "Amber", "zh": "琥珀", "ko": "호박" }, "hex": "#8a5a00" },
+			{ "id": "gray", "name": { "ja": "グレー", "en": "Gray", "zh": "灰色", "ko": "회색" }, "hex": "#333333" }
+		]
+	},
+	"attendance": {
+		"present": { "fg": "#ffffff", "bg": "#006600" },
+		"absent": { "fg": "#ffffff", "bg": "#cc0000" },
+		"late": { "fg": "#ffffff", "bg": "#b34700" },
+		"excused": { "fg": "#ffffff", "bg": "#0000cc" },
+		"cancelled": { "fg": "#ffffff", "bg": "#333333" }
+	},
+	"typography": { "fontFamily": "system" },
+	"meta": { "colorScheme": "light" }
+}

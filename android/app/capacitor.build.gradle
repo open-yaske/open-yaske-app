@@ -9,6 +9,8 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':bubble-labs-capacitor-plugin-siri-shorts')
+    implementation project(':capacitor-app')
     implementation project(':capacitor-browser')
     implementation project(':capacitor-local-notifications')
     implementation project(':capgo-capacitor-document-scanner')

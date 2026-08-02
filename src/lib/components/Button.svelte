@@ -47,29 +47,30 @@
 		...rest
 	}: Props = $props();
 
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
-	const baseClass = `inline-flex items-center justify-center gap-2 font-medium rounded-chip ${APPLE_PRESS.button} select-none whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface-page)] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none`;
+	// スタイルパックの components レシピを解決（未定義キーは中央デフォルトにフォールバック）
+	const c = $derived(resolveComponents(styleStore.pack));
+
+	// base + shape + press を合成（形状とプレスフィードバックはスタイル依存）
+	const baseClass = $derived(`${c.button.base} ${c.button.shape} ${styleStore.pack.press.button}`);
 
 	const sizeClass = $derived(
 		{
-			sm: 'min-h-[44px] h-9 px-3.5 text-xs font-semibold',
-			md: 'min-h-[44px] h-11 px-5 text-sm font-semibold',
-			lg: 'min-h-[48px] h-12 px-6 text-base font-semibold'
+			sm: c.button.sm,
+			md: c.button.md,
+			lg: c.button.lg
 		}[size]
 	);
 
 	const variantClass = $derived(
 		{
-			primary:
-				'bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] active:bg-[var(--color-primary-700)] shadow-apple-sm hover:shadow-apple-md',
-			secondary:
-				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/80 hover:bg-[var(--color-surface-muted)] shadow-apple-sm',
-			ghost: 'bg-transparent text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]',
-			danger:
-				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 shadow-apple-sm',
-			glass:
-				'backdrop-blur-2xl bg-[var(--color-surface-card)]/70 border border-[var(--color-surface-border)]/60 text-[var(--color-nav-active)] hover:bg-[var(--color-surface-card)]/90 hover:shadow-apple-md shadow-apple-sm'
+			primary: c.button.primary,
+			secondary: c.button.secondary,
+			ghost: c.button.ghost,
+			danger: c.button.danger,
+			glass: c.button.glass
 		}[variant]
 	);
 

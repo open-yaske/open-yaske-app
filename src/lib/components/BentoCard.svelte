@@ -7,7 +7,8 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import GlassContainer from './GlassContainer.svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
 	type ClickHandler = (event: MouseEvent) => void;
 
@@ -66,15 +67,16 @@
 	const isClickable = $derived(Boolean(href || onclick || interactive));
 	const isFlexRow = $derived(klass.includes('flex-row'));
 
+	// スタイルパックの components レシピを解決
+	const c = $derived(resolveComponents(styleStore.pack));
+
 	const containerClass = $derived(
-		`rounded-card border border-[var(--color-surface-border)]/60 shadow-apple-sm hover:shadow-apple-md ${
-			isClickable ? 'hover:border-[var(--color-primary-500)]/40 cursor-pointer select-none' : ''
-		} ${colSpan} ${rowSpan} ${klass}`
+		`${isClickable ? c.card.interactive : c.card.base} ${colSpan} ${rowSpan} ${klass}`
 	);
 
 	const innerClass = $derived(
 		`relative flex ${isFlexRow ? '' : 'flex-col justify-between'} h-full w-full overflow-hidden ${padding} ${
-			isClickable ? APPLE_PRESS.card : ''
+			isClickable ? styleStore.pack.press.card : ''
 		}`
 	);
 </script>

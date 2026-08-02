@@ -5,7 +5,7 @@
 import { browser } from '$app/environment';
 import { DEFAULT_USER_SETTINGS } from '$lib/types';
 import type { UserSettings } from '$lib/types';
-import { applyTheme, getBuiltinPack } from '$lib/theme';
+import { getBuiltinPack } from '$lib/theme';
 import * as remoteStorage from '$lib/remotestorage';
 import { setPublicDataCdnBase } from '$lib/publicData';
 import { STORAGE_KEY_PREFIX } from '$lib/constants';
@@ -40,9 +40,9 @@ function applyBuiltinThemeImmediately(settings: UserSettings) {
 	}
 	if (!pack) return;
 	localStorage.setItem(ACTIVE_THEME_KEY, pack.id);
-	applyTheme(pack);
-	// themeStore.pack とも同期
+	// themeStore.pack と同期し、オーバーライドをマージして適用
 	themeStore.pack = pack;
+	themeStore.setOverrides(settings.themeOverrides);
 }
 
 class SettingsStore {
@@ -110,11 +110,20 @@ class SettingsStore {
 			? { ...this.settings.attendanceNotification, ...partial.attendanceNotification }
 			: this.settings.attendanceNotification;
 
+		// themeOverrides は部分マージ（undefined が明示された場合はクリア）
+		let themeOverrides = this.settings.themeOverrides;
+		if (Object.prototype.hasOwnProperty.call(partial, 'themeOverrides')) {
+			themeOverrides = partial.themeOverrides
+				? { ...this.settings.themeOverrides, ...partial.themeOverrides }
+				: undefined;
+		}
+
 		this.settings = {
 			...this.settings,
 			...partial,
 			timetablePeriods,
 			attendanceNotification,
+			themeOverrides,
 			updatedAt: Date.now()
 		};
 		if (browser) {
@@ -131,6 +140,10 @@ class SettingsStore {
 			Object.prototype.hasOwnProperty.call(partial, 'themePackIdDark')
 		) {
 			applyBuiltinThemeImmediately(this.settings);
+		}
+		// themeOverrides 変更時にテーマストアへ反映
+		if (Object.prototype.hasOwnProperty.call(partial, 'themeOverrides')) {
+			themeStore.setOverrides(this.settings.themeOverrides);
 		}
 		void this.syncToRS();
 		void syncWidgetData();

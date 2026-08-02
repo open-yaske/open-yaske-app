@@ -5,6 +5,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import GlassContainer from './GlassContainer.svelte';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		children: Snippet;
@@ -12,16 +14,21 @@
 	}
 
 	let { children, variant = 'default' }: Props = $props();
+
+	const r = $derived(resolveRadius(styleStore.pack));
+	const isNeumorphic = $derived(styleStore.pack.layout.cardSurface === 'neumorphic');
 </script>
 
 {#if variant === 'default'}
 	<div
-		class="my-3 block w-full rounded-chip px-4 py-2 text-xs font-bold tracking-widest uppercase bg-[var(--color-primary-500)] text-white transition-colors"
+		class="my-3 block w-full {r.chip} px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors {isNeumorphic
+			? 'bg-[var(--neumo-surface)] text-[var(--color-primary-600)] shadow-[var(--neumo-inset)]'
+			: 'bg-[var(--color-primary-500)] text-white'}"
 	>
 		{@render children()}
 	</div>
 {:else}
-	<GlassContainer variant="subtle" class="my-3 w-full rounded-chip px-4 py-2">
+	<GlassContainer variant="subtle" class="my-3 w-full {r.chip} px-4 py-2">
 		<span class="text-xs font-bold tracking-widest uppercase text-[var(--color-nav-active)]">
 			{@render children()}
 		</span>

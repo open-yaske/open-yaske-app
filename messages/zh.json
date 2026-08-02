@@ -179,6 +179,7 @@
 	"attendance_max_absences": "缺席上限",
 	"settings_title": "设置",
 	"settings_theme": "主题",
+	"settings_display": "显示",
 	"settings_theme_pack": "主题包",
 	"settings_theme_mode": "外观",
 	"settings_theme_light": "浅色",
@@ -500,5 +501,36 @@
 	"error_go_back": "返回上一页",
 	"error_go_home": "返回主页",
 	"error_show_details": "显示详细信息",
-	"error_hide_details": "隐藏详细信息"
+	"error_hide_details": "隐藏详细信息",
+
+	"shortcut_timetable_invocation": "打开时间表",
+	"shortcut_todo_invocation": "打开待办事项",
+	"shortcut_calendar_invocation": "打开日历",
+	"shortcut_attendance_invocation": "打开出席记录",
+	"siri_usage_description": "使用Siri快速访问时间表和其他功能。",
+
+	"settings_visual_style": "画面风格",
+	"style_apple": "Apple",
+	"style_material": "Material Design",
+	"style_neumorphism": "Neumorphism",
+	"style_brutalism": "Brutalism",
+	"style_cyberpunk": "Cyberpunk",
+	"style_flat": "Flat",
+	"style_high_contrast": "高对比度",
+	"style_win95": "Windows 95",
+	"style_winxp": "Windows XP",
+
+	"settings_reduce_motion": "减少动画",
+	"settings_font_scale": "文字大小",
+	"settings_font_scale_small": "小",
+	"settings_font_scale_large": "大",
+
+	"settings_quick_customize": "快速自定义",
+	"settings_use_theme_default": "使用主题默认值",
+	"settings_primary_color": "主色调",
+	"settings_surface_page_color": "页面背景色",
+	"settings_border_radius": "圆角",
+	"settings_radius_small": "小",
+	"settings_radius_medium": "中",
+	"settings_radius_large": "大"
 }

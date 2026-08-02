@@ -4,7 +4,8 @@
 -->
 <script lang="ts">
 	import type { Component } from 'svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
 	interface Props {
 		/** lucide-svelte のアイコンコンポーネント */
@@ -38,16 +39,15 @@
 	);
 	const iconSize = $derived({ sm: 18, md: 20, lg: 24 }[size]);
 
+	// スタイルパックの components レシピを解決
+	const c = $derived(resolveComponents(styleStore.pack));
+
 	const variantClass = $derived(
 		{
-			ghost:
-				'text-[var(--color-nav-inactive)] hover:backdrop-blur-xl hover:bg-[var(--color-surface-card)]/40 hover:shadow-apple-sm hover:text-[var(--color-nav-active)]',
-			primary:
-				'bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] shadow-apple-sm hover:shadow-apple-md',
-			subtle:
-				'bg-[var(--color-surface-muted)] backdrop-blur-md text-[var(--color-nav-active)] hover:bg-[var(--color-surface-border)]/80',
-			danger:
-				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 shadow-apple-sm'
+			ghost: c.button.ghost,
+			primary: c.button.primary,
+			subtle: c.button.secondary,
+			danger: c.button.danger
 		}[variant]
 	);
 
@@ -60,7 +60,8 @@
 
 <button
 	type="button"
-	class="inline-flex items-center justify-center rounded-full shrink-0 {APPLE_PRESS.icon} select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none {sizeClass} {variantClass} {activeClass} {klass}"
+	class="inline-flex items-center justify-center rounded-full shrink-0 {styleStore.pack.press
+		.icon} select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none {sizeClass} {variantClass} {activeClass} {klass}"
 	aria-label={ariaLabel}
 	{disabled}
 	{onclick}

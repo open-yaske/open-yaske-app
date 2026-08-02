@@ -28,7 +28,7 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { getLocalizedText } from '$lib/theme/utils';
 	import ColorPicker from '$lib/components/ColorPicker.svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
 
 	let searchQuery = $state('');
 	let displayLimit = $state(50);
@@ -263,7 +263,8 @@
 			>
 				<button
 					type="button"
-					class="flex w-full items-center justify-between text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-all cursor-pointer {APPLE_PRESS.card}"
+					class="flex w-full items-center justify-between text-xs font-bold text-[var(--color-nav-active)] hover:text-[var(--color-primary-600)] transition-all cursor-pointer {styleStore
+						.pack.press.card}"
 					onclick={() => (showFilter = !showFilter)}
 				>
 					<span class="flex items-center gap-2">
@@ -295,7 +296,8 @@
 								{#each [{ val: 'all', label: 'すべて' }, { val: 'mon', label: '月' }, { val: 'tue', label: '火' }, { val: 'wed', label: '水' }, { val: 'thu', label: '木' }, { val: 'fri', label: '金' }] as d (d.val)}
 									<button
 										type="button"
-										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {APPLE_PRESS.tab}"
+										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {styleStore
+											.pack.press.tab}"
 										class:bg-[var(--color-primary-500)]={filterDay === d.val}
 										class:text-white={filterDay === d.val}
 										class:bg-[var(--color-surface-muted)]={filterDay !== d.val}
@@ -318,7 +320,8 @@
 								{#each [{ val: 'all', label: 'すべて' }, { val: '1', label: '1限' }, { val: '2', label: '2限' }, { val: '3', label: '3限' }, { val: '4', label: '4限' }, { val: '5', label: '5限' }, { val: '6', label: '6限' }] as p (p.val)}
 									<button
 										type="button"
-										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {APPLE_PRESS.tab}"
+										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {styleStore
+											.pack.press.tab}"
 										class:bg-[var(--color-primary-500)]={filterPeriod === p.val}
 										class:text-white={filterPeriod === p.val}
 										class:bg-[var(--color-surface-muted)]={filterPeriod !== p.val}
@@ -468,7 +471,8 @@
 	<button
 		type="button"
 		onclick={scrollToTop}
-		class="fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-apple-lg transition-transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer {APPLE_PRESS.icon}"
+		class="fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-apple-lg transition-transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer {styleStore
+			.pack.press.icon}"
 		aria-label="上に戻る"
 	>
 		<ArrowUp size={20} />

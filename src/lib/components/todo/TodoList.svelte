@@ -8,8 +8,9 @@
 <script lang="ts">
 	import type { Todo, Course } from '$lib/types';
 	import { m } from '$lib/paraglide/messages';
-	import { userDataStore } from '$lib/stores';
+	import { userDataStore, styleStore } from '$lib/stores';
 	import TodoItem from './TodoItem.svelte';
+	import { resolveRadius } from '$lib/styles';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import { CheckSquare } from '@lucide/svelte';
 
@@ -27,6 +28,9 @@
 
 	// コース名前解決用マップ
 	const courseMap = $derived(new Map<string, Course>(userDataStore.courses.map((c) => [c.id, c])));
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	// フィルタリング
 	const filteredTodos = $derived.by(() => {
@@ -105,7 +109,7 @@
 	/>
 {:else}
 	<div
-		class="overflow-hidden rounded-card border border-[var(--color-surface-border)] bg-[var(--color-surface-card)]"
+		class="overflow-hidden {r.card} border border-[var(--color-surface-border)] bg-[var(--color-surface-card)]"
 	>
 		{#each sortedTodos as todo (todo.id)}
 			<TodoItem

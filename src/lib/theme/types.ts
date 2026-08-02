@@ -84,6 +84,22 @@ export type ThemePalette = {
 	eventColors: ColorEntry[];
 };
 
+/** テーマのタイポグラフィ設定 */
+export type ThemeTypography = {
+	/** テーマのデフォルトフォントファミリーID */
+	fontFamily?: 'system' | 'outfit' | 'sawarabi' | 'serif' | 'sans' | 'noto';
+};
+
+/** テーマのメタ情報 */
+export type ThemeMeta = {
+	/** カラースキーム（ライト/ダーク） */
+	colorScheme?: 'light' | 'dark';
+	/** 作者名（サードパティテーマ向け） */
+	author?: string;
+	/** テーマの説明（ローカライズ対応） */
+	description?: LocalizedString;
+};
+
 export type ThemePack = {
 	id: string;
 	/** i18n key or translation object */
@@ -94,6 +110,10 @@ export type ThemePack = {
 	palette: ThemePalette;
 	attendance: AttendanceColors;
 	builtIn?: boolean;
+	/** タイポグラフィ設定（フォントファミリー等） */
+	typography?: ThemeTypography;
+	/** メタ情報（カラースキーム・作者等） */
+	meta?: ThemeMeta;
 };
 
 /**

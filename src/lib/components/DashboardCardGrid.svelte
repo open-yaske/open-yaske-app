@@ -22,7 +22,8 @@
 	import GlassContainer from './GlassContainer.svelte';
 	import { openLink } from '$lib/browser';
 	import { LayoutGrid, ExternalLink, ChevronRight } from '@lucide/svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
 	// --- Card HTML content cache (for html-internal) ---
 	const htmlCache = $state<Record<string, string>>({});
@@ -35,6 +36,7 @@
 
 	const settings = $derived(settingsStore.settings);
 	const cards = $derived(publicDataStore.data?.dashboardCards ?? []);
+	const c = $derived(resolveComponents(styleStore.pack));
 
 	// Sort cards: respect hiddenDashboardCards filter, then dashboardCardOrder, then card.order
 	const sortedCards = $derived.by<DashboardCard[]>(() => {
@@ -95,34 +97,32 @@
 	<div class="grid grid-cols-2 gap-3">
 		{#each sortedCards as card (card.id)}
 			{#if card.type === 'html-internal'}
-				{@const c = card as HtmlInternalCard}
-				{@const isBanner = c.layout === 'banner'}
+				{@const hc = card as HtmlInternalCard}
+				{@const isBanner = hc.layout === 'banner'}
 				<GlassContainer
 					variant="card"
-					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm {isBanner
-						? 'col-span-2'
-						: ''}"
+					class="{c.card.base} {isBanner ? 'col-span-2' : ''}"
 				>
 					<div class="flex flex-col overflow-hidden w-full">
 						<div class="flex items-center gap-2 px-4 pt-4">
-							<span class="text-lg">{c.icon}</span>
-							<span class="text-sm font-semibold text-[var(--color-nav-active)]">{c.title}</span>
+							<span class="text-lg">{hc.icon}</span>
+							<span class="text-sm font-semibold text-[var(--color-nav-active)]">{hc.title}</span>
 						</div>
 						<div class="px-4 pb-4 pt-2">
-							{#if htmlLoading[c.id]}
+							{#if htmlLoading[hc.id]}
 								<div class="h-16 animate-pulse rounded-chip bg-[var(--color-surface-muted)]"></div>
-							{:else if htmlCache[c.id]}
+							{:else if htmlCache[hc.id]}
 								<div class="prose prose-sm max-w-none text-[var(--color-nav-active)]">
 									<!-- htmlCache entries are sanitized via DOMPurify in lib/html-renderer.ts -->
 									<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-									{@html htmlCache[c.id]}
+									{@html htmlCache[hc.id]}
 								</div>
 							{:else}
 								<div
 									role="button"
 									tabindex="0"
-									onclick={() => fetchHtml(c)}
-									onkeydown={(e) => e.key === 'Enter' && fetchHtml(c)}
+									onclick={() => fetchHtml(hc)}
+									onkeydown={(e) => e.key === 'Enter' && fetchHtml(hc)}
 									class="flex min-h-[44px] items-center justify-center gap-1 py-3 text-xs font-medium text-[var(--color-nav-inactive)] cursor-pointer hover:text-[var(--color-nav-active)]"
 								>
 									{m.action_refresh()}
@@ -132,42 +132,44 @@
 					</div>
 				</GlassContainer>
 			{:else if card.type === 'external-url'}
-				{@const c = card as ExternalUrlCard}
+				{@const ec = card as ExternalUrlCard}
 				<GlassContainer
 					variant="card"
-					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200"
+					class={c.card.interactive}
 				>
 					<button
 						type="button"
-						onclick={() => openExternalUrl(c)}
-						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {APPLE_PRESS.card} select-none"
+						onclick={() => openExternalUrl(ec)}
+						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {styleStore.pack
+							.press.card} select-none"
 					>
 						<div class="flex w-full items-center justify-between">
-							<span class="text-lg">{c.icon}</span>
+							<span class="text-lg">{ec.icon}</span>
 							<ExternalLink size={15} color="var(--color-nav-inactive)" class="shrink-0" />
 						</div>
 						<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1"
-							>{c.title}</span
+							>{ec.title}</span
 						>
 					</button>
 				</GlassContainer>
 			{:else if card.type === 'webview-popup'}
-				{@const c = card as WebviewPopupCard}
+				{@const wc = card as WebviewPopupCard}
 				<GlassContainer
 					variant="card"
-					class="rounded-card border border-[var(--color-surface-border)]/80 shadow-apple-sm hover:shadow-apple-md transition-all duration-200"
+					class={c.card.interactive}
 				>
 					<button
 						type="button"
-						onclick={() => openWebviewPopup(c)}
-						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {APPLE_PRESS.card} select-none"
+						onclick={() => openWebviewPopup(wc)}
+						class="flex flex-col items-start gap-2.5 p-4 text-left w-full h-full {styleStore.pack
+							.press.card} select-none"
 					>
 						<div class="flex w-full items-center justify-between">
-							<span class="text-lg">{c.icon}</span>
+							<span class="text-lg">{wc.icon}</span>
 							<ChevronRight size={16} color="var(--color-nav-inactive)" class="shrink-0" />
 						</div>
 						<span class="text-sm font-semibold text-[var(--color-nav-active)] line-clamp-1"
-							>{c.title}</span
+							>{wc.title}</span
 						>
 					</button>
 				</GlassContainer>

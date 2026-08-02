@@ -9,7 +9,8 @@
 	import type { RouteId } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { ChevronRight } from '@lucide/svelte';
-	import { APPLE_PRESS } from '$lib/apple-design';
+	import { styleStore } from '$lib/stores';
+	import { resolveRadius } from '$lib/styles';
 	import GlassContainer from './GlassContainer.svelte';
 
 	interface Props {
@@ -45,6 +46,9 @@
 		if (/^https?:\/\//.test(href)) return href;
 		return resolve(href as RouteId);
 	});
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 </script>
 
 <GlassContainer
@@ -52,13 +56,14 @@
 	glow={Boolean(href || onclick)}
 	distortion="medium"
 	elevation={href || onclick ? 'lg' : 'md'}
-	class="rounded-card transition-all duration-200 {klass}"
+	class="{r.card} transition-all duration-200 {klass}"
 >
 	{#if resolvedHref && !disabled}
 		<!-- eslint-disable svelte/no-navigation-without-resolve -->
 		<a
 			href={resolvedHref}
-			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 {APPLE_PRESS.card} select-none"
+			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 {styleStore.pack.press
+				.card} select-none"
 		>
 			{@render body()}
 		</a>
@@ -67,7 +72,8 @@
 		<button
 			type="button"
 			{onclick}
-			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 text-left {APPLE_PRESS.card} select-none"
+			class="flex min-h-[44px] w-full items-center gap-3.5 px-4 py-3 text-left {styleStore.pack
+				.press.card} select-none"
 		>
 			{@render body()}
 		</button>

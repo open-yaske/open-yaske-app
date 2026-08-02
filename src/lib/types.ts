@@ -165,6 +165,10 @@ export type UserSettings = {
 	themePackId: ThemePackId;
 	themePackIdLight: ThemePackId;
 	themePackIdDark: ThemePackId;
+	/** ハイコントラストスタイル適用前のライトテーマ（復元用） */
+	prevThemePackIdLight?: ThemePackId;
+	/** ハイコントラストスタイル適用前のダークテーマ（復元用） */
+	prevThemePackIdDark?: ThemePackId;
 	theme: 'light' | 'dark' | 'system';
 	locale: 'ja' | 'en' | 'zh' | 'ko';
 	semester: Semester;
@@ -240,6 +244,40 @@ export type UserSettings = {
 	/** 設定の最終更新時刻 */
 	updatedAt?: number;
 	settingsThemePackIdCustom?: string;
+	visualStyle:
+		| 'apple'
+		| 'material'
+		| 'neumorphism'
+		| 'brutalism'
+		| 'cyberpunk'
+		| 'flat'
+		| 'high-contrast'
+		| 'win95'
+		| 'winxp';
+	/** アニメーションを削減 */
+	reduceMotion: boolean;
+	/** 文字サイズ倍率（0.7–1.5） */
+	fontScale: number;
+	/**
+	 * テーマパックの特定フィールドを上書きするユーザー設定。
+	 * テーマパック全体を編集せずに、プライマリカラーやフォントを個別にカスタマイズできる。
+	 * 設定値は applyTheme() 時にベースパックとマージされる。
+	 */
+	themeOverrides?: {
+		/**
+		 * フォントファミリーの上書き。
+		 * 未設定または undefined の場合は ThemePack の typography.fontFamily を使用。
+		 */
+		fontFamily?: 'system' | 'outfit' | 'sawarabi' | 'noto' | 'sans' | 'serif';
+		/** プライマリカラーの上書き (HEX: #xxxxxx) */
+		primaryColor?: string;
+		/** ページ背景色の上書き */
+		surfacePage?: string;
+		/** カード背景色の上書き */
+		surfaceCard?: string;
+		/** 角丸の上書き (CSS値: "20px" 等) */
+		borderRadius?: string;
+	};
 };
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
@@ -337,5 +375,9 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 	weatherShowTransit: true,
 	customAppName: '',
 	customLogoData: '',
-	updatedAt: 0
+	updatedAt: 0,
+	visualStyle: 'material',
+	reduceMotion: false,
+	fontScale: 1.0,
+	themeOverrides: undefined
 };

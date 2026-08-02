@@ -4,4 +4,8 @@
     <string name="title_activity_main">OpenYASKE</string>
     <string name="package_name">com.openyaske.app</string>
     <string name="custom_url_scheme">com.openyaske.app</string>
+    <string name="nav_timetable">時間割</string>
+    <string name="nav_todo">TODO</string>
+    <string name="nav_calendar">カレンダー</string>
+    <string name="nav_attendance">出席</string>
 </resources>

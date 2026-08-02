@@ -6,10 +6,11 @@
 <script lang="ts">
 	import type { Todo, Course } from '$lib/types';
 	import { m } from '$lib/paraglide/messages';
-	import { themeStore } from '$lib/stores';
+	import { themeStore, styleStore } from '$lib/stores';
 	import { resolveColorHex } from '$lib/theme';
 	import { Check, Clock, AlertCircle, BookOpen } from '@lucide/svelte';
 	import { rubberBand } from '$lib/apple-design';
+	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
 		todo: Todo;
@@ -85,6 +86,9 @@
 		}
 		return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(d);
 	});
+
+	// Style-aware corner radius
+	const r = $derived(resolveRadius(styleStore.pack));
 
 	// ----- ポインターイベント（スワイプ） -----
 	function handlePointerDown(e: PointerEvent) {
@@ -169,7 +173,7 @@
 	}
 </script>
 
-<div class="relative overflow-hidden rounded-card mb-2 shadow-apple-sm">
+<div class="relative overflow-hidden {r.card} mb-2 shadow-[var(--shadow-card)]">
 	<!-- 削除ボタン（背景） -->
 	<button
 		type="button"
