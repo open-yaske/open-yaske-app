@@ -109,7 +109,7 @@
 		glow={true}
 		distortion="high"
 		elevation="lg"
-		class="{r.pill} transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:shadow-[var(--shadow-card)]"
+		class="{r.pill} transition-all duration-200 focus-within:border-[var(--color-primary-500)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)]/20 hover:shadow-[var(--shadow-style-sm)]"
 	>
 		<form
 			onsubmit={handleSubmit}
@@ -169,7 +169,7 @@
 	{#if showSuggestions && suggestions.length > 0}
 		<GlassContainer
 			variant="card"
-			class="absolute left-0 right-0 z-50 mt-2.5 overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 shadow-[var(--shadow-modal)] max-h-60 overflow-y-auto origin-top transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+			class="absolute left-0 right-0 z-50 mt-2.5 overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 shadow-[var(--shadow-style-xl)] max-h-60 overflow-y-auto origin-top transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
 		>
 			<ul
 				bind:this={listEl}

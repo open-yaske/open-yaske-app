@@ -44,7 +44,7 @@
 
 	import { PUBLIC_APP_NAME, SOURCE_URL } from '$lib/constants';
 
-	const appVersion = '2026.08.02';
+	const appVersion = '2026.09.08';
 
 	// ----- テーマパック名解決 -----
 	function getPackName(pack: ThemePack): string {
@@ -863,27 +863,27 @@
 						const target = e.currentTarget as HTMLSelectElement;
 						const val = target.value as NonNullable<typeof settingsStore.settings.visualStyle>;
 						const prev = settingsStore.settings.visualStyle;
-						settingsStore.update({ visualStyle: val });
-						styleStore.set(val);
-						// ハイコントラストスタイル選択時は対応テーマを自動適用（直前のテーマを保存）
+						// ハイコントラスト連動のテーマ上書きを1回の update に畳む（二重適用防止）
 						if (val === 'high-contrast' && prev !== 'high-contrast') {
 							settingsStore.update({
+								visualStyle: val,
 								prevThemePackIdLight: settingsStore.settings.themePackIdLight,
 								prevThemePackIdDark: settingsStore.settings.themePackIdDark,
 								themePackIdLight: 'high-contrast',
 								themePackIdDark: 'high-contrast-dark'
 							});
 						} else if (val !== 'high-contrast' && prev === 'high-contrast') {
-							// ハイコントラストから離れたら直前のテーマを復元
-							const restoreLight = settingsStore.settings.prevThemePackIdLight || 'default';
-							const restoreDark = settingsStore.settings.prevThemePackIdDark || 'dark';
 							settingsStore.update({
-								themePackIdLight: restoreLight,
-								themePackIdDark: restoreDark,
+								visualStyle: val,
+								themePackIdLight: settingsStore.settings.prevThemePackIdLight || 'default',
+								themePackIdDark: settingsStore.settings.prevThemePackIdDark || 'dark',
 								prevThemePackIdLight: undefined,
 								prevThemePackIdDark: undefined
 							});
+						} else {
+							settingsStore.update({ visualStyle: val });
 						}
+						styleStore.set(val);
 					}}
 					class="h-8 min-w-[7.5rem] cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-1 pl-3 pr-8 text-right text-xs font-bold text-[var(--color-nav-active)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/25"
 					style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
@@ -973,7 +973,7 @@
 						settingsStore.update({ fontScale: val });
 						document.documentElement.style.fontSize = `${val * 100}%`;
 					}}
-					class="w-28 h-1.5 cursor-pointer appearance-none rounded-full bg-[var(--color-surface-border)] accent-[var(--color-primary-500)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-primary-500)] [&::-webkit-slider-thumb]:shadow-apple-sm"
+					class="w-28 h-1.5 cursor-pointer appearance-none rounded-full bg-[var(--color-surface-border)] accent-[var(--color-primary-500)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-primary-500)] [&::-webkit-slider-thumb]:shadow-[var(--shadow-style-sm)]"
 				/>
 				<span class="text-xs text-[var(--color-nav-inactive)]">{m.settings_font_scale_large()}</span
 				>

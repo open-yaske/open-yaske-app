@@ -16,6 +16,8 @@
 	import { m } from '$lib/paraglide/messages';
 	import IconButton from './IconButton.svelte';
 	import GlassContainer from './GlassContainer.svelte';
+	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
 	interface Props {
 		open: boolean;
@@ -52,6 +54,8 @@
 	});
 
 	const titleId = `sheet-title-${Math.random().toString(36).slice(2, 9)}`;
+
+	const c = $derived(resolveComponents(styleStore.pack));
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape' && open) {
@@ -98,7 +102,7 @@
 		<!-- backdrop — fly と同期: fade 150ms delay 0 -->
 		<button
 			type="button"
-			class="absolute inset-0 bg-black/40 backdrop-blur-md"
+			class={c.sheet.backdrop}
 			aria-label={m.sheet_close()}
 			onclick={handleBackdrop}
 			tabindex="-1"
@@ -109,7 +113,7 @@
 		<GlassContainer
 			variant="modal"
 			elevation="xl"
-			class="sheet-panel relative z-10 flex w-full max-h-[90vh] flex-col
+			class="sheet-panel {c.sheet.panel}
 			       md:max-h-full md:max-w-md md:h-full {position === 'bottom'
 				? 'rounded-t-[32px]'
 				: 'rounded-l-[32px]'}"

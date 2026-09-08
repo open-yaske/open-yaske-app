@@ -113,7 +113,12 @@
 			},
 			{
 				"id": "emerald",
-				"name": "color_emerald",
+				"name": {
+					"ja": "エメラルド",
+					"en": "Emerald",
+					"zh": "祖母绿",
+					"ko": "에메랄드"
+				},
 				"hex": "#059669"
 			},
 			{
@@ -138,7 +143,12 @@
 			},
 			{
 				"id": "rose",
-				"name": "color_rose",
+				"name": {
+					"ja": "ローズ",
+					"en": "Rose",
+					"zh": "玫瑰",
+					"ko": "로즈"
+				},
 				"hex": "#e11d48"
 			},
 			{
@@ -153,7 +163,12 @@
 			},
 			{
 				"id": "violet",
-				"name": "color_violet",
+				"name": {
+					"ja": "バイオレット",
+					"en": "Violet",
+					"zh": "紫罗兰",
+					"ko": "바이올렛"
+				},
 				"hex": "#7c3aed"
 			}
 		],
@@ -170,7 +185,12 @@
 			},
 			{
 				"id": "emerald",
-				"name": "color_emerald",
+				"name": {
+					"ja": "エメラルド",
+					"en": "Emerald",
+					"zh": "祖母绿",
+					"ko": "에메랄드"
+				},
 				"hex": "#059669"
 			},
 			{
@@ -195,7 +215,12 @@
 			},
 			{
 				"id": "rose",
-				"name": "color_rose",
+				"name": {
+					"ja": "ローズ",
+					"en": "Rose",
+					"zh": "玫瑰",
+					"ko": "로즈"
+				},
 				"hex": "#e11d48"
 			},
 			{
@@ -222,7 +247,12 @@
 			},
 			{
 				"id": "emerald",
-				"name": "color_emerald",
+				"name": {
+					"ja": "エメラルド",
+					"en": "Emerald",
+					"zh": "祖母绿",
+					"ko": "에메랄드"
+				},
 				"hex": "#059669"
 			},
 			{
@@ -237,7 +267,12 @@
 			},
 			{
 				"id": "lime",
-				"name": "color_lime",
+				"name": {
+					"ja": "ライム",
+					"en": "Lime",
+					"zh": "青柠",
+					"ko": "라임"
+				},
 				"hex": "#65a30d"
 			},
 			{
@@ -252,7 +287,12 @@
 			},
 			{
 				"id": "rose",
-				"name": "color_rose",
+				"name": {
+					"ja": "ローズ",
+					"en": "Rose",
+					"zh": "玫瑰",
+					"ko": "로즈"
+				},
 				"hex": "#e11d48"
 			},
 			{
@@ -267,12 +307,22 @@
 			},
 			{
 				"id": "sky",
-				"name": "color_sky",
+				"name": {
+					"ja": "スカイ",
+					"en": "Sky",
+					"zh": "天蓝",
+					"ko": "스카이"
+				},
 				"hex": "#0284c7"
 			},
 			{
 				"id": "violet",
-				"name": "color_violet",
+				"name": {
+					"ja": "バイオレット",
+					"en": "Violet",
+					"zh": "紫罗兰",
+					"ko": "바이올렛"
+				},
 				"hex": "#7c3aed"
 			},
 			{

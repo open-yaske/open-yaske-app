@@ -36,7 +36,7 @@
 </script>
 
 <div
-	class="flex gap-1.5 rounded-chip border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-muted)]/60 backdrop-blur-md p-1.5 shadow-[var(--shadow-card)]"
+	class="flex gap-1.5 rounded-chip border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-muted)]/60 backdrop-blur-md p-1.5 shadow-[var(--shadow-style-sm)]"
 	role="group"
 	aria-label={m.attendance_status()}
 >
@@ -51,7 +51,7 @@
 				.pack.press.tab}"
 			class:bg-transparent={!isActive}
 			class:text-[var(--color-nav-inactive)]={!isActive}
-			class:shadow-[var(--shadow-card)]={isActive}
+			class:shadow-[var(--shadow-style-sm)]={isActive}
 			class:opacity-50={disabled}
 			style:background-color={isActive ? `var(--color-attendance-${meta.cssVar}-bg)` : undefined}
 			style:color={isActive ? `var(--color-attendance-${meta.cssVar}-fg)` : undefined}

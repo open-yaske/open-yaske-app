@@ -80,12 +80,21 @@ class UserDataStore {
 
 	private async syncFromRemote() {
 		if (!this.rsConnected) return;
-		const [courses, todos, events, attendance] = await Promise.all([
-			remoteStorage.rsGetAll<Course>('courses'),
-			remoteStorage.rsGetAll<Todo>('todos'),
-			remoteStorage.rsGetAll<CalendarEvent>('events'),
-			remoteStorage.rsGetAll<AttendanceRecord>('attendance')
-		]);
+		let courses: Record<string, Course>;
+		let todos: Record<string, Todo>;
+		let events: Record<string, CalendarEvent>;
+		let attendance: Record<string, AttendanceRecord>;
+		try {
+			[courses, todos, events, attendance] = await Promise.all([
+				remoteStorage.rsGetAll<Course>('courses'),
+				remoteStorage.rsGetAll<Todo>('todos'),
+				remoteStorage.rsGetAll<CalendarEvent>('events'),
+				remoteStorage.rsGetAll<AttendanceRecord>('attendance')
+			]);
+		} catch (err) {
+			console.error('syncFromRemote failed, keep local data', err);
+			return;
+		}
 		const courseList = Object.values(courses);
 		const todoList = Object.values(todos);
 		const eventList = Object.values(events);

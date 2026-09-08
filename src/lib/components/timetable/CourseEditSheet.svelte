@@ -12,7 +12,14 @@
 	import { m } from '$lib/paraglide/messages';
 	import { DAY_OF_WEEK_LIST, PERIOD_LIST } from '$lib/types';
 	import type { Course, CourseType, DayOfWeek, Period } from '$lib/types';
-	import { userDataStore, themeStore, settingsStore, publicDataStore, styleStore } from '$lib/stores';
+	import {
+		userDataStore,
+		themeStore,
+		settingsStore,
+		publicDataStore,
+		styleStore
+	} from '$lib/stores';
+	import { defaultColorId } from '$lib/theme';
 	import type { PublicCourse } from '$lib/types/public';
 	import Sheet from '$lib/components/Sheet.svelte';
 	import TextField from '$lib/components/TextField.svelte';
@@ -53,7 +60,7 @@
 	let periodStr = $state('1');
 	let spanStr = $state('1');
 	let creditsStr = $state('0');
-	let color = $state('blue');
+	let color = $state('');
 	let type = $state<CourseType>('free');
 	let syllabusId = $state<string | undefined>(undefined);
 
@@ -161,7 +168,7 @@
 				day = prefillDay;
 				periodStr = String(prefillPeriod);
 				spanStr = '1';
-				color = themeStore.pack.palette.courseColors[0]?.id ?? 'blue';
+				color = defaultColorId(themeStore.pack, 'course');
 				type = 'free';
 				creditsStr = '0';
 				syllabusId = undefined;

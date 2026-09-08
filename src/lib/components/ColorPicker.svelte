@@ -35,6 +35,14 @@
 		id
 	}: Props = $props();
 
+	// 空トークン（旧 'blue' 直書き等の残骸）は先頭色に正規化。テーマ切替の transparent 化を防ぐ。
+	$effect(() => {
+		if (!value && palette.length > 0) {
+			value = `index:${kind}:0`;
+			onchange?.(value);
+		}
+	});
+
 	const customHex = $derived(
 		isCustomColor(value) ? value.slice('custom:'.length) : DEFAULT_CUSTOM_HEX
 	);

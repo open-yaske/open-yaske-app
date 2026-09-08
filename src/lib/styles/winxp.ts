@@ -30,7 +30,8 @@ export const winXpPack: VisualStylePack = {
 	},
 
 	materials: {
-		glass: 'bg-gradient-to-b from-[var(--color-surface-card)] to-[var(--color-surface-muted)]/60 border border-[var(--color-primary-500)]/30 rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.12)]',
+		glass:
+			'bg-gradient-to-b from-[var(--color-surface-card)] to-[var(--color-surface-muted)]/60 border border-[var(--color-primary-500)]/30 rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.12)]',
 		glassHeader:
 			'bg-gradient-to-r from-[var(--color-primary-700)] via-[var(--color-primary-500)] to-[var(--color-primary-400)] text-white font-bold rounded-t-lg border border-[var(--color-primary-800)]/50 shadow-[0_1px_3px_rgba(0,0,0,0.25)]',
 		glassModal:
@@ -83,7 +84,8 @@ export const winXpPack: VisualStylePack = {
 		sectionHeader: 'text-xs font-bold tracking-wide text-[var(--color-primary-600)]',
 		cardHeader: 'text-sm font-bold',
 		pageTitle: 'text-lg font-bold tracking-tight',
-		navBar: 'bg-gradient-to-r from-[var(--color-primary-700)] via-[var(--color-primary-500)] to-[var(--color-primary-400)] text-white font-bold border-t border-[var(--color-primary-800)]/50'
+		navBar:
+			'bg-gradient-to-r from-[var(--color-primary-700)] via-[var(--color-primary-500)] to-[var(--color-primary-400)] text-white font-bold border-t border-[var(--color-primary-800)]/50'
 	},
 
 	// WinXP 固有の UI レシピ: グラデーション、青枠、控えめな影
@@ -107,6 +109,11 @@ export const winXpPack: VisualStylePack = {
 			base: 'rounded-lg border border-[var(--color-primary-500)]/40 bg-gradient-to-b from-[var(--color-surface-card)] to-[var(--color-surface-muted)]/50 shadow-[0_1px_4px_rgba(0,0,0,0.12)]',
 			interactive:
 				'rounded-lg border border-[var(--color-primary-500)]/40 bg-gradient-to-b from-[var(--color-surface-card)] to-[var(--color-surface-muted)]/50 shadow-[0_1px_4px_rgba(0,0,0,0.12)] hover:border-[var(--color-primary-500)]/60 hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:shadow-[inset_0_2px_3px_rgba(0,0,0,0.12)] transition-all duration-100 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-gradient-to-b from-[var(--color-primary-400)] to-[var(--color-primary-600)] text-white font-bold border border-[var(--color-primary-800)]/60 shadow-[0_1px_3px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]',
+			inactiveItem: 'text-[var(--color-nav-active)] hover:bg-[var(--color-primary-500)]/10'
 		}
 	}
 };

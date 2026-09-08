@@ -12,7 +12,8 @@
 	import TodoEditSheet from '$lib/components/todo/TodoEditSheet.svelte';
 	import IconButton from '$lib/components/IconButton.svelte';
 	import { Plus, ArrowDownUp, Search, Sun, Moon, Laptop } from '@lucide/svelte';
-	import { settingsStore } from '$lib/stores';
+	import { settingsStore, styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 
 	type FilterType = 'all' | 'active' | 'completed';
 	type SortType = 'due' | 'priority' | 'created';
@@ -31,6 +32,8 @@
 		{ key: 'active' as FilterType, label: m.todo_undone() },
 		{ key: 'completed' as FilterType, label: m.todo_done() }
 	]);
+
+	const c = $derived(resolveComponents(styleStore.pack));
 
 	// ----- ソートオプション -----
 	const sortOptions = $derived([
@@ -117,16 +120,12 @@
 	<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-3">
 		<!-- 流体セグメントピル -->
 		<div
-			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-sm)]"
 		>
 			{#each filterChips as chip (chip.key)}
 				<button
 					type="button"
-					class="flex-1 min-h-[38px] px-4 rounded-chip text-xs font-semibold transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] active:scale-95"
-					class:bg-[var(--color-surface-card)]={filter === chip.key}
-					class:text-[var(--color-primary-600)]={filter === chip.key}
-					class:shadow-apple-sm={filter === chip.key}
-					class:text-[var(--color-nav-inactive)]={filter !== chip.key}
+					class="{c.chip.base} {filter === chip.key ? c.chip.active : c.chip.inactive}"
 					onclick={() => (filter = chip.key)}
 				>
 					{chip.label}
@@ -137,7 +136,7 @@
 		<!-- ソートピル -->
 		<div class="flex items-center justify-end">
 			<div
-				class="inline-flex items-center gap-2 px-3 py-1.5 min-h-[40px] rounded-chip bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60 shadow-apple-sm text-xs font-semibold text-[var(--color-nav-active)]"
+				class="inline-flex items-center gap-2 px-3 py-1.5 min-h-[40px] rounded-chip bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/60 shadow-[var(--shadow-style-sm)] text-xs font-semibold text-[var(--color-nav-active)]"
 			>
 				<ArrowDownUp size={14} class="text-[var(--color-primary-500)]" />
 				<span class="text-[var(--color-nav-inactive)]">{m.todo_sort()}:</span>
@@ -163,12 +162,7 @@
 </Container>
 
 <!-- FAB (Floating Action Button) -->
-<button
-	type="button"
-	class="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-apple-lg hover:bg-[var(--color-primary-600)] active:scale-90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2 md:bottom-8 md:right-8"
-	aria-label={m.todo_add()}
-	onclick={openAddSheet}
->
+<button type="button" class={c.fab.base} aria-label={m.todo_add()} onclick={openAddSheet}>
 	<Plus size={26} stroke-width={2.5} />
 </button>
 

@@ -12,7 +12,7 @@
 	import type { Course, DayOfWeek, Period } from '$lib/types';
 	import { themeStore, settingsStore, styleStore } from '$lib/stores';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-	import { resolveColorHex } from '$lib/theme';
+	import { isDarkPack, resolveColorHex } from '$lib/theme';
 	import { resolveRadius } from '$lib/styles';
 
 	interface Props {
@@ -99,7 +99,7 @@
 
 				{#if course}
 					{@const color = resolveColor(course)}
-					{@const isDarkTheme = themeStore.pack.id === 'dark'}
+					{@const isDarkTheme = isDarkPack(themeStore.pack)}
 					<!-- 授業カード: 複数時限にまたがる (span) -->
 					<button
 						type="button"
@@ -108,7 +108,7 @@
 							2} / span {course.span};"
 						class:text-white={!isDarkTheme}
 						class:text-slate-900={isDarkTheme}
-						class:shadow-sm={!settingsStore.settings.timetableBgImage}
+						class:shadow-[var(--shadow-style-sm)]={!settingsStore.settings.timetableBgImage}
 						class:opacity-95={settingsStore.settings.timetableTransparent}
 						aria-label="{course.name}{course.classroom ? ` (${course.classroom})` : ''}"
 						onclick={() => oncoursetap(course)}

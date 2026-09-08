@@ -32,9 +32,9 @@ export const highContrastPack: VisualStylePack = {
 	},
 
 	materials: {
-		glass: 'bg-[var(--color-surface-card)] border-2 border-[var(--color-surface-border)] rounded-sm',
-		glassHeader:
-			'bg-[var(--color-surface-page)] border-b-2 border-[var(--color-surface-border)]',
+		glass:
+			'bg-[var(--color-surface-card)] border-2 border-[var(--color-surface-border)] rounded-sm',
+		glassHeader: 'bg-[var(--color-surface-page)] border-b-2 border-[var(--color-surface-border)]',
 		glassModal:
 			'bg-[var(--color-surface-card)] border-2 border-[var(--color-surface-border)] rounded-sm',
 		card: 'bg-[var(--color-surface-card)] border-2 border-[var(--color-surface-border)] rounded-sm',
@@ -99,7 +99,8 @@ export const highContrastPack: VisualStylePack = {
 				'bg-[var(--color-primary-500)] text-white border-2 border-[var(--color-primary-700)] hover:bg-[var(--color-primary-600)] active:opacity-70',
 			secondary:
 				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border-2 border-[var(--color-surface-border)] hover:border-[var(--color-nav-active)] active:opacity-70',
-			ghost: 'bg-transparent text-[var(--color-nav-active)] border-2 border-transparent hover:border-[var(--color-surface-border)] active:opacity-60',
+			ghost:
+				'bg-transparent text-[var(--color-nav-active)] border-2 border-transparent hover:border-[var(--color-surface-border)] active:opacity-60',
 			danger:
 				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] border-2 border-[var(--color-attendance-absent-fg)] hover:opacity-90 active:opacity-70',
 			glass:
@@ -112,6 +113,12 @@ export const highContrastPack: VisualStylePack = {
 			base: 'rounded-sm border-2 border-[var(--color-surface-border)] bg-[var(--color-surface-card)]',
 			interactive:
 				'rounded-sm border-2 border-[var(--color-surface-border)] bg-[var(--color-surface-card)] hover:border-[var(--color-nav-active)] active:opacity-70 transition-all duration-75 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] font-bold border-2 border-[var(--color-nav-active)] rounded-sm',
+			inactiveItem:
+				'text-[var(--color-nav-active)] font-medium border-2 border-transparent hover:border-[var(--color-nav-active)]'
 		}
 	}
 };

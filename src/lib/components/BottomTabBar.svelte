@@ -14,6 +14,7 @@
 	import { page } from '$app/state';
 	import type { RouteId } from '$app/types';
 	import { styleStore } from '$lib/stores';
+	import { resolveComponents } from '$lib/styles';
 	import GlassContainer from './GlassContainer.svelte';
 
 	interface Tab {
@@ -28,6 +29,8 @@
 
 	let { tabs }: Props = $props();
 
+	const c = $derived(resolveComponents(styleStore.pack));
+
 	function isActive(href: string): boolean {
 		const pathname = page.url.pathname;
 		return pathname === href || pathname.startsWith(href + '/');
@@ -37,7 +40,7 @@
 	const containerClass = $derived.by(() => {
 		const surface = styleStore.pack.layout.cardSurface;
 		if (surface === 'glass') {
-			return 'rounded-full p-1.5 shadow-[var(--shadow-modal)]';
+			return `rounded-full p-1.5 ${c.bar.container}`;
 		}
 		if (surface === 'chiseled') {
 			return 'border-t-2 border-t-white/90 border-b-2 border-b-[var(--color-surface-border)] bg-[var(--color-surface-card)]';
@@ -54,16 +57,13 @@
 
 	const navClass = $derived(
 		'fixed z-40 md:hidden select-none ' +
-		(isGlassStyle
-			? 'bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md'
-			: 'bottom-0 left-0 right-0')
+			(isGlassStyle
+				? 'bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md'
+				: 'bottom-0 left-0 right-0')
 	);
 </script>
 
-<nav
-	class={navClass}
-	aria-label="Main Navigation"
->
+<nav class={navClass} aria-label="Main Navigation">
 	{#if isGlassStyle}
 		<!-- 浮遊ガラスピル -->
 		<GlassContainer
@@ -87,7 +87,8 @@
 						>
 							{#if active}
 								<div
-									class="absolute inset-0 rounded-full bg-[var(--color-primary-500)]/20 backdrop-blur-2xl border border-[var(--color-primary-500)]/30 shadow-[var(--shadow-card)] transition-all duration-200"
+									class="absolute inset-0 rounded-full {c.bar
+										.activePill} shadow-[var(--shadow-style-sm)] backdrop-blur-2xl border transition-all duration-200"
 								></div>
 							{/if}
 							<div class="relative z-10 flex flex-col items-center w-full min-w-0 px-0.5">
@@ -119,7 +120,7 @@
 						>
 							{#if active}
 								<div
-									class="absolute inset-0 rounded-lg bg-[var(--color-primary-500)]/15 transition-all duration-150"
+									class="absolute inset-0 rounded-lg {c.bar.activePill} transition-all duration-150"
 								></div>
 							{/if}
 							<div class="relative z-10 flex flex-col items-center w-full min-w-0 px-1">

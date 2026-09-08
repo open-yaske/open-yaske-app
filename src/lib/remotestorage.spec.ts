@@ -82,6 +82,10 @@ describe('remotestorage', () => {
 			type: 'object',
 			description: '出席記録'
 		});
+		expect(mockClient.declareType).toHaveBeenCalledWith('school-data', {
+			type: 'object',
+			description: '学校データキャッシュ'
+		});
 	});
 
 	it('initRemoteStorage does nothing in non-browser environment', async () => {

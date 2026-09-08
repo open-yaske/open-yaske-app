@@ -16,7 +16,7 @@
 	import IconButton from './IconButton.svelte';
 	import GlassContainer from './GlassContainer.svelte';
 	import { styleStore } from '$lib/stores';
-	import { resolveRadius } from '$lib/styles';
+	import { resolveComponents, resolveRadius } from '$lib/styles';
 
 	interface Props {
 		open: boolean;
@@ -40,8 +40,9 @@
 		footer
 	}: Props = $props();
 
-	// Style-aware corner radius
+	// Style-aware corner radius + sheet レシピ
 	const r = $derived(resolveRadius(styleStore.pack));
+	const c = $derived(resolveComponents(styleStore.pack));
 
 	// フォーカストラップ
 	let dialogEl = $state<HTMLDivElement | null>(null);
@@ -123,7 +124,7 @@
 	>
 		<!-- backdrop — シンプルな semi-transparent overlay -->
 		<div
-			class="absolute inset-0 bg-black/40 backdrop-blur-md"
+			class={c.sheet.backdrop}
 			onclick={handleBackdrop}
 			role="button"
 			tabindex="-1"
@@ -134,7 +135,7 @@
 		<GlassContainer
 			variant="modal"
 			elevation="xl"
-			class="modal-panel relative z-10 flex max-h-[85vh] w-full flex-col overflow-hidden {r.card}"
+			class="modal-panel {c.sheet.panel} {r.card}"
 			style="max-width: {maxWidth}"
 		>
 			<div bind:this={dialogEl} class="flex h-full w-full flex-col overflow-hidden">

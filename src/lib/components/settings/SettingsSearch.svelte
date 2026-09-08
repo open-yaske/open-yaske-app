@@ -145,7 +145,7 @@
 		<!-- 結果ドロップダウン -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] shadow-sm"
+			class="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-chip border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] shadow-[var(--shadow-style-sm)]"
 			onmouseleave={() => (selectedIndex = -1)}
 		>
 			{#if results.length === 0}

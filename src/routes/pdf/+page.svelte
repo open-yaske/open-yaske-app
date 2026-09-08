@@ -177,7 +177,7 @@
 		<BentoCard padding="p-5" class="space-y-5">
 			<div class="flex flex-col items-center justify-center py-4 text-center">
 				<div
-					class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] mb-4 shadow-apple-sm"
+					class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] mb-4 shadow-[var(--shadow-style-sm)]"
 				>
 					<Camera size={26} />
 				</div>
@@ -192,7 +192,7 @@
 				<button
 					type="button"
 					onclick={startScan}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3 px-4 text-[var(--color-primary-50)] shadow-apple-sm min-h-[52px] {styleStore
+					class="flex flex-col items-center justify-center gap-1 rounded-xl bg-[var(--color-primary-800)] py-3 px-4 text-[var(--color-primary-50)] shadow-[var(--shadow-style-sm)] min-h-[52px] {styleStore
 						.pack.press.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
@@ -206,7 +206,7 @@
 				<button
 					type="button"
 					onclick={triggerSelectFiles}
-					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-3 px-4 text-[var(--color-nav-active)] shadow-apple-sm min-h-[52px] {styleStore
+					class="flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] py-3 px-4 text-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)] min-h-[52px] {styleStore
 						.pack.press.button}"
 				>
 					<span class="flex items-center gap-1.5 text-sm font-bold">
@@ -220,7 +220,7 @@
 			<!-- エラーメッセージ -->
 			{#if error}
 				<p
-					class="text-xs font-semibold text-[var(--color-attendance-absent-fg)] text-center bg-[var(--color-attendance-absent-bg)] rounded-xl py-2 px-3 shadow-apple-sm border border-[var(--color-surface-border)]/50"
+					class="text-xs font-semibold text-[var(--color-attendance-absent-fg)] text-center bg-[var(--color-attendance-absent-bg)] rounded-xl py-2 px-3 shadow-[var(--shadow-style-sm)] border border-[var(--color-surface-border)]/50"
 				>
 					{error}
 				</p>
@@ -228,7 +228,7 @@
 
 			<!-- アドバイス -->
 			<div
-				class="rounded-xl bg-[var(--color-surface-muted)]/80 p-4 space-y-2 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+				class="rounded-xl bg-[var(--color-surface-muted)]/80 p-4 space-y-2 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-sm)]"
 			>
 				<p class="font-bold flex items-center gap-1.5 text-[var(--color-primary-600)]">
 					<Lightbulb size={14} />
@@ -299,7 +299,7 @@
 					>{m.pdf_pagesize_label()}</span
 				>
 				<div
-					class="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-surface-muted)]/80 border border-[var(--color-surface-border)]/50 shadow-apple-sm"
+					class="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-surface-muted)]/80 border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-style-sm)]"
 				>
 					<button
 						type="button"
@@ -308,7 +308,7 @@
 							.press.tab}"
 						class:bg-[var(--color-surface-card)]={pageSize === 'a4'}
 						class:text-[var(--color-primary-600)]={pageSize === 'a4'}
-						class:shadow-apple-sm={pageSize === 'a4'}
+						class:shadow-[var(--shadow-style-sm)]={pageSize === 'a4'}
 						class:text-[var(--color-nav-inactive)]={pageSize !== 'a4'}
 					>
 						A4
@@ -320,7 +320,7 @@
 							.press.tab}"
 						class:bg-[var(--color-surface-card)]={pageSize === 'original'}
 						class:text-[var(--color-primary-600)]={pageSize === 'original'}
-						class:shadow-apple-sm={pageSize === 'original'}
+						class:shadow-[var(--shadow-style-sm)]={pageSize === 'original'}
 						class:text-[var(--color-nav-inactive)]={pageSize !== 'original'}
 					>
 						{m.pdf_pagesize_original()}
@@ -334,7 +334,7 @@
 			onclick={handleExport}
 			variant="primary"
 			size="lg"
-			class="w-full font-bold shadow-apple-md"
+			class="w-full font-bold shadow-[var(--shadow-style-md)]"
 			disabled={images.length === 0}
 		>
 			{m.pdf_submit_button()}

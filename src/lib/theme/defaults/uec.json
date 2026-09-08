@@ -103,12 +103,22 @@
 		"courseColors": [
 			{
 				"id": "uec",
-				"name": "color_uec",
+				"name": {
+					"ja": "UEC紺",
+					"en": "UEC Navy",
+					"zh": "UEC藏青",
+					"ko": "UEC 네이비"
+				},
 				"hex": "#1b2a5e"
 			},
 			{
 				"id": "gold",
-				"name": "color_gold",
+				"name": {
+					"ja": "ゴールド",
+					"en": "Gold",
+					"zh": "金色",
+					"ko": "골드"
+				},
 				"hex": "#8b6914"
 			},
 			{
@@ -165,12 +175,22 @@
 		"todoColors": [
 			{
 				"id": "uec",
-				"name": "color_uec",
+				"name": {
+					"ja": "UEC紺",
+					"en": "UEC Navy",
+					"zh": "UEC藏青",
+					"ko": "UEC 네이비"
+				},
 				"hex": "#1b2a5e"
 			},
 			{
 				"id": "gold",
-				"name": "color_gold",
+				"name": {
+					"ja": "ゴールド",
+					"en": "Gold",
+					"zh": "金色",
+					"ko": "골드"
+				},
 				"hex": "#8b6914"
 			},
 			{
@@ -217,12 +237,22 @@
 		"eventColors": [
 			{
 				"id": "uec",
-				"name": "color_uec",
+				"name": {
+					"ja": "UEC紺",
+					"en": "UEC Navy",
+					"zh": "UEC藏青",
+					"ko": "UEC 네이비"
+				},
 				"hex": "#1b2a5e"
 			},
 			{
 				"id": "gold",
-				"name": "color_gold",
+				"name": {
+					"ja": "ゴールド",
+					"en": "Gold",
+					"zh": "金色",
+					"ko": "골드"
+				},
 				"hex": "#8b6914"
 			},
 			{

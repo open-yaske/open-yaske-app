@@ -45,8 +45,16 @@ export function getColor(
 /**
  * ColorToken (id / "custom:<hex>" / "none") を HEX に解決
  * カスタム HEX を含む "custom:<hex>" 形式にも対応
+ *
+ * 旧形式の生 id はテーマ間で非互換（例: 'blue' は dango に存在しない）なため、
+ * 見つからない場合は 'transparent' ではなくパレット先頭色にフォールバックする。
+ * kind が分かっている呼び出し側は getColor(pack, kind, id) を使うこと。
  */
-export function resolveColorHex(pack: ThemePack, token: string | null | undefined): string {
+export function resolveColorHex(
+	pack: ThemePack,
+	token: string | null | undefined,
+	fallback?: string
+): string {
 	if (!token || token === NONE_TOKEN) return 'transparent';
 	if (token.startsWith('custom:')) return token.slice('custom:'.length);
 	if (token.startsWith('index:')) {
@@ -61,11 +69,11 @@ export function resolveColorHex(pack: ThemePack, token: string | null | undefine
 						? pack.palette.todoColors
 						: pack.palette.eventColors;
 			const found = list[idx];
-			return found?.hex ?? 'transparent';
+			return found?.hex ?? fallback ?? list[0]?.hex ?? 'transparent';
 		}
 	}
 	const found = getColorById(pack.palette, token);
-	return found?.hex ?? 'transparent';
+	return found?.hex ?? fallback ?? pack.palette.courseColors[0]?.hex ?? 'transparent';
 }
 
 /**
@@ -94,6 +102,20 @@ export function resolveColorName(
 	}
 	const found = getColorById(pack.palette, token);
 	return found?.name ?? 'color_none';
+}
+
+/**
+ * 新規作成時の既定色トークン。パレット先頭 id を返す。
+ * 'blue' 等の直書きは dango 等に存在しないため禁止。
+ */
+export function defaultColorId(pack: ThemePack, kind: 'course' | 'todo' | 'event'): string {
+	const list =
+		kind === 'course'
+			? pack.palette.courseColors
+			: kind === 'todo'
+				? pack.palette.todoColors
+				: pack.palette.eventColors;
+	return list[0]?.id ?? 'custom:#007aff';
 }
 
 /**

@@ -12,7 +12,8 @@
 		styleStore
 	} from '$lib/stores';
 	import { initRemoteStorage } from '$lib/remotestorage';
-	import { applyFontVars } from '$lib/theme';
+	import { applyFontVars, resolveEffectiveFontFamily, resolveThemePackId } from '$lib/theme';
+	import { applyStyleShadows, isStyleShadowsNone } from '$lib/styles';
 	import { BottomTabBar, SideNav } from '$lib/components';
 	import { Home, Calendar, BookOpen, CheckSquare, BarChart3, MoreHorizontal } from '@lucide/svelte';
 	import { m } from '$lib/paraglide/messages';
@@ -71,12 +72,14 @@
 		}
 	});
 
-	// スタイルパックが影なし（flat/high-contrast/win95 等）の場合、全影を無効化
+	// 影の所有権はスタイル側。--shadow-style-* に書き出し、影なし時はキルスイッチ。
 	$effect(() => {
 		if (typeof document === 'undefined') return;
-		const sh = styleStore.pack.shadow;
-		const noShadows = sh.sm === 'none' && sh.md === 'none' && sh.lg === 'none' && sh.xl === 'none';
-		document.documentElement.classList.toggle('style-shadows-none', noShadows);
+		applyStyleShadows(styleStore.pack);
+		document.documentElement.classList.toggle(
+			'style-shadows-none',
+			isStyleShadowsNone(styleStore.pack)
+		);
 	});
 
 	// 文字サイズ変更の即時反映（settings 更新時）
@@ -188,13 +191,19 @@
 
 	const navItems = $derived(tabs);
 
-// フォント変数を適用（テーマパックまたはロケール変更時）
-$effect(() => {
-	const pack = themeStore.pack;
-	const locale = currentLocaleSignal;
-	if (pack && locale) {
-		applyFontVars(pack, locale);
-	}
+	// フォント変数を適用（テーマパックまたはロケール変更時）
+	// 優先度: themeOverrides.fontFamily > settings.fontFamily('system'はパックに従う) > pack.typography
+	$effect(() => {
+		const pack = themeStore.pack;
+		const locale = currentLocaleSignal;
+		if (pack && locale) {
+			const effective = resolveEffectiveFontFamily(
+				settingsStore.settings.fontFamily,
+				pack.typography?.fontFamily,
+				settingsStore.settings.themeOverrides?.fontFamily
+			);
+			applyFontVars({ ...pack, typography: { ...pack.typography, fontFamily: effective } }, locale);
+		}
 	});
 
 	let osDark = $state(false);
@@ -213,19 +222,10 @@ $effect(() => {
 
 	$effect(() => {
 		const themeMode = settingsStore.settings.theme; // 'light' | 'dark' | 'system'
-		const themePackIdLight = settingsStore.settings.themePackIdLight || 'default';
-		const themePackIdDark = settingsStore.settings.themePackIdDark || 'dark';
 
 		const isDark = themeMode === 'dark' ? true : themeMode === 'system' ? osDark : false;
 
-		const targetPackId =
-			themeMode === 'dark'
-				? themePackIdDark
-				: themeMode === 'system'
-					? osDark
-						? themePackIdDark
-						: themePackIdLight
-					: themePackIdLight;
+		const targetPackId = resolveThemePackId(settingsStore.settings, osDark);
 
 		themeStore.setById(targetPackId);
 
@@ -242,7 +242,9 @@ $effect(() => {
 {#key currentLocaleSignal}
 	<div
 		class="min-h-screen bg-[var(--color-surface-page)] text-[var(--color-nav-active)]"
-		class:bg-image-active={Boolean(settingsStore.settings.timetableBgImage && settingsStore.settings.bgImageAllPages)}
+		class:bg-image-active={Boolean(
+			settingsStore.settings.timetableBgImage && settingsStore.settings.bgImageAllPages
+		)}
 		style={`font-family: var(--font-family);` +
 			(settingsStore.settings.timetableBgImage && settingsStore.settings.bgImageAllPages
 				? ` background-image: url(${settingsStore.settings.timetableBgImage}); background-size: cover; background-position: center; background-attachment: fixed;`

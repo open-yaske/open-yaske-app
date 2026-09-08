@@ -45,8 +45,13 @@ class SchoolDataService {
 	}
 
 	async loadMetadata() {
-		const meta = await idbGet<SchoolDataMetadata>(this.METADATA_KEY);
-		this.metadata = meta || null;
+		try {
+			const meta = await idbGet<SchoolDataMetadata>(this.METADATA_KEY);
+			this.metadata = meta || null;
+		} catch (e) {
+			console.warn('Failed to load school metadata:', e);
+			this.metadata = null;
+		}
 	}
 
 	async loadLocalCache() {

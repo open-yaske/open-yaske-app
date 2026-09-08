@@ -181,7 +181,7 @@ SOFTWARE.</pre>
 					</p>
 
 					<div
-						class="rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/80 backdrop-blur-xl p-4 space-y-2 shadow-apple-sm"
+						class="rounded-card border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/80 backdrop-blur-xl p-4 space-y-2 shadow-[var(--shadow-style-sm)]"
 					>
 						<div
 							class="flex flex-col sm:flex-row justify-between sm:items-center gap-1.5 border-b border-[var(--color-surface-border)]/50 pb-2 mb-1"

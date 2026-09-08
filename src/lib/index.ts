@@ -68,6 +68,7 @@ export type {
 } from './theme';
 export {
 	NONE_TOKEN,
+	defaultColorId,
 	getColorById,
 	getColor,
 	resolveColorHex,

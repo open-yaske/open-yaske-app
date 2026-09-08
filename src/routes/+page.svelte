@@ -475,7 +475,7 @@
 								e.stopPropagation();
 								openEditFixedLink(link);
 							}}
-							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-[var(--shadow-style-md)] border border-[var(--color-surface-border)]/60"
 							aria-label={m.external_link_name()}
 						>
 							<Pencil size={13} />
@@ -511,7 +511,7 @@
 								e.stopPropagation();
 								openEditCustomLink(link);
 							}}
-							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							class="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-[var(--shadow-style-md)] border border-[var(--color-surface-border)]/60"
 							aria-label={m.external_link_name()}
 						>
 							<Pencil size={13} />
@@ -577,7 +577,7 @@
 								e.stopPropagation();
 								openEditFixedLink(link);
 							}}
-							class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-apple-md border border-[var(--color-surface-border)]/60"
+							class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-surface-card)] text-[var(--color-nav-inactive)] opacity-0 group-hover:opacity-100 transition-all duration-150 hover:text-[var(--color-nav-active)] hover:scale-105 active:scale-95 shadow-[var(--shadow-style-md)] border border-[var(--color-surface-border)]/60"
 							aria-label={m.external_link_name()}
 						>
 							<Pencil size={13} />

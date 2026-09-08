@@ -70,6 +70,10 @@ export interface StyleTokens {
  * これにより、Win95 ならベベル枠のボタン、Neumorphism なら凹凸シャドウのカード、
  * というようにスタイルごとに全く異なる見た目を持たせつつ、
  * 未定義部分は常に安全なデフォルトが保証される。
+ *
+ * 影の所有権: 影はスタイル側が持つ。`shadow.*` の raw 値が正本で、
+ * `shadowClass.*` がコンポーネント用の解決済みクラス。テーマ側の
+ * `ui.shadow` (sheet/card/modal) は廃止予定の互換フィールド。
  */
 export interface StyleComponents {
 	button: {
@@ -95,6 +99,36 @@ export interface StyleComponents {
 		base: string;
 		/** クリック可能なカード */
 		interactive: string;
+	};
+	fab: {
+		/** フローティングアクションボタン本体 */
+		base: string;
+	};
+	chip: {
+		/** フィルタチップ等の小ピル */
+		base: string;
+		/** 選択中チップ */
+		active: string;
+		/** 未選択チップ */
+		inactive: string;
+	};
+	bar: {
+		/** ボトムタブ / サイドナビ等のバー容器 */
+		container: string;
+		/** アクティブタブのハイライト */
+		activePill: string;
+	};
+	sidenav: {
+		/** アクティブ項目 (背景+枠+影。文字色含む。SideNav の <a> に直接付与) */
+		activeItem: string;
+		/** 非アクティブ項目 (文字色+ホバー) */
+		inactiveItem: string;
+	};
+	sheet: {
+		/** モーダル / シートの背景オーバーレイ */
+		backdrop: string;
+		/** パネル本体（GlassContainer の外側ラッパー用） */
+		panel: string;
 	};
 }
 
@@ -168,6 +202,8 @@ export interface VisualStylePack {
 	};
 
 	// ── §12 Shadow depth — raw CSS box-shadow strings ──
+	// スタイルが影の正本。`none` の4段は「影なしスタイル」の合図で、
+	// +layout が html.style-shadows-none を付けて全影を消す。
 	shadow: {
 		sm: string;
 		md: string;

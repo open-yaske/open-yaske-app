@@ -7,7 +7,13 @@
 	--radius-chip: var(--radius-chip);
 	--radius-pill: var(--radius-pill);
 
-	/* 影 */
+	/* 影 (正本: スタイル側 --shadow-style-*) */
+	--shadow-style-sm: var(--shadow-style-sm);
+	--shadow-style-md: var(--shadow-style-md);
+	--shadow-style-lg: var(--shadow-style-lg);
+	--shadow-style-xl: var(--shadow-style-xl);
+
+	/* 影 (互換: テーマ側 --shadow-*. 新規コードでは使わない) */
 	--shadow-sheet: var(--shadow-sheet);
 	--shadow-card: var(--shadow-card);
 	--shadow-modal: var(--shadow-modal);
@@ -26,20 +32,61 @@
 	--font-family: var(--font-family);
 }
 
-/* 新スタイルフォールバック: スタイルパックの shadow 値をCSS変数経由で適用 */
-.shadow-style-sm { box-shadow: var(--shadow-style-sm, none); }
-.shadow-style-md { box-shadow: var(--shadow-style-md, none); }
-.shadow-style-lg { box-shadow: var(--shadow-style-lg, none); }
-.shadow-style-xl { box-shadow: var(--shadow-style-xl, none); }
-
-/* ThemePack シャドウ制御: テーマがすべてのシャドウを "none" に設定した場合、
-   ページ上の全 `shadow-*` クラスを強制無効化する（flat 等） */
-html.theme-shadows-none [class*="shadow-"] {
-	box-shadow: none !important;
+/* 新スタイルフォールバック: スタイルパックの shadow 値をCSS変数経由で適用。
+   旧 shadow-apple-*/
+shadow-material-*
+	等の直書きクラスは廃止済み。
+	残存参照があれば
+	--shadow-style-*
+	にフォールバックする。
+	*/
+	.shadow-style-sm {
+	box-shadow: var(--shadow-style-sm, none);
+}
+.shadow-style-md {
+	box-shadow: var(--shadow-style-md, none);
+}
+.shadow-style-lg {
+	box-shadow: var(--shadow-style-lg, none);
+}
+.shadow-style-xl {
+	box-shadow: var(--shadow-style-xl, none);
 }
 
-/* スタイルパックが影なし（flat / high-contrast / win95 等）の場合、全影を強制無効化 */
-html.style-shadows-none [class*="shadow-"] {
+/* 互換: 旧 shadow-<style>-* クラスは --shadow-style-* に委譲する */
+.shadow-apple-sm,
+.shadow-material-sm,
+.shadow-neumo-sm,
+.shadow-brutal-sm,
+.shadow-cyber-sm {
+	box-shadow: var(--shadow-style-sm, none);
+}
+.shadow-apple-md,
+.shadow-material-md,
+.shadow-neumo-md,
+.shadow-brutal-md,
+.shadow-cyber-md {
+	box-shadow: var(--shadow-style-md, none);
+}
+.shadow-apple-lg,
+.shadow-material-lg,
+.shadow-neumo-lg,
+.shadow-brutal-lg,
+.shadow-cyber-lg {
+	box-shadow: var(--shadow-style-lg, none);
+}
+.shadow-apple-xl,
+.shadow-material-xl,
+.shadow-neumo-xl,
+.shadow-brutal-xl,
+.shadow-cyber-xl {
+	box-shadow: var(--shadow-style-xl, none);
+}
+
+/* スタイルパックが影なし（flat / high-contrast / win95 等）の場合、全影を強制無効化。
+   影の所有権はスタイル側。テーマ側の theme-shadows-none は互換のため残す。 */
+html.style-shadows-none [class*='shadow-'],
+html.theme-shadows-none [class*='shadow-'] {
 	box-shadow: none !important;
 }
 
@@ -59,132 +106,11 @@ html.style-shadows-none [class*="shadow-"] {
 	z-index: 1;
 }
 
-/* ── Apple Design シャドウ ── */
-.shadow-apple-sm {
-	box-shadow: var(--shadow-apple-sm, 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02));
-}
-
-.shadow-apple-md {
-	box-shadow: var(--shadow-apple-md, 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03));
-}
-
-.shadow-apple-lg {
-	box-shadow: var(--shadow-apple-lg, 0 12px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05));
-}
-
-.shadow-apple-xl {
-	box-shadow: var(--shadow-apple-xl, 0 24px 48px rgba(0, 0, 0, 0.16), 0 8px 16px rgba(0, 0, 0, 0.08));
-}
-
-/* ── Material Design 3 シャドウ（Elevation 1-4）── */
-.shadow-material-sm {
-	box-shadow: var(--shadow-material-sm, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08));
-}
-
-.shadow-material-md {
-	box-shadow: var(--shadow-material-md, 0 3px 6px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.12));
-}
-
-.shadow-material-lg {
-	box-shadow: var(--shadow-material-lg, 0 6px 12px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.14));
-}
-
-.shadow-material-xl {
-	box-shadow: var(--shadow-material-xl, 0 8px 18px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.14));
-}
-
-/* ── Neumorphism (Soft UI) シャドウ ── */
-.shadow-neumo-sm {
-	box-shadow: var(--shadow-neumo-sm, 3px 3px 6px rgba(0, 0, 0, 0.09), -3px -3px 6px rgba(255, 255, 255, 0.7));
-}
-
-:root.dark .shadow-neumo-sm {
-	box-shadow: var(--shadow-neumo-sm, 3px 3px 6px rgba(0, 0, 0, 0.35), -3px -3px 6px rgba(255, 255, 255, 0.05));
-}
-
-.shadow-neumo-md {
-	box-shadow: var(--shadow-neumo-md, 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.7));
-}
-
-:root.dark .shadow-neumo-md {
-	box-shadow: var(--shadow-neumo-md, 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.05));
-}
-
-.shadow-neumo-lg {
-	box-shadow: var(--shadow-neumo-lg, 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.7));
-}
-
-:root.dark .shadow-neumo-lg {
-	box-shadow: var(--shadow-neumo-lg, 10px 10px 20px rgba(0, 0, 0, 0.45), -10px -10px 20px rgba(255, 255, 255, 0.05));
-}
-
-.shadow-neumo-xl {
-	box-shadow: var(--shadow-neumo-xl, 14px 14px 28px rgba(0, 0, 0, 0.12), -14px -14px 28px rgba(255, 255, 255, 0.7));
-}
-
-:root.dark .shadow-neumo-xl {
-	box-shadow: var(--shadow-neumo-xl, 14px 14px 28px rgba(0, 0, 0, 0.5), -14px -14px 28px rgba(255, 255, 255, 0.05));
-}
-
-/* ── Brutalism シャドウ — ハードオフセット ── */
-.shadow-brutal-sm {
-	box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.9);
-}
-
-:root.dark .shadow-brutal-sm {
-	box-shadow: 2px 2px 0px rgba(255, 255, 255, 0.9);
-}
-
-.shadow-brutal-md {
-	box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.9);
-}
-
-:root.dark .shadow-brutal-md {
-	box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.9);
-}
-
-.shadow-brutal-lg {
-	box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.9);
-}
-
-:root.dark .shadow-brutal-lg {
-	box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.9);
-}
-
-.shadow-brutal-xl {
-	box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.9);
-}
-
-:root.dark .shadow-brutal-xl {
-	box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.9);
-}
-
-/* ── Cyberpunk シャドウ — ネオン発光 ── */
-.shadow-cyber-sm {
-	box-shadow:
-		0 0 6px var(--color-primary-400, #0ea5e9),
-		0 0 12px var(--color-primary-400, #0ea5e9);
-}
-
-.shadow-cyber-md {
-	box-shadow:
-		0 0 10px var(--color-primary-400, #0ea5e9),
-		0 0 20px var(--color-primary-400, #0ea5e9);
-}
-
-.shadow-cyber-lg {
-	box-shadow:
-		0 0 15px var(--color-primary-400, #0ea5e9),
-		0 0 30px var(--color-primary-400, #0ea5e9),
-		0 0 60px var(--color-primary-400, #0ea5e9);
-}
-
-.shadow-cyber-xl {
-	box-shadow:
-		0 0 20px var(--color-primary-400, #0ea5e9),
-		0 0 40px var(--color-primary-400, #0ea5e9),
-		0 0 80px var(--color-primary-400, #0ea5e9);
-}
+/* ── 旧スタイル別シャドウ定義は削除済み ──
+   影の正本は各 VisualStylePack の shadow → --shadow-style-*。
+   旧 shadow-apple-*/
+shadow-material-* 等の参照は上記の互換委譲で吸収する。
+   新規コードでは shadow-[var(--shadow-style-*)] / resolveComponents() 経由を使うこと。 */
 
 /* =====================================================
    Apple Design §14 — Reduced Motion

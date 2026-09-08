@@ -20,6 +20,9 @@ export {
 	DEFAULT_COMPONENTS,
 	resolveComponents,
 	resolveRadius,
+	isStyleShadowsNone,
+	styleShadowClass,
+	applyStyleShadows,
 	type StyleRadius
 } from './components';
 

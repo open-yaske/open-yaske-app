@@ -30,9 +30,11 @@ export const flatPack: VisualStylePack = {
 	},
 
 	materials: {
-		glass: 'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-md',
+		glass:
+			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-md',
 		glassHeader: 'bg-[var(--color-surface-page)] border-b border-[var(--color-surface-border)]/30',
-		glassModal: 'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-md',
+		glassModal:
+			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-md',
 		card: 'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/30 rounded-md',
 		interactiveCard:
 			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/30 rounded-md hover:border-[var(--color-surface-border)]/60 active:opacity-70 transition-all duration-75 cursor-pointer select-none'
@@ -92,7 +94,8 @@ export const flatPack: VisualStylePack = {
 				'bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] active:opacity-60',
 			secondary:
 				'bg-[var(--color-surface-muted)] text-[var(--color-nav-active)] hover:bg-[var(--color-surface-border)]/50 active:opacity-70',
-			ghost: 'bg-transparent text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)] active:opacity-60',
+			ghost:
+				'bg-transparent text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)] active:opacity-60',
 			danger:
 				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:opacity-90 active:opacity-60',
 			glass:
@@ -105,6 +108,10 @@ export const flatPack: VisualStylePack = {
 			base: 'rounded-md border border-[var(--color-surface-border)]/30 bg-[var(--color-surface-card)]',
 			interactive:
 				'rounded-md border border-[var(--color-surface-border)]/30 bg-[var(--color-surface-card)] hover:border-[var(--color-surface-border)]/60 active:opacity-70 transition-all duration-75 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem: 'bg-[var(--color-primary-500)] text-white font-semibold rounded-md',
+			inactiveItem: 'text-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]'
 		}
 	}
 };

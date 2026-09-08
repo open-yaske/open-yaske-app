@@ -24,7 +24,7 @@
 	} from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import Modal from '$lib/components/Modal.svelte';
-	import { resolveColorHex } from '$lib/theme';
+	import { defaultColorId, resolveColorHex } from '$lib/theme';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { getLocalizedText } from '$lib/theme/utils';
 	import ColorPicker from '$lib/components/ColorPicker.svelte';
@@ -149,7 +149,7 @@
 	// モーダルと登録ステート
 	let showRegisterModal = $state(false);
 	let registerTargetCourse = $state<PublicCourse | null>(null);
-	let selectedColor = $state('blue');
+	let selectedColor = $state('');
 
 	// 時間割登録済みヘルパー
 	const isRegistered = $derived.by(() => {
@@ -166,7 +166,7 @@
 	// 登録ボタン押下時: モーダルを開いてカラー選択のデフォルトをロード
 	function handleRegisterClick(pc: PublicCourse) {
 		registerTargetCourse = pc;
-		selectedColor = themeStore.pack.palette.courseColors[0]?.id || 'blue';
+		selectedColor = defaultColorId(themeStore.pack, 'course');
 		showRegisterModal = true;
 	}
 
@@ -247,7 +247,7 @@
 	<div class="space-y-4 py-4">
 		<!-- 検索とフィルターの固定コンテナ (すりガラス化) -->
 		<div
-			class="sticky top-[53px] z-10 bg-[var(--color-surface-page)]/80 backdrop-blur-xl py-3 border-b border-[var(--color-surface-border)]/40 space-y-4 mb-2 shadow-apple-xs"
+			class="sticky top-[53px] z-10 bg-[var(--color-surface-page)]/80 backdrop-blur-xl py-3 border-b border-[var(--color-surface-border)]/40 space-y-4 mb-2 shadow-[var(--shadow-style-sm)]"
 		>
 			<!-- 検索バー -->
 			<TextField
@@ -259,7 +259,7 @@
 
 			<!-- 絞り込み条件（アコーディオン） -->
 			<div
-				class="border border-[var(--color-surface-border)]/80 rounded-card bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-3.5 shadow-apple-sm"
+				class="border border-[var(--color-surface-border)]/80 rounded-card bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-3.5 shadow-[var(--shadow-style-sm)]"
 			>
 				<button
 					type="button"
@@ -271,7 +271,7 @@
 						<span class="font-bold text-sm">絞り込みフィルター</span>
 						{#if hasActiveFilters}
 							<span
-								class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--color-primary-500)] text-white shadow-apple-sm"
+								class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-style-sm)]"
 							>
 								アクティブ
 							</span>
@@ -296,7 +296,7 @@
 								{#each [{ val: 'all', label: 'すべて' }, { val: 'mon', label: '月' }, { val: 'tue', label: '火' }, { val: 'wed', label: '水' }, { val: 'thu', label: '木' }, { val: 'fri', label: '金' }] as d (d.val)}
 									<button
 										type="button"
-										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {styleStore
+										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-[var(--shadow-style-sm)] cursor-pointer {styleStore
 											.pack.press.tab}"
 										class:bg-[var(--color-primary-500)]={filterDay === d.val}
 										class:text-white={filterDay === d.val}
@@ -320,7 +320,7 @@
 								{#each [{ val: 'all', label: 'すべて' }, { val: '1', label: '1限' }, { val: '2', label: '2限' }, { val: '3', label: '3限' }, { val: '4', label: '4限' }, { val: '5', label: '5限' }, { val: '6', label: '6限' }] as p (p.val)}
 									<button
 										type="button"
-										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-apple-sm cursor-pointer {styleStore
+										class="min-h-[36px] min-w-[44px] px-3.5 rounded-full text-xs font-semibold transition-all shadow-[var(--shadow-style-sm)] cursor-pointer {styleStore
 											.pack.press.tab}"
 										class:bg-[var(--color-primary-500)]={filterPeriod === p.val}
 										class:text-white={filterPeriod === p.val}
@@ -471,7 +471,7 @@
 	<button
 		type="button"
 		onclick={scrollToTop}
-		class="fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-apple-lg transition-transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer {styleStore
+		class="fixed bottom-24 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-style-lg)] transition-transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer {styleStore
 			.pack.press.icon}"
 		aria-label="上に戻る"
 	>

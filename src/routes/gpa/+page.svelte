@@ -8,6 +8,8 @@
 	import BentoCard from '$lib/components/BentoCard.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { Calculator, Plus, Trash2 } from '@lucide/svelte';
+	import { calcGpa } from '$lib/gpa';
+	import { userDataStore } from '$lib/stores';
 
 	type GradeRow = {
 		id: string;
@@ -28,19 +30,29 @@
 		return { id: crypto.randomUUID(), name: '', credits: '2', point: '4' };
 	}
 
+	function createRowFromCourse(c: { name: string; credits: number }): GradeRow {
+		return { id: crypto.randomUUID(), name: c.name, credits: String(c.credits), point: '4' };
+	}
+
 	let rows = $state<GradeRow[]>([createRow(), createRow(), createRow()]);
 
-	const totalCredits = $derived(
-		rows.reduce((sum, row) => sum + Math.max(0, Number(row.credits) || 0), 0)
+	const totals = $derived(
+		calcGpa(
+			rows.map((row) => ({ credits: Number(row.credits) || 0, point: Number(row.point) || 0 }))
+		)
 	);
-	const totalPoints = $derived(
-		rows.reduce((sum, row) => {
-			const credits = Math.max(0, Number(row.credits) || 0);
-			const point = Math.max(0, Number(row.point) || 0);
-			return sum + credits * point;
-		}, 0)
-	);
-	const gpa = $derived(totalCredits === 0 ? 0 : totalPoints / totalCredits);
+	const totalCredits = $derived(totals.totalCredits);
+	const totalPoints = $derived(totals.totalPoints);
+	const gpa = $derived(totals.gpa);
+
+	/** 履修科目を GPA 行に取り込む（重複名は追加しない） */
+	function importCourses() {
+		const existing = new Set(rows.map((r) => r.name.trim()).filter(Boolean));
+		const fresh = userDataStore.courses
+			.filter((c) => c.name && !existing.has(c.name))
+			.map((c) => createRowFromCourse(c));
+		if (fresh.length > 0) rows = [...rows, ...fresh];
+	}
 
 	function addRow() {
 		rows = [...rows, createRow()];
@@ -65,7 +77,7 @@
 		<div class="flex flex-col sm:flex-row items-center justify-between gap-6">
 			<div class="flex items-center gap-5">
 				<div
-					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] shrink-0 shadow-apple-sm border border-[var(--color-primary-500)]/20"
+					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-primary-500)]/15 text-[var(--color-primary-600)] shrink-0 shadow-[var(--shadow-style-sm)] border border-[var(--color-primary-500)]/20"
 				>
 					<Calculator size={32} />
 				</div>
@@ -140,6 +152,12 @@
 			{m.external_link_add()}
 		</Button>
 	</div>
+
+	{#if userDataStore.courses.length > 0}
+		<Button variant="secondary" size="md" class="w-full" onclick={importCourses}>
+			履修科目を取り込む ({userDataStore.courses.length}件)
+		</Button>
+	{/if}
 
 	<Button href={resolve('/')} variant="ghost" size="md" class="w-full">{m.nav_home()}</Button>
 </Container>

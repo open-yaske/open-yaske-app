@@ -94,7 +94,7 @@
 			<div class="space-y-3">
 				<SectionHeader>{m.nav_attendance()}</SectionHeader>
 				<div
-					class="rounded-3xl border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-2xl p-6 shadow-apple-md space-y-5"
+					class="rounded-3xl border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-2xl p-6 shadow-[var(--shadow-style-md)] space-y-5"
 				>
 					<div class="flex flex-col sm:flex-row items-center justify-between gap-6">
 						<!-- 出席率スコア & プログレスバー -->

@@ -29,14 +29,14 @@ export const materialPack: VisualStylePack = {
 	// ──  Materials — MD3 はソリッドサーフェス。Elevation は shadow で表現 ──
 	materials: {
 		glass:
-			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/50 shadow-material-sm',
+			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-style-sm)]',
 		glassHeader:
-			'bg-[var(--color-surface-page)]/95 border-b border-[var(--color-surface-border)]/30 shadow-material-sm',
+			'bg-[var(--color-surface-page)]/95 border-b border-[var(--color-surface-border)]/30 shadow-[var(--shadow-style-sm)]',
 		glassModal:
-			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 shadow-material-xl',
-		card: 'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-card shadow-material-sm hover:shadow-material-md transition-all duration-200',
+			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-xl)]',
+		card: 'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-card shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] transition-all duration-200',
 		interactiveCard:
-			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-card shadow-material-sm hover:shadow-material-md hover:border-[var(--color-primary-500)]/30 active:scale-[0.99] active:brightness-[0.97] transition-all duration-100 cursor-pointer select-none'
+			'bg-[var(--color-surface-card)] border border-[var(--color-surface-border)]/40 rounded-card shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] hover:border-[var(--color-primary-500)]/30 active:scale-[0.99] active:brightness-[0.97] transition-all duration-100 cursor-pointer select-none'
 	},
 
 	// ──  Easing — MD3 のトークン ──
@@ -92,7 +92,7 @@ export const materialPack: VisualStylePack = {
 		cardHeader: 'text-base font-semibold',
 		pageTitle: 'text-xl font-bold tracking-tight',
 		navBar:
-			'bg-[var(--color-surface-page)]/95 border-b border-[var(--color-surface-border)]/30 shadow-material-sm'
+			'bg-[var(--color-surface-page)]/95 border-b border-[var(--color-surface-border)]/30 shadow-[var(--shadow-style-sm)]'
 	},
 
 	// MD3 固有の UI レシピ: フル角丸、トーナルボタン、Elevation シャドウ、ソリッドサーフェス
@@ -100,22 +100,29 @@ export const materialPack: VisualStylePack = {
 		button: {
 			shape: 'rounded-full',
 			primary:
-				'bg-[var(--color-primary-500)] text-white hover:brightness-95 active:brightness-90 shadow-material-sm hover:shadow-material-md',
+				'bg-[var(--color-primary-500)] text-white hover:brightness-95 active:brightness-90 shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)]',
 			secondary:
 				'bg-[var(--color-primary-500)]/10 text-[var(--color-primary-600)] hover:bg-[var(--color-primary-500)]/15 active:brightness-95',
-			ghost: 'bg-transparent text-[var(--color-primary-600)] hover:bg-[var(--color-primary-500)]/8 active:bg-[var(--color-primary-500)]/12',
+			ghost:
+				'bg-transparent text-[var(--color-primary-600)] hover:bg-[var(--color-primary-500)]/8 active:bg-[var(--color-primary-500)]/12',
 			danger:
 				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] hover:brightness-95 active:brightness-90',
 			glass:
-				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/40 shadow-material-sm'
+				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-sm)]'
 		},
 		input: {
 			base: 'block w-full min-h-[44px] rounded-lg border border-[var(--color-surface-border)]/50 bg-[var(--color-surface-card)] px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-500)]/30 disabled:opacity-50'
 		},
 		card: {
-			base: 'rounded-xl border border-[var(--color-surface-border)]/40 bg-[var(--color-surface-card)] shadow-material-sm',
+			base: 'rounded-xl border border-[var(--color-surface-border)]/40 bg-[var(--color-surface-card)] shadow-[var(--shadow-style-sm)]',
 			interactive:
-				'rounded-xl border border-[var(--color-surface-border)]/40 bg-[var(--color-surface-card)] shadow-material-sm hover:shadow-material-md hover:border-[var(--color-primary-500)]/30 active:brightness-[0.97] transition-all duration-100 cursor-pointer select-none'
+				'rounded-xl border border-[var(--color-surface-border)]/40 bg-[var(--color-surface-card)] shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] hover:border-[var(--color-primary-500)]/30 active:brightness-[0.97] transition-all duration-100 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-[var(--color-primary-500)]/12 text-[var(--color-primary-700)] font-semibold rounded-full shadow-[var(--shadow-style-sm)]',
+			inactiveItem:
+				'text-[var(--color-nav-inactive)] font-medium hover:bg-[var(--color-primary-500)]/6 hover:text-[var(--color-nav-active)]'
 		}
 	}
 };

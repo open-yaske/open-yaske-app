@@ -34,7 +34,8 @@ export const win95Pack: VisualStylePack = {
 	},
 
 	materials: {
-		glass: 'bg-[var(--color-surface-card)] rounded-none border-2 border-t-white/80 border-l-white/80 border-r-black/40 border-b-black/40',
+		glass:
+			'bg-[var(--color-surface-card)] rounded-none border-2 border-t-white/80 border-l-white/80 border-r-black/40 border-b-black/40',
 		glassHeader:
 			'bg-[var(--color-primary-800)] text-white rounded-none border-b-2 border-r-2 border-r-black/40 border-b-black/40',
 		glassModal:
@@ -88,7 +89,8 @@ export const win95Pack: VisualStylePack = {
 			'text-[11px] font-bold text-[var(--color-nav-active)] border-b border-[var(--color-surface-border)] pb-0.5',
 		cardHeader: 'text-sm font-bold',
 		pageTitle: 'text-base font-bold',
-		navBar: 'bg-[var(--color-primary-800)] text-white rounded-none border-b-2 border-r-2 border-r-black/40 border-b-black/40'
+		navBar:
+			'bg-[var(--color-primary-800)] text-white rounded-none border-b-2 border-r-2 border-r-black/40 border-b-black/40'
 	},
 
 	// Win95 固有の UI レシピ: 3D ベベル枠、角ゼロ、影なし
@@ -113,6 +115,11 @@ export const win95Pack: VisualStylePack = {
 			base: 'rounded-none border-2 border-t-white/80 border-l-white/80 border-r-black/40 border-b-black/40 bg-[var(--color-surface-card)]',
 			interactive:
 				'rounded-none border-2 border-t-white/80 border-l-white/80 border-r-black/40 border-b-black/40 bg-[var(--color-surface-card)] active:border-t-black/40 active:border-l-black/40 active:border-b-white/80 active:border-r-white/80 active:translate-x-px active:translate-y-px cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-[var(--color-primary-800)] text-white font-bold rounded-none border-2 border-t-black/40 border-l-black/40 border-b-white/80 border-r-white/80',
+			inactiveItem: 'text-[var(--color-nav-active)] hover:bg-[var(--color-primary-800)]/10'
 		}
 	}
 };

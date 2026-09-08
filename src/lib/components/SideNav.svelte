@@ -11,7 +11,7 @@
 	import type { RouteId } from '$app/types';
 	import { m } from '$lib/paraglide/messages';
 	import { styleStore } from '$lib/stores';
-	import { resolveRadius } from '$lib/styles';
+	import { resolveComponents, resolveRadius } from '$lib/styles';
 	import GlassContainer from './GlassContainer.svelte';
 
 	interface NavItem {
@@ -32,6 +32,7 @@
 	let { items, footer, collapsed = false, ontoggle, appName, logoData }: Props = $props();
 
 	const r = $derived(resolveRadius(styleStore.pack));
+	const c = $derived(resolveComponents(styleStore.pack));
 
 	function isActive(href: string): boolean {
 		const pathname = page.url.pathname;
@@ -40,7 +41,8 @@
 </script>
 
 <aside
-	class="sticky top-0 hidden h-screen shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:flex z-30 select-none shadow-[var(--shadow-card)]"
+	class="sticky top-0 hidden h-screen shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:flex z-30 select-none {c
+		.bar.container}"
 	class:w-16={collapsed}
 	class:w-64={!collapsed}
 	aria-label="Sidebar navigation"
@@ -62,7 +64,7 @@
 					<img
 						src={logoData || `${base}/favicon.png`}
 						alt="Logo"
-						class="h-8 w-8 {r.chip} shrink-0 object-cover border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-card)]"
+						class="h-8 w-8 {r.chip} shrink-0 object-cover border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-style-sm)]"
 					/>
 					<span class="truncate font-bold tracking-tight text-[var(--color-nav-active)] text-base">
 						{appName || m.app_name()}
@@ -92,22 +94,16 @@
 					<li>
 						<a
 							href={resolve(item.href)}
-							class="group relative flex min-h-[44px] items-center {r.pill} py-2.5 text-sm font-medium transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] {styleStore
-								.pack.press.card}"
+							class="group relative flex min-h-[44px] items-center {r.pill} py-2.5 text-sm transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] {styleStore
+								.pack.press.card} {active ? c.sidenav.activeItem : c.sidenav.inactiveItem}"
 							class:justify-center={collapsed}
 							class:gap-3={!collapsed}
 							class:px-4={!collapsed}
 							class:px-2={collapsed}
-							class:text-[var(--color-primary-600)]={active}
-							class:font-semibold={active}
-							class:text-[var(--color-nav-inactive)]={!active}
-							class:hover:text-[var(--color-nav-active)]={!active}
 							aria-current={active ? 'page' : undefined}
 						>
 							{#if active}
-								<div
-									class="absolute inset-0 {r.pill} bg-[var(--color-primary-500)]/15 border border-[var(--color-primary-500)]/20 shadow-[var(--shadow-card)]"
-								></div>
+								<div class="absolute inset-0 {r.pill} {c.bar.activePill}"></div>
 							{:else}
 								<div
 									class="absolute inset-0 {r.pill} bg-transparent group-hover:bg-[var(--color-surface-muted)]/60 transition-colors"

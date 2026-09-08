@@ -11,6 +11,7 @@
 	import type { Snippet } from 'svelte';
 	import { themeStore } from '$lib/stores';
 	import { styleStore } from '$lib/stores';
+	import { isDarkPack } from '$lib/theme';
 	import LiquidGlassEffect from '$lib/liquid-glass/LiquidGlassEffect.svelte';
 
 	type V = 'card' | 'bar' | 'modal' | 'header' | 'subtle' | 'input';
@@ -24,7 +25,6 @@
 		distortion?: 'none' | 'low' | 'medium' | 'high';
 		glow?: boolean;
 		elevation?: E;
-		animateIn?: boolean;
 		/** クロマティックアベレーション (0–5, default: variant により自動) */
 		chromaticAberration?: number;
 		class?: string;
@@ -39,7 +39,6 @@
 		distortion,
 		glow,
 		elevation = 'md',
-		animateIn = false,
 		chromaticAberration,
 		class: klass = '',
 		style = '',
@@ -129,43 +128,12 @@
 		return () => mq.removeEventListener('change', h);
 	});
 
-	let noMotion = $state(false);
-	$effect(() => {
-		if (typeof window === 'undefined') return;
-
-		function checkNoMotion() {
-			// OS の prefers-reduced-motion または手動の .reduce-motion クラス
-			const osPref = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-			const manualToggle = document.documentElement.classList.contains('reduce-motion');
-			return osPref || manualToggle;
-		}
-
-		noMotion = checkNoMotion();
-
-		const osMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-		const osHandler = () => { noMotion = checkNoMotion(); };
-		osMq.addEventListener('change', osHandler);
-
-		const observer = new MutationObserver(() => { noMotion = checkNoMotion(); });
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ['class']
-		});
-
-		return () => {
-			osMq.removeEventListener('change', osHandler);
-			observer.disconnect();
-		};
-	});
-
 	let dark = $state(false);
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 		const ck = () => {
-			dark =
-				document.documentElement.classList.contains('dark') ||
-				themeStore.pack?.id === 'dark' ||
-				!!(themeStore.pack as { isDark?: boolean })?.isDark;
+			// ponytail: id 比較は high-contrast-dark 等のカスタム dark を拾えないため meta/輝度判定に一本化
+			dark = document.documentElement.classList.contains('dark') || isDarkPack(themeStore.pack);
 		};
 		ck();
 		const obs = new MutationObserver(ck);
@@ -197,7 +165,6 @@
 {:else}
 	<div
 		class="lg-root {mode === 'dark' || mode === 'dark-contrast' ? 'lg-dark' : 'lg-light'}
-			{animateIn && !noMotion ? 'lg-in' : ''}
 			{styleClass}
 			{klass}"
 		style="--lg-elv:{elevation};{style}"
@@ -227,8 +194,8 @@
 			/>
 		{/if}
 
-		<!-- グロウエフェクト (z:3) -->
-		{#if useGlow && !noMotion}
+		<!-- グロウ (z:3, 静的ハイライト) -->
+		{#if useGlow}
 			<div class="lg-glow pointer-events-none absolute inset-0 z-[3]"></div>
 		{/if}
 

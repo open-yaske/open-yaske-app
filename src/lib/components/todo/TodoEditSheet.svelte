@@ -8,6 +8,7 @@
 	import type { Todo, RepeatRule, ColorToken } from '$lib/types';
 	import { m } from '$lib/paraglide/messages';
 	import { userDataStore, themeStore } from '$lib/stores';
+	import { defaultColorId } from '$lib/theme';
 	import Sheet from '$lib/components/Sheet.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import ColorPicker from '$lib/components/ColorPicker.svelte';
@@ -28,7 +29,7 @@
 	let memo = $state('');
 	let dueAtLocal = $state(''); // datetime-local 文字列
 	let priority = $state<'low' | 'mid' | 'high'>('mid');
-	let color = $state<ColorToken>('blue');
+	let color = $state<ColorToken>('');
 	let repeatFreq = $state<'none' | 'daily' | 'weekly' | 'monthly'>('none');
 	let courseId = $state<string>('');
 
@@ -54,7 +55,7 @@
 		memo = '';
 		dueAtLocal = '';
 		priority = 'mid';
-		color = 'blue';
+		color = defaultColorId(themeStore.pack, 'todo');
 		repeatFreq = 'none';
 		courseId = '';
 	}

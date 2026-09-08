@@ -10,7 +10,7 @@
 	import SyllabusSheet from '$lib/components/timetable/SyllabusSheet.svelte';
 	import SyllabusPreviewSheet from '$lib/components/timetable/SyllabusPreviewSheet.svelte';
 	import { Plus, Share2, GraduationCap, Sun, Moon, Laptop, ChevronDown } from '@lucide/svelte';
-	import { resolveColorHex } from '$lib/theme';
+	import { isDarkPack, resolveColorHex } from '$lib/theme';
 	import { page } from '$app/stores';
 
 	let editOpen = $state(false);
@@ -159,7 +159,7 @@
 			ctx.beginPath();
 			ctx.roundRect(x, y, cellW - 12, h, 12);
 			ctx.fill();
-			ctx.fillStyle = themeStore.pack.id === 'dark' ? 'rgb(17, 24, 39)' : 'white';
+			ctx.fillStyle = isDarkPack(themeStore.pack) ? 'rgb(17, 24, 39)' : 'white';
 			ctx.font = '700 14px system-ui, sans-serif';
 			wrapCanvasText(
 				ctx,
@@ -237,7 +237,7 @@
 			<span class="sr-only">{m.settings_semester()}</span>
 			<select
 				bind:value={currentSemester}
-				class="h-9 w-full cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-md py-1.5 pl-3.5 pr-8 text-center text-xs font-bold text-[var(--color-nav-active)] outline-none shadow-apple-sm transition-all hover:bg-[var(--color-surface-muted)] focus:ring-2 focus:ring-[var(--color-primary-500)]"
+				class="h-9 w-full cursor-pointer appearance-none rounded-chip border border-[var(--color-surface-border)]/60 bg-[var(--color-surface-card)]/90 backdrop-blur-md py-1.5 pl-3.5 pr-8 text-center text-xs font-bold text-[var(--color-nav-active)] outline-none shadow-[var(--shadow-style-sm)] transition-all hover:bg-[var(--color-surface-muted)] focus:ring-2 focus:ring-[var(--color-primary-500)]"
 				style="-webkit-appearance: none; -moz-appearance: none; appearance: none;"
 			>
 				<option value="spring"

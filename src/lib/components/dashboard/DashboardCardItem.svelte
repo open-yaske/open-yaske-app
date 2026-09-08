@@ -236,7 +236,7 @@
 {#if card.type === 'html-internal'}
 	{@const c = card as HtmlInternalCard}
 	<div
-		class="flex flex-col overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl shadow-[var(--shadow-card)]"
+		class="flex flex-col overflow-hidden {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl shadow-[var(--shadow-style-sm)]"
 		class:col-span-2={isBanner}
 	>
 		<div class="flex items-center gap-2.5 px-4 pt-4">
@@ -281,7 +281,7 @@
 				void openLink(c.url, true);
 			}
 		}}
-		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card)] {styleStore
+		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] {styleStore
 			.pack.press.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">
@@ -299,7 +299,7 @@
 	<button
 		type="button"
 		onclick={() => openWebviewPopup(c)}
-		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card)] {styleStore
+		class="flex flex-col items-start gap-2.5 {r.card} border border-[var(--color-surface-border)]/80 bg-[var(--color-surface-card)]/90 backdrop-blur-xl p-4 text-left shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] {styleStore
 			.pack.press.card} select-none"
 	>
 		<div class="flex w-full items-center justify-between">

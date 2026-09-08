@@ -418,7 +418,7 @@
 	<div class="flex items-center justify-between w-full max-w-lg px-2 mt-1 gap-2">
 		<!-- 日付移動 -->
 		<div
-			class="flex items-center gap-1 bg-[var(--color-surface-card)]/80 p-1 rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+			class="flex items-center gap-1 bg-[var(--color-surface-card)]/80 p-1 rounded-chip border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-sm)]"
 		>
 			<IconButton icon={ChevronLeft} ariaLabel="前へ" onclick={goPrev} variant="ghost" size="sm" />
 			<button
@@ -433,7 +433,7 @@
 
 		<!-- ビュー切り替えピル -->
 		<div
-			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-apple-sm"
+			class="flex items-center p-1 bg-[var(--color-surface-muted)]/90 backdrop-blur-md rounded-chip border border-[var(--color-surface-border)]/40 shadow-[var(--shadow-style-sm)]"
 		>
 			{#each viewTabs as tab (tab.mode)}
 				<button
@@ -441,7 +441,7 @@
 					class="min-h-[34px] px-3 rounded-chip text-xs font-semibold transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] active:scale-95"
 					class:bg-[var(--color-surface-card)]={viewMode === tab.mode}
 					class:text-[var(--color-primary-600)]={viewMode === tab.mode}
-					class:shadow-apple-sm={viewMode === tab.mode}
+					class:shadow-[var(--shadow-style-sm)]={viewMode === tab.mode}
 					class:text-[var(--color-nav-inactive)]={viewMode !== tab.mode}
 					onclick={() => {
 						viewMode = tab.mode;

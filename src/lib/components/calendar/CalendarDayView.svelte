@@ -282,7 +282,7 @@
 					{@const isTransparent = colorHex === 'transparent'}
 					<button
 						type="button"
-						class="absolute z-10 overflow-hidden rounded-chip px-2 py-1.5 text-left text-xs leading-tight shadow-sm transition-transform hover:z-20 hover:scale-[1.01]"
+						class="absolute z-10 overflow-hidden rounded-chip px-2 py-1.5 text-left text-xs leading-tight shadow-[var(--shadow-style-sm)] transition-transform hover:z-20 hover:scale-[1.01]"
 						style="{style} background-color: {isTransparent
 							? 'var(--color-primary-50)'
 							: colorHex + '1a'}; border-left: 4px solid {isTransparent

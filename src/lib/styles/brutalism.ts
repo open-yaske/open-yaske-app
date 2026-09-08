@@ -32,14 +32,15 @@ export const brutalismPack: VisualStylePack = {
 	},
 
 	materials: {
-		glass: 'bg-[var(--color-surface-card)] rounded-none border-[3px] border-[var(--color-nav-active)] shadow-brutal-md',
+		glass:
+			'bg-[var(--color-surface-card)] rounded-none border-[3px] border-[var(--color-nav-active)] shadow-[var(--shadow-style-md)]',
 		glassHeader:
 			'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] rounded-none border-b-[3px] border-[var(--color-nav-active)]',
 		glassModal:
-			'bg-[var(--color-surface-card)] rounded-none border-[3px] border-[var(--color-nav-active)] shadow-brutal-xl',
-		card: 'bg-[var(--color-surface-card)] rounded-none border-2 border-[var(--color-nav-active)]/80 shadow-brutal-sm hover:shadow-brutal-md transition-shadow duration-100',
+			'bg-[var(--color-surface-card)] rounded-none border-[3px] border-[var(--color-nav-active)] shadow-[var(--shadow-style-xl)]',
+		card: 'bg-[var(--color-surface-card)] rounded-none border-2 border-[var(--color-nav-active)]/80 shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] transition-shadow duration-100',
 		interactiveCard:
-			'bg-[var(--color-surface-card)] rounded-none border-2 border-[var(--color-nav-active)]/80 shadow-brutal-sm hover:shadow-brutal-md active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer select-none'
+			'bg-[var(--color-surface-card)] rounded-none border-2 border-[var(--color-nav-active)]/80 shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer select-none'
 	},
 
 	easing: {
@@ -86,7 +87,8 @@ export const brutalismPack: VisualStylePack = {
 			'text-[11px] font-black uppercase tracking-[0.1em] text-[var(--color-surface-page)] bg-[var(--color-nav-active)] px-2 py-1 inline-block',
 		cardHeader: 'text-sm font-black uppercase tracking-wide',
 		pageTitle: 'text-xl font-black uppercase tracking-tighter',
-		navBar: 'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] rounded-none border-b-[3px] border-[var(--color-nav-active)]'
+		navBar:
+			'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] rounded-none border-b-[3px] border-[var(--color-nav-active)]'
 	},
 
 	// Brutalism 固有の UI レシピ: 極太枠、角ゼロ、ハードオフセット
@@ -94,12 +96,13 @@ export const brutalismPack: VisualStylePack = {
 		button: {
 			shape: 'rounded-none',
 			primary:
-				'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] border-[3px] border-[var(--color-nav-active)] shadow-brutal-md hover:bg-[var(--color-primary-500)] hover:border-[var(--color-primary-500)] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]',
+				'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] border-[3px] border-[var(--color-nav-active)] shadow-[var(--shadow-style-md)] hover:bg-[var(--color-primary-500)] hover:border-[var(--color-primary-500)] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]',
 			secondary:
-				'bg-[var(--color-primary-500)] text-white border-2 border-[var(--color-nav-active)] shadow-brutal-sm hover:shadow-brutal-md active:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
-			ghost: 'bg-transparent text-[var(--color-nav-active)] border-2 border-transparent hover:border-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]',
+				'bg-[var(--color-primary-500)] text-white border-2 border-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+			ghost:
+				'bg-transparent text-[var(--color-nav-active)] border-2 border-transparent hover:border-[var(--color-nav-active)] hover:bg-[var(--color-surface-muted)]',
 			danger:
-				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] border-2 border-[var(--color-nav-active)] shadow-brutal-sm hover:shadow-brutal-md active:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+				'bg-[var(--color-attendance-absent-bg)] text-[var(--color-attendance-absent-fg)] border-2 border-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
 			glass:
 				'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] border-2 border-[var(--color-nav-active)]'
 		},
@@ -107,9 +110,15 @@ export const brutalismPack: VisualStylePack = {
 			base: 'block w-full min-h-[44px] rounded-none border-2 border-[var(--color-nav-active)] bg-[var(--color-surface-card)] px-2 py-1 text-sm font-medium text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] focus:outline-none focus:bg-[var(--color-surface-muted)] focus:border-[var(--color-primary-500)] disabled:opacity-50'
 		},
 		card: {
-			base: 'rounded-none border-2 border-[var(--color-nav-active)] bg-[var(--color-surface-card)] shadow-brutal-sm',
+			base: 'rounded-none border-2 border-[var(--color-nav-active)] bg-[var(--color-surface-card)] shadow-[var(--shadow-style-sm)]',
 			interactive:
-				'rounded-none border-2 border-[var(--color-nav-active)] bg-[var(--color-surface-card)] shadow-brutal-sm hover:shadow-brutal-md hover:bg-[var(--color-surface-muted)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer select-none'
+				'rounded-none border-2 border-[var(--color-nav-active)] bg-[var(--color-surface-card)] shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] hover:bg-[var(--color-surface-muted)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-[var(--color-nav-active)] text-[var(--color-surface-page)] font-black uppercase tracking-wide border-[3px] border-[var(--color-nav-active)] shadow-[var(--shadow-style-md)]',
+			inactiveItem:
+				'text-[var(--color-nav-active)] font-bold uppercase hover:bg-[var(--color-surface-muted)]'
 		}
 	}
 };

@@ -17,15 +17,19 @@ import type { UserSettings } from '$lib/types';
 
 import { STORAGE_KEY_PREFIX } from '$lib/constants';
 
-const STORAGE_KEY = STORAGE_KEY_PREFIX + 'active-theme';
 const CUSTOM_PACKS_KEY = STORAGE_KEY_PREFIX + 'custom-packs';
+// 注意: 適用中テーマの永続化は settings 側 (themePackIdLight/Dark) が正本。
+// 旧 STORAGE_KEY 'active-theme' は themeStore.init() 時の初期表示用フォールバックとしてのみ読む。
 
 /**
  * ベースパックにユーザーオーバーライドをマージした新しいパックを返す。
  * オーバーライドがない場合はベースパックをそのまま返す。
  * 元のパックは変更しない（immutable）。
  */
-function mergeOverrides(pack: ThemePack, overrides: UserSettings['themeOverrides']): ThemePack {
+export function mergeOverrides(
+	pack: ThemePack,
+	overrides: UserSettings['themeOverrides']
+): ThemePack {
 	if (!overrides) return pack;
 
 	const merged: ThemePack = structuredClone(pack);
@@ -73,7 +77,11 @@ class ThemeStore {
 
 		void this.loadCustomPacksFromRS();
 
-		const saved = localStorage.getItem(STORAGE_KEY);
+		// 初期表示のちらつき防止用フォールバック。確定後は settings 側が上書きする。
+		// 旧キー 'active-theme' も読む（既存ユーザーの移行用）。
+		const saved =
+			localStorage.getItem(STORAGE_KEY_PREFIX + 'active-theme') ??
+			localStorage.getItem(CUSTOM_PACKS_KEY + ':active-fallback');
 		if (saved) {
 			const builtin = getBuiltinPack(saved);
 			if (builtin) {
@@ -92,7 +100,6 @@ class ThemeStore {
 		if (this.pack.id === pack.id) return;
 		this.pack = pack;
 		if (browser) {
-			localStorage.setItem(STORAGE_KEY, pack.id);
 			void this.applyCurrent();
 		}
 		void this.syncActiveThemeToRS();

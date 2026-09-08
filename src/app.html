@@ -33,28 +33,27 @@
 				try {
 					var settingsRaw = localStorage.getItem('open-yaske:user-settings');
 					var themeMode = 'system';
-					var packId = 'default';
+					var packIdLight = 'default';
+					var packIdDark = 'dark';
 					if (settingsRaw) {
 						var settings = JSON.parse(settingsRaw);
 						themeMode = settings.theme || 'system';
-						packId = settings.themePackId || 'default';
+						// 新形式 (Light/Dark 分離) を優先し、旧 themePackId 単一指定にフォールバック
+						packIdLight = settings.themePackIdLight || settings.themePackId || 'default';
+						packIdDark = settings.themePackIdDark || 'dark';
 					}
 					var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 					var isDark = themeMode === 'dark' || (themeMode === 'system' && prefersDark);
+					var packId = isDark ? packIdDark : packIdLight;
 					var root = document.documentElement;
 
-					// シャドウ抑制: flat テーマは全シャドウなし
-					if (packId === 'flat') {
+					// シャドウ抑制: 影なしテーマ(high-contrast系)は全シャドウなし
+					if (packId === 'high-contrast' || packId === 'high-contrast-dark') {
 						root.classList.add('theme-shadows-none');
 					}
 
 					if (isDark) {
-						root.setAttribute('data-theme', 'dark');
-						root.style.setProperty('--color-surface-page', '#0f172a');
-						root.style.setProperty('--color-surface-card', '#1e293b');
-						root.style.setProperty('--color-surface-border', '#334155');
-						root.style.setProperty('--color-surface-muted', '#1e293b');
-						root.setAttribute('data-theme', 'dark');
+						root.setAttribute('data-theme', packId);
 						root.style.setProperty('--color-surface-page', '#0f172a');
 						root.style.setProperty('--color-surface-card', '#1e293b');
 						root.style.setProperty('--color-surface-border', '#334155');
@@ -64,7 +63,7 @@
 						root.style.setProperty('--color-nav-active', '#f1f5f9');
 						root.style.setProperty('--color-nav-inactive', '#64748b');
 					} else {
-						root.setAttribute('data-theme', packId === 'dark' ? 'default' : packId);
+						root.setAttribute('data-theme', packId);
 						root.style.setProperty('--color-surface-page', '#f9fafb');
 						root.style.setProperty('--color-surface-card', '#ffffff');
 						root.style.setProperty('--color-surface-border', '#e5e7eb');

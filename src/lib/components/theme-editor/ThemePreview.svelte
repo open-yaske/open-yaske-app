@@ -58,7 +58,7 @@
 	<div class="mb-4 flex flex-wrap gap-2">
 		<button
 			type="button"
-			class="rounded-[var(--radius-chip)] bg-[var(--color-primary-500)] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[var(--color-primary-600)]"
+			class="rounded-[var(--radius-chip)] bg-[var(--color-primary-500)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-style-sm)] transition-colors hover:bg-[var(--color-primary-600)]"
 		>
 			Primary Button
 		</button>
@@ -73,7 +73,7 @@
 	<!-- sample card -->
 	<div
 		class="mb-4 rounded-[var(--radius-card)] border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-3"
-		style="box-shadow: var(--shadow-card)"
+		style="box-shadow: var(--shadow-style-sm)"
 	>
 		<div class="mb-2 flex items-center justify-between">
 			<span class="text-sm font-medium text-[var(--color-nav-active)]">Sample Card</span>

@@ -7,8 +7,8 @@
  * - events/: カレンダーイベント
  * - attendance/: 出席記録
  * - settings/: ユーザー設定
- * - custom-colors/: カスタムカラー
  * - custom-packs/: カスタムテーマパック
+ * - school-data/: 学校データキャッシュ
  *
  * 対応バージョン: remotestoragejs@2.0.0-beta.9
  * - `moduleNames` オプション削除 → 代わりに `rs.scope('/open-yaske/')` を使用
@@ -59,13 +59,15 @@ function getClient(): BaseClientShape {
 		_client = _rs.scope(`/${APP_NAME}/`) as BaseClientShape;
 
 		// v2: declareType は BaseClient 上で呼び出す
+		// ponytail: typeAlias は rsSet の path 先頭セグメントと一致させること。
+		// school-data は単一オブジェクト2件なので 'school-data' 一括宣言で足りる。
 		_client.declareType('courses', { type: 'object', description: '履修科目' });
 		_client.declareType('todos', { type: 'object', description: 'TODO' });
 		_client.declareType('events', { type: 'object', description: 'カレンダーイベント' });
 		_client.declareType('attendance', { type: 'object', description: '出席記録' });
 		_client.declareType('settings', { type: 'object', description: 'ユーザー設定' });
-		_client.declareType('custom-colors', { type: 'object', description: 'カスタムカラー' });
 		_client.declareType('custom-packs', { type: 'object', description: 'カスタムテーマパック' });
+		_client.declareType('school-data', { type: 'object', description: '学校データキャッシュ' });
 	}
 	// _client は直前の if ブロックで必ず代入されるため non-null
 	return _client as BaseClientShape;
@@ -117,27 +119,47 @@ export function isConnected(): boolean {
 	return _rs.connected;
 }
 
-/** 指定パスのオブジェクトを全件取得 */
+/** 指定パスのオブジェクトを全件取得。失敗時は {} を返し UI を固めない。 */
 export async function rsGetAll<T = unknown>(path: string): Promise<Record<string, T>> {
-	const obj = (await getClient().getAll(path)) as Record<string, T> | undefined;
-	return obj ?? {};
+	try {
+		const obj = (await getClient().getAll(path)) as Record<string, T> | undefined;
+		return obj ?? {};
+	} catch (err) {
+		console.error(`rsGetAll failed: ${path}`, err);
+		return {};
+	}
 }
 
-/** 指定パスのオブジェクトを 1 件取得 */
+/** 指定パスのオブジェクトを 1 件取得。失敗時は null を返す。 */
 export async function rsGet<T = unknown>(path: string): Promise<T | null> {
-	const v = (await getClient().getObject(path)) as T | undefined;
-	return v ?? null;
+	try {
+		const v = (await getClient().getObject(path)) as T | undefined;
+		return v ?? null;
+	} catch (err) {
+		console.error(`rsGet failed: ${path}`, err);
+		return null;
+	}
 }
 
 /** 指定パスに保存（path の最初のセグメントを typeAlias として使用） */
 export async function rsSet<T>(path: string, value: T): Promise<void> {
-	const typeAlias = path.split('/')[0] ?? 'object';
-	await getClient().storeObject(typeAlias, path, value as unknown);
+	try {
+		const typeAlias = path.split('/')[0] ?? 'object';
+		await getClient().storeObject(typeAlias, path, value as unknown);
+	} catch (err) {
+		console.error(`rsSet failed: ${path}`, err);
+		throw err;
+	}
 }
 
-/** 指定パスを削除 */
+/** 指定パスを削除。失敗時は throw する。 */
 export async function rsDelete(path: string): Promise<void> {
-	await getClient().remove(path);
+	try {
+		await getClient().remove(path);
+	} catch (err) {
+		console.error(`rsDelete failed: ${path}`, err);
+		throw err;
+	}
 }
 
 /** リモートストレージサーバーに接続 */

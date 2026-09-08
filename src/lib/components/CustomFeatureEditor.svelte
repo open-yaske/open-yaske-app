@@ -171,7 +171,7 @@
 </script>
 
 <div
-	class="flex flex-col gap-3 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4 shadow-[var(--shadow-card)]"
+	class="flex flex-col gap-3 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-card)] p-4 shadow-[var(--shadow-style-sm)]"
 >
 	<!-- ヘッダーとタブ切り替え -->
 	<div
@@ -193,7 +193,7 @@
 			<button
 				class="flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors font-medium {activeTab ===
 				'edit'
-					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-sm'
+					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)]'
 					: 'text-[var(--color-nav-inactive)] hover:text-[var(--color-nav-active)]'}"
 				onclick={() => (activeTab = 'edit')}
 			>
@@ -203,7 +203,7 @@
 			<button
 				class="flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors font-medium {activeTab ===
 				'preview'
-					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-sm'
+					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)]'
 					: 'text-[var(--color-nav-inactive)] hover:text-[var(--color-nav-active)]'}"
 				onclick={() => (activeTab = 'preview')}
 			>
@@ -213,7 +213,7 @@
 			<button
 				class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors font-medium {activeTab ===
 				'split'
-					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-sm'
+					? 'bg-[var(--color-surface-card)] text-[var(--color-nav-active)] shadow-[var(--shadow-style-sm)]'
 					: 'text-[var(--color-nav-inactive)] hover:text-[var(--color-nav-active)]'}"
 				onclick={() => (activeTab = 'split')}
 			>

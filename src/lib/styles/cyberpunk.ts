@@ -24,21 +24,23 @@ export const cyberpunkPack: VisualStylePack = {
 		button:
 			'active:shadow-[0_0_8px_var(--color-primary-400),0_0_20px_var(--color-primary-400),0_0_40px_var(--color-primary-400)] active:scale-[0.96] transition-all duration-100',
 		icon: 'active:shadow-[0_0_10px_var(--color-primary-400),0_0_20px_var(--color-primary-400)] active:scale-[0.85] transition-all duration-100',
-		card: 'hover:shadow-cyber-md active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)] active:scale-[0.98] transition-all duration-150',
+		card: 'hover:shadow-[var(--shadow-style-md)] active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)] active:scale-[0.98] transition-all duration-150',
 		tab: 'active:shadow-[0_0_8px_var(--color-primary-400)] active:opacity-70 transition-all duration-75',
 		glass: 'transition-all duration-150',
-		toggle: 'active:shadow-[0_0_10px_var(--color-primary-400)] active:scale-90 transition-all duration-75'
+		toggle:
+			'active:shadow-[0_0_10px_var(--color-primary-400)] active:scale-90 transition-all duration-75'
 	},
 
 	materials: {
-		glass: 'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/40 rounded-lg shadow-cyber-sm',
+		glass:
+			'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/40 rounded-lg shadow-[var(--shadow-style-sm)]',
 		glassHeader:
-			'bg-[var(--color-surface-page)]/90 backdrop-blur-sm border-b-2 border-[var(--color-primary-500)]/30 shadow-cyber-sm',
+			'bg-[var(--color-surface-page)]/90 backdrop-blur-sm border-b-2 border-[var(--color-primary-500)]/30 shadow-[var(--shadow-style-sm)]',
 		glassModal:
-			'bg-[var(--color-surface-card)]/90 backdrop-blur-md border-2 border-[var(--color-primary-500)]/50 rounded-xl shadow-cyber-xl',
-		card: 'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/25 rounded-lg shadow-cyber-sm hover:shadow-cyber-md hover:border-[var(--color-primary-400)]/50 transition-all duration-200',
+			'bg-[var(--color-surface-card)]/90 backdrop-blur-md border-2 border-[var(--color-primary-500)]/50 rounded-xl shadow-[var(--shadow-style-xl)]',
+		card: 'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/25 rounded-lg shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] hover:border-[var(--color-primary-400)]/50 transition-all duration-200',
 		interactiveCard:
-			'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/25 rounded-lg shadow-cyber-sm hover:shadow-cyber-lg hover:border-[var(--color-primary-400)]/60 active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)] active:scale-[0.98] transition-all duration-150 cursor-pointer select-none'
+			'bg-[var(--color-surface-card)]/85 backdrop-blur-sm border-2 border-[var(--color-primary-500)]/25 rounded-lg shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-lg)] hover:border-[var(--color-primary-400)]/60 active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)] active:scale-[0.98] transition-all duration-150 cursor-pointer select-none'
 	},
 
 	easing: {
@@ -95,7 +97,8 @@ export const cyberpunkPack: VisualStylePack = {
 			'text-xs font-bold tracking-[0.15em] uppercase text-[var(--color-primary-400)] [text-shadow:0_0_8px_var(--color-primary-400)]',
 		cardHeader: 'text-base font-bold tracking-wide',
 		pageTitle: 'text-xl font-bold tracking-tight',
-		navBar: 'bg-[var(--color-surface-page)]/95 backdrop-blur-sm border-b-2 border-[var(--color-primary-500)]/40 shadow-cyber-md'
+		navBar:
+			'bg-[var(--color-surface-page)]/95 backdrop-blur-sm border-b-2 border-[var(--color-primary-500)]/40 shadow-[var(--shadow-style-md)]'
 	},
 
 	// Cyberpunk 固有の UI レシピ: ネオン発光枠、半透明
@@ -103,22 +106,29 @@ export const cyberpunkPack: VisualStylePack = {
 		button: {
 			shape: 'rounded-lg',
 			primary:
-				'bg-[var(--color-primary-500)]/25 text-[var(--color-primary-300)] border border-[var(--color-primary-400)]/60 shadow-cyber-sm hover:shadow-cyber-md hover:bg-[var(--color-primary-500)]/35 hover:border-[var(--color-primary-400)] active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)]',
+				'bg-[var(--color-primary-500)]/25 text-[var(--color-primary-300)] border border-[var(--color-primary-400)]/60 shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)] hover:bg-[var(--color-primary-500)]/35 hover:border-[var(--color-primary-400)] active:shadow-[0_0_12px_var(--color-primary-400),0_0_30px_var(--color-primary-400)]',
 			secondary:
-				'bg-[var(--color-surface-card)]/80 text-[var(--color-nav-active)] border border-[var(--color-primary-500)]/30 shadow-cyber-sm hover:shadow-cyber-md',
-			ghost: 'bg-transparent text-[var(--color-primary-400)] hover:bg-[var(--color-primary-500)]/10',
+				'bg-[var(--color-surface-card)]/80 text-[var(--color-nav-active)] border border-[var(--color-primary-500)]/30 shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-md)]',
+			ghost:
+				'bg-transparent text-[var(--color-primary-400)] hover:bg-[var(--color-primary-500)]/10',
 			danger:
 				'bg-[var(--color-attendance-absent-bg)]/20 text-[var(--color-attendance-absent-bg)] border border-[var(--color-attendance-absent-bg)]/50',
 			glass:
-				'backdrop-blur-sm bg-[var(--color-surface-card)]/80 text-[var(--color-nav-active)] border border-[var(--color-primary-500)]/40 shadow-cyber-sm'
+				'backdrop-blur-sm bg-[var(--color-surface-card)]/80 text-[var(--color-nav-active)] border border-[var(--color-primary-500)]/40 shadow-[var(--shadow-style-sm)]'
 		},
 		input: {
-			base: 'block w-full min-h-[44px] rounded-lg border border-[var(--color-primary-500)]/30 bg-[var(--color-surface-card)]/80 backdrop-blur-sm px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-cyber-sm focus:border-[var(--color-primary-400)] focus:shadow-cyber-md focus:outline-none disabled:opacity-50'
+			base: 'block w-full min-h-[44px] rounded-lg border border-[var(--color-primary-500)]/30 bg-[var(--color-surface-card)]/80 backdrop-blur-sm px-3.5 py-2.5 text-sm text-[var(--color-nav-active)] placeholder-[var(--color-nav-inactive)] shadow-[var(--shadow-style-sm)] focus:border-[var(--color-primary-400)] focus:shadow-[var(--shadow-style-md)] focus:outline-none disabled:opacity-50'
 		},
 		card: {
-			base: 'rounded-lg border border-[var(--color-primary-500)]/40 bg-[var(--color-surface-card)]/85 backdrop-blur-sm shadow-cyber-sm',
+			base: 'rounded-lg border border-[var(--color-primary-500)]/40 bg-[var(--color-surface-card)]/85 backdrop-blur-sm shadow-[var(--shadow-style-sm)]',
 			interactive:
-				'rounded-lg border border-[var(--color-primary-500)]/40 bg-[var(--color-surface-card)]/85 backdrop-blur-sm shadow-cyber-sm hover:shadow-cyber-lg hover:border-[var(--color-primary-400)]/70 transition-all duration-200 cursor-pointer select-none'
+				'rounded-lg border border-[var(--color-primary-500)]/40 bg-[var(--color-surface-card)]/85 backdrop-blur-sm shadow-[var(--shadow-style-sm)] hover:shadow-[var(--shadow-style-lg)] hover:border-[var(--color-primary-400)]/70 transition-all duration-200 cursor-pointer select-none'
+		},
+		sidenav: {
+			activeItem:
+				'bg-[var(--color-primary-500)]/20 text-[var(--color-primary-300)] font-bold tracking-[0.08em] uppercase border border-[var(--color-primary-400)]/60 shadow-[var(--shadow-style-md)] [text-shadow:0_0_8px_var(--color-primary-400)]',
+			inactiveItem:
+				'text-[var(--color-primary-400)]/70 font-semibold tracking-[0.08em] uppercase hover:text-[var(--color-primary-300)] hover:bg-[var(--color-primary-500)]/10'
 		}
 	}
 };

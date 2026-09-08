@@ -93,7 +93,7 @@ export function packToCssVars(pack: ThemePack): Record<string, string> {
 	vars['--color-nav-inactive'] = pack.ui.nav.inactive;
 	vars['--color-nav-hover'] = pack.ui.nav.hover;
 
-	// shadow
+	// shadow (互換維持: 旧 shadow-[var(--shadow-card)] 参照用。新規は --shadow-style-* を使う)
 	vars['--shadow-sheet'] = pack.ui.shadow.sheet;
 	vars['--shadow-card'] = pack.ui.shadow.card;
 	vars['--shadow-modal'] = pack.ui.shadow.modal;
@@ -153,27 +153,22 @@ export function applyFontVars(
 }
 
 /**
+ * テーマのシャドウがすべて "none" かを判定する。
+ * 互換用に残すが、影の所有権はスタイル側。参照は isStyleShadowsNone() を使うこと。
+ * @deprecated use isStyleShadowsNone from $lib/styles instead
+ */
+export function isThemeShadowsNone(pack: ThemePack): boolean {
+	const s = pack.ui.shadow;
+	return s.sheet === 'none' && s.card === 'none' && s.modal === 'none';
+}
+
+/**
  * ブラウザ環境に CSS 変数を適用
  * SvelteKit / クライアントサイド専用
  */
 export function applyTheme(pack: ThemePack, target: HTMLElement = document.documentElement) {
 	const vars = packToCssVars(pack);
-
-	// シャドウ制御: 全ての shadow が "none" の場合は全スタイルのシャドウCSS変数を "none" に
-	// これにより、shadow-apple-sm / shadow-material-md 等の全クラスが自動的に無効化される
-	const shadows = pack.ui.shadow;
-	const allNone = shadows.sheet === 'none' && shadows.card === 'none' && shadows.modal === 'none';
-	if (allNone) {
-		// 全シャドウスタイルの CSS 変数を "none" に設定
-		for (const style of ['apple', 'material', 'liquid', 'neumo', 'brutal', 'cyber']) {
-			for (const size of ['sm', 'md', 'lg', 'xl']) {
-				vars[`--shadow-${style}-${size}`] = 'none';
-			}
-		}
-		vars['--shadow-sheet'] = 'none';
-		vars['--shadow-card'] = 'none';
-		vars['--shadow-modal'] = 'none';
-	}
+	const allNone = isThemeShadowsNone(pack);
 
 	for (const [k, v] of Object.entries(vars)) {
 		target.style.setProperty(k, v);

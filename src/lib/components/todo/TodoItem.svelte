@@ -173,7 +173,7 @@
 	}
 </script>
 
-<div class="relative overflow-hidden {r.card} mb-2 shadow-[var(--shadow-card)]">
+<div class="relative overflow-hidden {r.card} mb-2 shadow-[var(--shadow-style-sm)]">
 	<!-- 削除ボタン（背景） -->
 	<button
 		type="button"

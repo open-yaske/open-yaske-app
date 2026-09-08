@@ -222,11 +222,11 @@
 		>
 			<div class="p-4 space-y-4">
 				<div
-					class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-surface-muted)]/60 p-3.5 border border-[var(--color-surface-border)]/80 shadow-apple-xs"
+					class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-surface-muted)]/60 p-3.5 border border-[var(--color-surface-border)]/80 shadow-[var(--shadow-style-sm)]"
 				>
 					{#if userDataStore.rsConnected}
 						<div
-							class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-success-500)]/15 text-[var(--color-success-600)] shadow-apple-sm"
+							class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-success-500)]/15 text-[var(--color-success-600)] shadow-[var(--shadow-style-sm)]"
 						>
 							<Cloud size={24} />
 						</div>
@@ -245,7 +245,7 @@
 						</Button>
 					{:else}
 						<div
-							class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)]/50 shadow-apple-sm"
+							class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-surface-muted)] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)]/50 shadow-[var(--shadow-style-sm)]"
 						>
 							<CloudOff size={24} />
 						</div>
@@ -271,7 +271,7 @@
 			<div class="p-4 space-y-4">
 				{#if schoolDataService.metadata}
 					<div
-						class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-success-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-success-700)] border border-[var(--color-success-200)]/60 shadow-apple-sm"
+						class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-success-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-success-700)] border border-[var(--color-success-200)]/60 shadow-[var(--shadow-style-sm)]"
 					>
 						<CheckCircle2 size={18} class="text-[var(--color-success-500)] shrink-0" />
 						<div class="flex-1 min-w-0">
@@ -285,7 +285,7 @@
 					</div>
 				{:else}
 					<div
-						class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-danger-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-danger-700)] border border-[var(--color-danger-200)]/60 shadow-apple-sm"
+						class="flex items-center gap-3.5 rounded-2xl bg-[var(--color-danger-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-danger-700)] border border-[var(--color-danger-200)]/60 shadow-[var(--shadow-style-sm)]"
 					>
 						<Database size={18} class="text-[var(--color-danger-500)] shrink-0" />
 						<span class="font-bold">{m.school_data_no_data()}</span>
@@ -294,7 +294,7 @@
 
 				<!-- クレジット・ライセンス表示 -->
 				<div
-					class="rounded-2xl bg-[var(--color-surface-muted)]/50 p-4 text-[11px] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)]/60 leading-5 shadow-apple-xs"
+					class="rounded-2xl bg-[var(--color-surface-muted)]/50 p-4 text-[11px] text-[var(--color-nav-inactive)] border border-[var(--color-surface-border)]/60 leading-5 shadow-[var(--shadow-style-sm)]"
 				>
 					{@html sanitize(
 						m.school_data_credit({
@@ -306,7 +306,7 @@
 
 				{#if syncError}
 					<div
-						class="rounded-2xl bg-[var(--color-danger-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-danger-700)] font-mono border border-[var(--color-danger-200)]/60 shadow-apple-sm"
+						class="rounded-2xl bg-[var(--color-danger-50)]/80 backdrop-blur-xs p-3.5 text-xs text-[var(--color-danger-700)] font-mono border border-[var(--color-danger-200)]/60 shadow-[var(--shadow-style-sm)]"
 					>
 						{syncError}
 					</div>
@@ -314,7 +314,7 @@
 
 				{#if schoolDataService.loading && schoolDataService.syncStatus}
 					<div
-						class="rounded-2xl bg-[var(--color-surface-muted)]/60 p-3.5 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/60 flex items-center gap-2.5 shadow-apple-sm"
+						class="rounded-2xl bg-[var(--color-surface-muted)]/60 p-3.5 text-xs text-[var(--color-nav-active)] border border-[var(--color-surface-border)]/60 flex items-center gap-2.5 shadow-[var(--shadow-style-sm)]"
 					>
 						<RefreshCw size={14} class="animate-spin text-[var(--color-primary-500)]" />
 						<span class="font-semibold">{schoolDataService.syncStatus}</span>
@@ -488,7 +488,7 @@
 			required
 		/>
 		<div
-			class="rounded-2xl bg-[var(--color-surface-muted)]/80 p-4 border border-[var(--color-surface-border)]/60 space-y-2 shadow-apple-xs"
+			class="rounded-2xl bg-[var(--color-surface-muted)]/80 p-4 border border-[var(--color-surface-border)]/60 space-y-2 shadow-[var(--shadow-style-sm)]"
 		>
 			<h4 class="text-xs font-bold text-[var(--color-nav-active)]">
 				{m.settings_account_remote_guide_title()}
@@ -532,7 +532,7 @@
 			{m.settings_data_clear_confirm()}
 		</p>
 		<p
-			class="text-xs text-[var(--color-danger-600)] font-bold bg-[var(--color-danger-50)]/80 backdrop-blur-xs border border-[var(--color-danger-200)]/60 p-3 rounded-2xl shadow-apple-sm"
+			class="text-xs text-[var(--color-danger-600)] font-bold bg-[var(--color-danger-50)]/80 backdrop-blur-xs border border-[var(--color-danger-200)]/60 p-3 rounded-2xl shadow-[var(--shadow-style-sm)]"
 		>
 			※この操作は取り消せません。設定とすべての時間割、TODO、カレンダー、出席、学校キャッシュデータが完全に消去されます。
 		</p>

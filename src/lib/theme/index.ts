@@ -5,7 +5,13 @@
 
 export * from './types';
 export * from './tokens';
-export { getLocalizedText } from './utils';
+export {
+	getLocalizedText,
+	isDarkPack,
+	resolveThemePackId,
+	migrateLegacyThemePackId,
+	resolveEffectiveFontFamily
+} from './utils';
 export {
 	BUILTIN_PACKS,
 	getBuiltinPack,
@@ -14,4 +20,10 @@ export {
 	parsePack
 } from './pack-loader';
 export { packToCssVars, applyTheme, clearTheme, applyFontVars } from './css-bridge';
-export { resolveFontFamily, getFontFamilyDisplayName, AVAILABLE_FONT_FAMILIES, normalizeLocale, type FontFamilyId } from './font-resolver';
+export {
+	resolveFontFamily,
+	getFontFamilyDisplayName,
+	AVAILABLE_FONT_FAMILIES,
+	normalizeLocale,
+	type FontFamilyId
+} from './font-resolver';

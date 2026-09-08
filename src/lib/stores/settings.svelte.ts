@@ -5,7 +5,7 @@
 import { browser } from '$app/environment';
 import { DEFAULT_USER_SETTINGS } from '$lib/types';
 import type { UserSettings } from '$lib/types';
-import { getBuiltinPack } from '$lib/theme';
+import { getBuiltinPack, migrateLegacyThemePackId, resolveThemePackId } from '$lib/theme';
 import * as remoteStorage from '$lib/remotestorage';
 import { setPublicDataCdnBase } from '$lib/publicData';
 import { STORAGE_KEY_PREFIX } from '$lib/constants';
@@ -13,23 +13,6 @@ import { themeStore } from './theme.svelte';
 import { syncWidgetData } from '$lib/widget';
 
 const STORAGE_KEY = STORAGE_KEY_PREFIX + 'user-settings';
-const ACTIVE_THEME_KEY = STORAGE_KEY_PREFIX + 'active-theme';
-
-function resolveThemePackId(settings: UserSettings) {
-	const themePackIdLight = settings.themePackIdLight || 'default';
-	const themePackIdDark = settings.themePackIdDark || 'dark';
-
-	let targetPackId = themePackIdLight;
-	if (settings.theme === 'dark') {
-		targetPackId = themePackIdDark;
-	} else if (settings.theme === 'system') {
-		const osDark =
-			typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-		targetPackId = osDark ? themePackIdDark : themePackIdLight;
-	}
-
-	return targetPackId;
-}
 
 function applyBuiltinThemeImmediately(settings: UserSettings) {
 	if (!browser) return;
@@ -39,7 +22,6 @@ function applyBuiltinThemeImmediately(settings: UserSettings) {
 		pack = themeStore.customPacks.find((p) => p.id === targetPackId);
 	}
 	if (!pack) return;
-	localStorage.setItem(ACTIVE_THEME_KEY, pack.id);
 	// themeStore.pack と同期し、オーバーライドをマージして適用
 	themeStore.pack = pack;
 	themeStore.setOverrides(settings.themeOverrides);
@@ -58,15 +40,8 @@ class SettingsStore {
 			try {
 				const parsed = JSON.parse(saved) as Partial<UserSettings>;
 				// 移行処理：既存の themePackId を themePackIdLight/Dark にマッピング
-				if (parsed.themePackId && !parsed.themePackIdLight && !parsed.themePackIdDark) {
-					if (parsed.themePackId === 'dark') {
-						parsed.themePackIdDark = 'dark';
-						parsed.themePackIdLight = 'default';
-					} else {
-						parsed.themePackIdLight = parsed.themePackId;
-						parsed.themePackIdDark = 'dark';
-					}
-				}
+				const migrated = migrateLegacyThemePackId(parsed);
+				if (migrated) Object.assign(parsed, migrated);
 				this.settings = { ...DEFAULT_USER_SETTINGS, ...parsed };
 				if (parsed.timetablePeriods) {
 					this.settings.timetablePeriods = {
@@ -173,15 +148,8 @@ class SettingsStore {
 			const remote = await remoteStorage.rsGet<Partial<UserSettings>>('settings/data');
 			if (remote) {
 				// 移行処理：既存の themePackId を themePackIdLight/Dark にマッピング
-				if (remote.themePackId && !remote.themePackIdLight && !remote.themePackIdDark) {
-					if (remote.themePackId === 'dark') {
-						remote.themePackIdDark = 'dark';
-						remote.themePackIdLight = 'default';
-					} else {
-						remote.themePackIdLight = remote.themePackId;
-						remote.themePackIdDark = 'dark';
-					}
-				}
+				const migrated = migrateLegacyThemePackId(remote);
+				if (migrated) Object.assign(remote, migrated);
 
 				const remoteUpdatedAt = remote.updatedAt || 0;
 				const localUpdatedAt = this.settings.updatedAt || 0;

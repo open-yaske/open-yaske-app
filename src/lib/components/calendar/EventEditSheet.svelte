@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
 	import type { CalendarEvent } from '$lib/types';
-	import { resolveColorHex, type ThemePack } from '$lib/theme';
+	import { defaultColorId, resolveColorHex, type ThemePack } from '$lib/theme';
 	import { m } from '$lib/paraglide/messages';
 	import Sheet from '$lib/components/Sheet.svelte';
 	import TextField from '$lib/components/TextField.svelte';
@@ -46,7 +46,7 @@
 	let startTime = $state('');
 	let endDate = $state('');
 	let endTime = $state('');
-	let color = $state('blue');
+	let color = $state('');
 	let calendarId = $state('academic');
 	let confirmDelete = $state(false);
 	let isEditMode = $state(false);
@@ -76,7 +76,7 @@
 			location = '';
 			memo = '';
 			allDay = false;
-			color = 'blue';
+			color = defaultColorId(pack, 'event');
 			calendarId = 'academic';
 			const base = defaultDate ?? new Date();
 			startDate = toDateInput(base);
