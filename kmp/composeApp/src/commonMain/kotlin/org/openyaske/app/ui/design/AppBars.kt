@@ -98,6 +98,7 @@ fun TabHeader(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .statusBarsPadding()
             .height(if (compact) Sizes.headerCompact else Sizes.headerHeight)
             .padding(horizontal = Layout.gutter),
         contentAlignment = Alignment.Center
