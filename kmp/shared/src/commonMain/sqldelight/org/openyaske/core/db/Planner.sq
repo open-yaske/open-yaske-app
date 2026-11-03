@@ -1,0 +1,95 @@
+CREATE TABLE school_events (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('academic', 'holiday', 'exam', 'makeup', 'cancelled_class', 'other')),
+    date TEXT NOT NULL CHECK (date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    start_time TEXT CHECK (start_time IS NULL OR start_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    end_time TEXT CHECK (end_time IS NULL OR end_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    all_day INTEGER NOT NULL DEFAULT 1 CHECK (all_day IN (0, 1)),
+    location TEXT,
+    course_id TEXT REFERENCES courses(id) ON DELETE CASCADE,
+    session_id TEXT REFERENCES course_sessions(id) ON DELETE CASCADE,
+    note TEXT,
+    source TEXT NOT NULL CHECK (source IN ('public', 'user', 'derived')),
+    created_at_ms INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER
+);
+
+CREATE INDEX ix_school_events_date ON school_events(date) WHERE deleted_at_ms IS NULL;
+
+selectSchoolEventsBetween:
+SELECT * FROM school_events
+WHERE date BETWEEN ? AND ? AND deleted_at_ms IS NULL
+ORDER BY date, all_day DESC, start_time;
+
+selectSchoolEventsByCourse:
+SELECT * FROM school_events
+WHERE course_id = ? AND deleted_at_ms IS NULL
+ORDER BY date;
+
+upsertSchoolEvent:
+INSERT OR REPLACE INTO school_events(
+    id, title, kind, date, start_time, end_time, all_day, location, course_id, session_id,
+    note, source, created_at_ms, updated_at_ms, deleted_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteSchoolEvent:
+UPDATE school_events SET deleted_at_ms = ?, updated_at_ms = ? WHERE id = ?;
+
+CREATE TABLE course_tasks (
+    id TEXT NOT NULL PRIMARY KEY,
+    course_id TEXT REFERENCES courses(id) ON DELETE CASCADE,
+    session_id TEXT REFERENCES course_sessions(id) ON DELETE SET NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('assignment', 'report', 'quiz', 'exam', 'prep', 'other')),
+    title TEXT NOT NULL,
+    due_date TEXT CHECK (due_date IS NULL OR due_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    due_time TEXT CHECK (due_time IS NULL OR due_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    status TEXT NOT NULL CHECK (status IN ('open', 'done', 'submitted', 'cancelled')),
+    priority TEXT CHECK (priority IN ('low', 'medium', 'high')),
+    repeat_pattern TEXT,
+    notes TEXT,
+    url TEXT,
+    created_at_ms INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER
+);
+
+CREATE INDEX ix_tasks_due ON course_tasks(due_date, status) WHERE deleted_at_ms IS NULL;
+CREATE INDEX ix_tasks_course ON course_tasks(course_id) WHERE deleted_at_ms IS NULL;
+
+selectTasksByCourse:
+SELECT * FROM course_tasks
+WHERE course_id = ? AND deleted_at_ms IS NULL
+ORDER BY due_date, due_time, created_at_ms;
+
+selectOpenTasksBetween:
+SELECT * FROM course_tasks
+WHERE due_date BETWEEN ? AND ? AND status = 'open' AND deleted_at_ms IS NULL
+ORDER BY due_date, due_time;
+
+selectOpenTasks:
+SELECT * FROM course_tasks
+WHERE status = 'open' AND deleted_at_ms IS NULL
+ORDER BY due_date, due_time;
+
+upsertCourseTask:
+INSERT OR REPLACE INTO course_tasks(
+    id, course_id, session_id, kind, title, due_date, due_time,
+    status, priority, repeat_pattern, notes, url, created_at_ms, updated_at_ms, deleted_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteCourseTask:
+UPDATE course_tasks SET deleted_at_ms = ?, updated_at_ms = ? WHERE id = ?;
+
+selectAllSchoolEvents:
+SELECT * FROM school_events ORDER BY date;
+
+selectAllCourseTasks:
+SELECT * FROM course_tasks ORDER BY due_date, due_time, created_at_ms;
+
+deleteAllCourseTasks:
+DELETE FROM course_tasks;
+
+deleteAllSchoolEvents:
+DELETE FROM school_events;

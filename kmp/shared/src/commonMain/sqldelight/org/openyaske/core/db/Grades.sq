@@ -1,0 +1,72 @@
+CREATE TABLE course_grades (
+    course_id TEXT NOT NULL PRIMARY KEY REFERENCES courses(id) ON DELETE CASCADE,
+    state TEXT NOT NULL CHECK (state IN ('not_graded', 'graded', 'pass_fail', 'excluded', 'transfer', 'in_progress')),
+    grade TEXT CHECK (grade IN ('S', 'A', 'B', 'C', 'F')),
+    credits_earned INTEGER CHECK (credits_earned BETWEEN 0 AND 30),
+    counts_toward_gpa INTEGER NOT NULL DEFAULT 1 CHECK (counts_toward_gpa IN (0, 1)),
+    note TEXT,
+    updated_at_ms INTEGER NOT NULL,
+    CHECK (state <> 'graded' OR grade IS NOT NULL)
+);
+
+selectCourseGrades:
+SELECT * FROM course_grades;
+
+selectCourseGrade:
+SELECT * FROM course_grades WHERE course_id = ?;
+
+upsertCourseGrade:
+INSERT OR REPLACE INTO course_grades(
+    course_id, state, grade, credits_earned, counts_toward_gpa, note, updated_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteCourseGrade:
+DELETE FROM course_grades WHERE course_id = ?;
+
+CREATE TABLE gpa_scenarios (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at_ms INTEGER NOT NULL
+);
+
+selectGpaScenarios:
+SELECT * FROM gpa_scenarios ORDER BY created_at_ms;
+
+insertGpaScenario:
+INSERT OR IGNORE INTO gpa_scenarios(id, name, created_at_ms)
+VALUES (?, ?, ?);
+
+updateGpaScenario:
+UPDATE gpa_scenarios SET name = ?, created_at_ms = ? WHERE id = ?;
+
+deleteGpaScenario:
+DELETE FROM gpa_scenarios WHERE id = ?;
+
+CREATE TABLE gpa_scenario_overrides (
+    scenario_id TEXT NOT NULL REFERENCES gpa_scenarios(id) ON DELETE CASCADE,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    grade TEXT NOT NULL CHECK (grade IN ('S', 'A', 'B', 'C', 'F')),
+    PRIMARY KEY (scenario_id, course_id)
+);
+
+selectGpaScenarioOverrides:
+SELECT * FROM gpa_scenario_overrides WHERE scenario_id = ?;
+
+upsertGpaScenarioOverride:
+INSERT OR REPLACE INTO gpa_scenario_overrides(scenario_id, course_id, grade)
+VALUES (?, ?, ?);
+
+deleteGpaScenarioOverride:
+DELETE FROM gpa_scenario_overrides WHERE scenario_id = ? AND course_id = ?;
+
+selectAllGpaScenarioOverrides:
+SELECT * FROM gpa_scenario_overrides;
+
+deleteAllCourseGrades:
+DELETE FROM course_grades;
+
+deleteAllGpaScenarioOverrides:
+DELETE FROM gpa_scenario_overrides;
+
+deleteAllGpaScenarios:
+DELETE FROM gpa_scenarios;

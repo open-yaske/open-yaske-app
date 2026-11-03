@@ -2,7 +2,7 @@
 
 電気通信大学（UEC）向けの履修管理アプリです。SvelteKit + Capacitor で Web / Android / iOS を 1 つのコードベースから提供し、Local-First / Offline-First を前提にしています。
 
-このプロジェクトは[NEXUS for UEC](https://nexusforuec.team-bookmark.com/)、[uBoard](https://uboard.info)にインスパイアされて開発されています。
+このプロジェクトは、UEC 向けの既存時間割アプリにインスパイアされて開発されています。
 
 [![Status](https://img.shields.io/badge/status-active-green)](#)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#)

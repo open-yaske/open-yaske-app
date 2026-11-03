@@ -1,0 +1,47 @@
+OpenYASKE
+=========
+
+時間割・出席・課題・GPA・カレンダーをまとめた、電通大生向けの非公式アプリです。
+
+アプリ本体
+  MIT License
+  Copyright (c) 2026 OpenYASKE contributors
+  全文はリポジトリ直下の LICENSE にあります。
+
+同梱している第三者の成果物
+--------------------------
+
+Kotlin
+  Copyright 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors
+  Apache License 2.0
+  https://kotlinlang.org/
+
+Compose Multiplatform / Material 3
+  Copyright 2019-2026 The Android Open Source Project
+  Copyright 2020-2026 JetBrains s.r.o.
+  Apache License 2.0
+  https://www.jetbrains.com/compose-multiplatform/
+
+Material Icons
+  Copyright 2020 Google LLC
+  Apache License 2.0
+  https://fonts.google.com/icons
+
+kotlinx.serialization / kotlinx.coroutines
+  Copyright 2016-2026 JetBrains s.r.o.
+  Apache License 2.0
+  https://github.com/Kotlin
+
+SQLDelight
+  Copyright 2016-2026 Square, Inc.
+  Apache License 2.0
+  https://sqldelight.github.io/sqldelight/
+
+Noto Sans JP / Noto Sans SC / Noto Sans KR
+  Copyright 2014-2026 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+  SIL Open Font License 1.1
+  https://fonts.google.com/noto
+
+シラバスのデータ
+----------------
+電気通信大学が公開しているシラバスを元にしています。著作権は同大学に帰属します。

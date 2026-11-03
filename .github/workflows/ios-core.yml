@@ -1,0 +1,69 @@
+name: iOS core
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "kmp/**"
+      - ".github/workflows/ios-core.yml"
+
+jobs:
+  link:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the iOS frameworks
+        working-directory: kmp
+        run: |
+          ./gradlew \
+            :shared:linkDebugFrameworkIosSimulatorArm64 \
+            :shared:linkDebugFrameworkIosArm64 \
+            :composeApp:linkDebugFrameworkIosSimulatorArm64 \
+            :composeApp:linkDebugFrameworkIosArm64 \
+            :shared:jvmTest \
+            --console=plain
+
+      - name: Upload the simulator framework
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenYaskeCore-iosSimulatorArm64
+          path: kmp/shared/build/bin/iosSimulatorArm64/debugFramework/OpenYaskeCore.framework
+          if-no-files-found: error
+
+      - name: Upload the compose simulator framework
+        uses: actions/upload-artifact@v4
+        with:
+          name: ComposeApp-iosSimulatorArm64
+          path: kmp/composeApp/build/bin/iosSimulatorArm64/debugFramework/ComposeApp.framework
+          if-no-files-found: error
+
+      - name: Upload the compose device framework
+        uses: actions/upload-artifact@v4
+        with:
+          name: ComposeApp-iosArm64
+          path: kmp/composeApp/build/bin/iosArm64/debugFramework/ComposeApp.framework
+          if-no-files-found: error
+
+      - name: Upload the device framework
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenYaskeCore-iosArm64
+          path: kmp/shared/build/bin/iosArm64/debugFramework/OpenYaskeCore.framework
+          if-no-files-found: error
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-test-reports
+          path: kmp/shared/build/reports/tests/jvmTest
+          if-no-files-found: warn

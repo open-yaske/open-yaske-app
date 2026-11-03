@@ -1,0 +1,32 @@
+-- スキーマ 3 -> 4: 科目に紐づかない TODO を許すため、course_id を NULL 可にする。
+CREATE TABLE course_tasks_new (
+    id TEXT NOT NULL PRIMARY KEY,
+    course_id TEXT REFERENCES courses(id) ON DELETE CASCADE,
+    session_id TEXT REFERENCES course_sessions(id) ON DELETE SET NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('assignment', 'report', 'quiz', 'exam', 'prep', 'other')),
+    title TEXT NOT NULL,
+    due_date TEXT CHECK (due_date IS NULL OR due_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    due_time TEXT CHECK (due_time IS NULL OR due_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    status TEXT NOT NULL CHECK (status IN ('open', 'done', 'submitted', 'cancelled')),
+    priority TEXT CHECK (priority IN ('low', 'medium', 'high')),
+    repeat_pattern TEXT,
+    notes TEXT,
+    url TEXT,
+    created_at_ms INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER
+);
+
+INSERT INTO course_tasks_new (
+    id, course_id, session_id, kind, title, due_date, due_time, status,
+    priority, repeat_pattern, notes, url, created_at_ms, updated_at_ms, deleted_at_ms
+)
+SELECT
+    id, course_id, session_id, kind, title, due_date, due_time, status,
+    priority, repeat_pattern, notes, url, created_at_ms, updated_at_ms, deleted_at_ms
+FROM course_tasks;
+
+DROP TABLE course_tasks;
+ALTER TABLE course_tasks_new RENAME TO course_tasks;
+CREATE INDEX ix_tasks_due ON course_tasks(due_date, status) WHERE deleted_at_ms IS NULL;
+CREATE INDEX ix_tasks_course ON course_tasks(course_id) WHERE deleted_at_ms IS NULL;

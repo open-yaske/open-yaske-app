@@ -34,6 +34,12 @@ storybook-static
 .omo/
 .opencode/
 
-# Android Signing Keys
-open-nexus.jks
-open-nexus-base64.txt
+
+# Build artifacts
+*.apk
+*.aab
+
+# Screenshots and recordings (kept locally, not in git)
+docs/**/*.png
+docs/screenshots/
+*.mp4

@@ -1,0 +1,133 @@
+CREATE TABLE app_meta (
+    id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+    schema_version INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL
+);
+
+selectAppMeta:
+SELECT * FROM app_meta WHERE id = 1;
+
+upsertAppMeta:
+INSERT OR REPLACE INTO app_meta(id, schema_version, updated_at_ms)
+VALUES (1, ?, ?);
+
+CREATE TABLE terms (
+    id TEXT NOT NULL PRIMARY KEY,
+    year INTEGER NOT NULL CHECK (year BETWEEN 1 AND 9999),
+    kind TEXT NOT NULL CHECK (kind IN ('semester', 'full_year', 'intensive', 'quarter', 'other')),
+    season TEXT CHECK (season IN ('spring', 'fall')),
+    start_date TEXT NOT NULL CHECK (start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    end_date TEXT NOT NULL CHECK (end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    label TEXT NOT NULL DEFAULT '',
+    CHECK (start_date <= end_date)
+);
+
+CREATE UNIQUE INDEX ux_terms_year_season ON terms(year, season) WHERE season IS NOT NULL;
+
+selectTerms:
+SELECT * FROM terms ORDER BY start_date;
+
+selectTermById:
+SELECT * FROM terms WHERE id = ?;
+
+insertTerm:
+INSERT OR IGNORE INTO terms(id, year, kind, season, start_date, end_date, label)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateTerm:
+UPDATE terms SET
+    year = ?,
+    kind = ?,
+    season = ?,
+    start_date = ?,
+    end_date = ?,
+    label = ?
+WHERE id = ?;
+
+deleteTerm:
+DELETE FROM terms WHERE id = ?;
+
+CREATE TABLE courses (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    code TEXT,
+    instructor TEXT,
+    room TEXT,
+    url TEXT,
+    memo TEXT,
+    course_type TEXT NOT NULL CHECK (course_type IN ('required', 'elective', 'free', 'teaching')),
+    kind TEXT NOT NULL CHECK (kind IN ('regular', 'extra', 'intensive', 'partner', 'user')),
+    source TEXT NOT NULL CHECK (source IN ('public_syllabus', 'user', 'partner')),
+    institution TEXT,
+    credits INTEGER NOT NULL DEFAULT 0 CHECK (credits BETWEEN 0 AND 30),
+    credit_system TEXT NOT NULL CHECK (credit_system IN ('uec', 'ects', 'other')),
+    counts_toward_gpa INTEGER NOT NULL DEFAULT 1 CHECK (counts_toward_gpa IN (0, 1)),
+    weekday INTEGER CHECK (weekday BETWEEN 1 AND 7),
+    period INTEGER CHECK (period BETWEEN 1 AND 7),
+    period_count INTEGER NOT NULL DEFAULT 1 CHECK (period_count BETWEEN 1 AND 3),
+    color TEXT NOT NULL,
+    syllabus_id TEXT,
+    term_id TEXT REFERENCES terms(id) ON DELETE SET NULL,
+    academic_year_id TEXT,
+    created_at_ms INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER,
+    CHECK ((weekday IS NULL) = (period IS NULL))
+);
+
+CREATE INDEX ix_courses_term ON courses(term_id) WHERE deleted_at_ms IS NULL;
+CREATE INDEX ix_courses_code ON courses(code) WHERE code IS NOT NULL;
+
+selectCourses:
+SELECT * FROM courses WHERE deleted_at_ms IS NULL ORDER BY weekday, period, title;
+
+selectCoursesByTerm:
+SELECT * FROM courses WHERE term_id = ? AND deleted_at_ms IS NULL ORDER BY weekday, period, title;
+
+selectCourseById:
+SELECT * FROM courses WHERE id = ?;
+
+insertCourse:
+INSERT OR IGNORE INTO courses(
+    id, title, code, instructor, room, url, memo, course_type, kind, source, institution,
+    credits, credit_system, counts_toward_gpa, weekday, period, period_count, color,
+    syllabus_id, term_id, academic_year_id, created_at_ms, updated_at_ms, deleted_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateCourse:
+UPDATE courses SET
+    title = ?,
+    code = ?,
+    instructor = ?,
+    room = ?,
+    url = ?,
+    memo = ?,
+    course_type = ?,
+    kind = ?,
+    source = ?,
+    institution = ?,
+    credits = ?,
+    credit_system = ?,
+    counts_toward_gpa = ?,
+    weekday = ?,
+    period = ?,
+    period_count = ?,
+    color = ?,
+    syllabus_id = ?,
+    term_id = ?,
+    academic_year_id = ?,
+    updated_at_ms = ?,
+    deleted_at_ms = ?
+WHERE id = ?;
+
+softDeleteCourse:
+UPDATE courses SET deleted_at_ms = ?, updated_at_ms = ? WHERE id = ?;
+
+selectAllCourses:
+SELECT * FROM courses ORDER BY weekday, period, title;
+
+deleteAllCourses:
+DELETE FROM courses;
+
+deleteAllTerms:
+DELETE FROM terms;

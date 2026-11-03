@@ -1,0 +1,2 @@
+-- スキーマ 2 -> 3: 学事予定の場所。
+ALTER TABLE school_events ADD COLUMN location TEXT;

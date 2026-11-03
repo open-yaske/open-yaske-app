@@ -4,6 +4,263 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - 2026-11-03
+
+### Added
+
+- **スキーマ v2（学校の情報だけを持つ）**:
+  - `Term`、`CourseSession`、`SchoolEvent`、`CourseTask`、`CourseGrade`、`GpaScenario`、`ExternalSyncLink` を追加。
+  - 科目は通常・時間割外・集中講義・連携大学・ユーザー定義を `CourseKind` / `CourseSource` で区別。
+  - 出席は `sessionId` に紐づけ、補講・振替・集中講義も同じ仕組みで扱う。
+- **授業回の生成 (`SessionGenerator`)**: 学期の開始日から週次パターンを展開し、休日・部分休講・休講上書きを適用。
+- **学校アジェンダ (`AgendaProjector`)**: 授業回・学事・科目課題を日付順に射影。個人の予定は対象外。
+- **GPA の科目連携**: `CourseGrade` の状態（未確定・合否・除外・認定）と `GpaScenario` による what-if 試算。
+- **日付計算 (`IsoDate`)**: epoch day、曜日、加算をタイムゾーン非依存で実装。
+- **DB 設計書 (`docs/database-schema.md`)**: SQLite の DDL、制約、索引、論理削除、移行、主要クエリ。
+- **SQLDelight のスキーマとクエリ**:
+  - `kmp/shared/src/commonMain/sqldelight/` に学期・科目・授業回・出席・学事・課題・成績・同期・設定・書類のテーブルを定義。
+  - 部分ユニーク索引（出席の授業回 / 日付）、形式 CHECK、外部キー CASCADE、単一行設定を含む。
+- **`DatabaseRepository`**: モデルと SQLite の相互変換、insert + update による安全な upsert、論理削除。
+- **プラットフォーム別ドライバ**: JVM（インメモリ / ファイル）、Android（`AndroidSqliteDriver`）、iOS（`NativeSqliteDriver`）。
+- **DB の制約テスト**: 出席の upsert、CASCADE、CHECK、学期の一意性、設定の単一行、同期リンクの一意性を JVM の SQLite で検証。
+- **画面向け `CoreApi`**:
+  - `state` / `settings` の `StateFlow` と、時間割・学校アジェンダ・出席・科目詳細・GPA・シラバス検索の射影。
+  - 学期・科目・授業回・補講・出席・課題・学事・成績・シナリオ・設定・バックアップの変更 API。
+  - 入力検証、ID と時刻の補完、休講への出席拒否、参照切れの検出。
+  - `AppSettings` を 1 型に集約し、表示曜日・最大時限・時限時刻・出席ポリシー・通知を持つ。
+  - シラバスのコード一致・前方一致・日本語 bigram の検索。
+- **画面 API のドキュメント (`docs/core-api.md`)**。
+- **保存層の抽象化**: `CoreRepository` を追加し、SQLDelight 実装とインメモリ実装を差し替え可能にした。
+- **Wasm 用の保存**: `InMemoryRepository` + localStorage の `createWasmCoreApi()`。SQLDelight の非同期ドライバなしで画面 API が動く。
+- **iOS のコンパイル確認**: `iosX64` / `iosArm64` / `iosSimulatorArm64` の Kotlin コンパイルを Mac で確認。フレームワークのリンクは Xcode の iOS SDK が必要。
+- **Compose Multiplatform のアプリ (`kmp/composeApp`)**:
+  - 本家の下部ナビを再現した 5 画面（ホーム / ToDo / 時間割 / カレンダー / さがす）と、右上から開く設定。
+  - 幅 720dp 以上で Navigation Rail、未満で Navigation Bar に切り替える。
+  - ホームは次の授業・今日のアジェンダ・期限が近い課題・クイック操作。時間割は学期チップ、週グリッド、時間割外科目、競合表示、科目追加。カレンダーは学校予定だけの月グリッド。さがすはシラバス検索。
+  - 科目詳細はボトムシートで、授業回・課題・出席率・成績を表示。
+  - Noto Sans JP（OFL）を同梱し、全 type scale に適用。Web でも日本語が豆腐にならない。
+  - 日本語 / 英語 / 簡体字中国語 / 韓国語の `UiStrings` を追加。設定の言語切り替えが即時反映される。
+  - GPA 画面、時間割・カレンダーの表示設定、ToDo の期限別グループ、カレンダーの授業/ToDo/学事フィルタを追加。
+  - Noto Sans JP / SC / KR を同梱し、言語に応じて FontFamily を切り替える。
+- **本家 UI の全画面抽出 (`docs/original-ui-inventory.md`)**:
+  - NavHost、下部ナビ、Home、ToDo、時間割、カレンダー、さがす、GPA、アカウント、オンボーディング、お知らせ、レビュー、PDF、管理、設定のクラスとコンポーネントを整理。
+  - 本家の UX 上の問題と、M3E への翻訳方針を対応表にした。
+- **コア設計レビュー (`docs/architecture-review.md`)**:
+  - 共有モデルと `CoreRepository` は維持し、`CoreApi` を機能別サービスへ分割する方針を整理。
+  - 画面は表示状態と入力だけを持ち、業務ルールは共通コアに置く。
+- **戻る挙動**:
+  - Compose Multiplatform の `ui-backhandler` を導入。Android は predictive back、Web はブラウザ履歴、iOS は画面内の戻る。
+  - Web のパス（`/`, `/todo`, `/timetable`, `/calendar`, `/search`, `/settings`, `/gpa`, `/course/<id>`）とディープリンクを追加。
+  - Wasm 配布物を SPA フォールバック付きで配る `kmp/tools/serve-wasm.py` を追加。
+- **本家の見た目に合わせた UI の作り直し (`docs/visual-spec.md`)**:
+  - APK の色定数とストアの実画面から、配色・余白・角丸・部品の寸法を抽出。
+  - 独自のデザイントークン (`ui/design/Tokens.kt`) と部品 (`Widgets.kt`, `Navigation.kt`) を追加。
+  - 下部ナビを浮遊ピルに、見出しを色付きの帯に、カードを白 + 1dp 線に統一。
+  - ホーム・ToDo・時間割・カレンダー・さがす・設定・GPA・科目詳細を新しい部品で作り直した。
+  - 時間割は空セルのタップで科目追加、6-7 限のトグル、合計単位数の帯を持つ。
+  - カレンダーは日曜始まりのグリッドに最大 3 本の帯と `+n`、表示設定はボトムシート。
+  - さがすは年度・学期の絞り込みとシラバスからの追加、空のときは履修中の科目を出す。
+  - 科目詳細で今日の出欠を 4 ボタンから記録できるようにした。
+  - Web は `index.html` で言語に合ったフォントを先読みし、起動画面を出すようにした。
+  - 画面切替に短いフェードとスライドを入れた。
+- **時間割の曜日設定**: 設定で隠した曜日が時間割に出ないよう修正。判定は `TimetableDays.resolve` に切り出し、テストを追加。
+- **ヘッダー統一（下位画面）**:
+  - 「その他」と PDF のヘッダーも `TabHeader`（56dp）に寄せ、全画面で高さを揃えた。
+- **ヘッダー統一と細部の修正**:
+  - 時間割のヘッダーも `TabHeader`（56dp）に統一。
+  - カレンダーの日パネルを `heightIn(max = 480.dp)` にし、予定が少ない日の空白を解消。
+  - 時間割セルの `clip` と `border` の角丸を 14dp に揃えた。
+  - タブ切り替えの横スライドをやめ、フェードのみに。
+- **共通ヘッダーと 2 ペイン**:
+  - ホーム・ToDo・カレンダーのヘッダーを `TabHeader`（`statusBarsPadding` + 高さ 56dp + 左右 16dp）に統一。
+  - カレンダーの 2 ペイン閾値を 800dp に下げ、900px の窓でも日パネルが出るようにした。
+- **UI レビューの反映（2 回目）**:
+  - カレンダーの日セルを「色付きの帯＋文字」から「6dp のドット＋件数」に変更（低コントラストと 7.5sp の潰れを解消）。
+  - カレンダーの 2 ペイン閾値を 900 → 820dp に。
+  - 時間割に `widthIn(max = 1000.dp)` を入れ、教室ピルを内容幅に。
+- **UI レビューの反映（1 回目）**:
+  - ToDo の白背景をやめ、他画面と同じ地色に統一。
+  - ホーム・ToDo・カレンダーの自前ヘッダーに `statusBarsPadding()` を追加。
+  - 下部ナビの選択インジケータを `primaryContainer` に変更（1.15:1 → 約 1.5:1）。
+  - カレンダーの帯文字が白飛びしないよう `readableOn` のしきい値を 0.45 に。
+  - 文言の重複キーを 4 言語で除去（`settings_version` など 7 件）。
+- **M3E の仕上げ（時間割とその他）**:
+  - 時間割のセルを 14dp 角丸、部屋ピルをスタジアム型に。今日の列は見出しを色付きにした。
+  - 「その他」の PDF 行から重複する説明文を削除し、フッターにアプリアイコンを追加。
+- **M3E の仕上げ（アプリバーと一覧）**:
+  - 「その他」を `LargeTopAppBar` + スクロールで畳む形にし、行を M3 の `ListItem` に統一。
+  - PDF 画面を `MediumTopAppBar` に変更。
+- **M3E の仕上げ**:
+  - シートと大きな面の角丸を 28dp に広げ、`MaterialExpressiveTheme` の motion と合わせた。
+  - PDF の書き出し中に M3E の `LoadingIndicator` を表示。
+- **PDF（iOS）**:
+  - PHPicker で最大 12 枚を選び、UIImage で縮小・JPEG 化して `PdfBuilder` で PDF にまとめる。
+  - 目標容量を超えたら品質を下げて作り直す（最大 2 回）。
+  - 一時ファイルに書き出し、`UIActivityViewController` で共有。
+  - カメラ撮影は iOS では未対応のまま（ボタンは無効表示）。
+- **PDF の自己テスト**:
+  - `pdf-self-test.html` を追加。画面を使わずに PDF を組み立て、ヘッダ・EOF・ページ数を確認できる。
+- **PDF（Android）**:
+  - MainActivity に Photo Picker を登録し、選んだ画像を `Bitmap` で縮小・2 値化して `PdfBuilder` で PDF にまとめる。
+  - 目標容量を超えたら品質を下げて作り直す（最大 2 回）。
+  - FileProvider 経由で共有。`res/xml/file_paths.xml` と provider を追加。
+  - 書き出し中は M3E の `LoadingIndicator` を出す。
+- **PDF（Web）**:
+  - 写真を選んで 1 つの PDF にまとめる画面を追加。「その他」から開く。
+  - 目標容量で 5 つのモード（極限 1MB / 軽量 2MB / 標準 5MB / 高画質 10MB / グレースケール 3MB）を用意。
+  - 極限 1MB は 1000px + 2 値化 + 40%。文字は読めるが写真は潰れる。OCR の下ごしらえ向け。
+  - 無圧縮は再エンコードしない（JPEG はそのまま）。
+  - 「撮影して PDF を作る」を追加。Web は capture 属性、Android は TakePicturePreview。
+  - 目標を超えたら品質を下げて作り直す。Web は `media.js` で選択・縮小・PDF 組み立て・保存まで行う。
+  - PDF の組み立ては共通コードの `PdfBuilder` も用意済み（Android / iOS で使う）。
+- **アプリアイコン**:
+  - 旧 Web 版のアイコンを potrace でベクター化し、`favicon.svg` と Android の adaptive icon（前景ベクター + 背景色 + monochrome）を追加。
+  - Android の manifest に `android:icon` / `roundIcon` を設定し、既定アイコンから差し替えた。
+- **ライセンス**:
+  - アプリ本体を MIT とした（`LICENSE`）。
+  - 「その他」にオープンソースライセンス画面を追加。同梱物の一覧と OFL 1.1 の全文を表示する。
+  - シラバスのデータは大学の著作物である旨を明記した。
+- **下部ナビの再構成**:
+  - 5 番目を「その他」にし、シラバス検索・GPA・設定をそこへ集約。
+  - さがすは独立した画面ではなく、その他から開く下位画面にした（戻るで戻る）。
+  - PDF は書き出しの土台（`PdfBuilder`）だけ先に入れ、メニューには実装後に出す。
+- **テーマとホームの再構成**:
+  - テーマにピュアブラック（有機 EL 向け `#000`）を追加。設定は 4 択。
+  - ホームの上部をよく使うリンク集に置き換え、下部ナビと同じ行き先のショートカットを削除。
+  - 今日のカードに時刻から選ぶ空の絵（太陽 / 月）を入れた。
+  - 設定はカードの外（画面上部の 32dp の行）に置き、カードの操作に見えないようにした。
+  - アイコンを `AppIcons` に集約（ToDo の絵柄が 2 種類あったのを統一）。行末の「›」を 18dp のアイコンに統一。
+  - ToDo の期限グループを見出し固定に、カレンダーの選択日チップを横スクロールにした。
+  - フォントのサブセット生成を画面の直書き文字まで含めるよう修正（韓国語の欠けを解消）。
+- **見出しと面の整理（unslop）**:
+  - ホーム・ToDo・さがすから画面名の見出しを外した。下部ナビが現在地を示すため。
+  - 節の見出しを文字だけにし、色付きの帯・アクセントの棒・下線をやめた。
+  - 行ごとの角丸カードをやめ、1 つの面にリストを 1 つ置く形に統一。
+  - 面の線を外し、余白と 1dp の区切りで分けるようにした。カード角丸は 12dp。
+  - 画面ヘッダーを M3 の `TopAppBar` に寄せ、時間割は学期のピルを題にした。
+  - 時間割のグリッドを 16dp の余白・2dp の間隔・48dp の時限列に揃えた。
+- **M3E への寄せとフォントの 3 段読み**:
+  - 下部ナビを端まで届く `NavigationBar` とピル型インジケータに変更（浮遊ピルをやめた）。
+  - 成績の 5 段階を `ButtonGroup` + `ToggleButton` に変更。
+  - フォントを UI（330KB）→ シラバス込み（820KB）→ フル（9.2MB）の 3 段階で差し替える方式にした。
+  - `CoreApi` の 8 サービスを公開し、新しい画面はサービスを直接受け取れるようにした。
+- **Material 3 Expressive とフォントの 2 段読み**:
+  - `material3:1.11.0-alpha07` を明示し、`MaterialExpressiveTheme` と `MotionScheme.standard()` を導入。
+  - 追加ボタンを `MaterialShapes.Cookie9Sided` の形にした。
+  - UI 用サブセットフォント（約 330KB）を追加し、フルフォントの取得完了後に差し替える方式にした。
+  - `kmp/tools/subset_fonts.py` でサブセットを再生成できる。
+- **CoreApi の分割**:
+  - `core/api/services/` に Course / Attendance / Task / Grade / Schedule / Syllabus / Settings / Backup を追加。
+  - `CoreApi` は 609 行から 259 行になり、公開 API は互換のまま委譲する。
+- **成績表記の切り替え**:
+  - `GradeCatalog` を追加し、SABCD / 秀優良可不可 / 4.0〜0.0 を同じ 5 段階として相互変換。
+  - 設定に「成績の表記」を追加。GPA 画面と科目詳細は選んだ表記で表示・入力する。
+  - 入力はどの表記でも受け付ける（「秀」「S」「4.0」は同じ扱い）。
+- **学内リンク**:
+  - 本家 APK の URL をそのまま使い、授業・学習 / キャンパス / 生活・進路の 3 グループをホームに追加。
+  - タップは `LocalUriHandler` で OS のブラウザを開く。
+- **広い画面と横画面**:
+  - カレンダーは幅 900dp 以上で月グリッドと日パネルを並べる。
+  - 高さ 560dp 未満ではヘッダーと日セルを詰める。
+  - ホーム・設定・ToDo・さがす・GPA は読みやすい幅で中央に寄せ、ホームのタイルは 3 列 / 6 列を切り替える。
+- **構造の整理**:
+  - `UiStrings` を言語ごとのファイルに分割。
+  - 時間割のグリッドとカレンダーの月グリッドを別ファイルに分離。
+  - GPA の集計を `GpaProjector` に移し、`CoreApi.gpa()` は組み立てだけにした。
+- **テーマの補正**:
+  - Material 3 の surfaceContainer 系の色を明示し、カードが既定の薄紫にならないようにした。
+  - 言語チップのラベルを、その言語のフォントで描画するようにした（ハングルの豆腐を解消）。
+  - Android は APK、Wasm はブラウザ配布物を生成。Chrome で描画を確認。
+  - iOS は `iosArm64` / `iosSimulatorArm64` の Kotlin コンパイルを Mac で確認。Compose 1.11 は Intel シミュレータ `iosX64` 非対応。
+- **シラバスデータのパイプライン (`kmp/syllabusTool`)**:
+  - 2020〜2026 年の TSV を一次ソースとして同梱。
+  - 文字列辞書と列指向の CBOR に変換。1.07MB の TSV を 617KB に圧縮し、11,921 コマを収録。
+  - 2026 年は前学期 906、後学期 803 コマ。半角カタカナの学期表記も正規化。
+  - マニフェストに件数・バイト数・SHA-256・年度を記録。
+  - アプリは同梱 CBOR を起動時に読み、シラバス検索に使う。
+- **iOS の CI ワークフロー**: `.github/workflows/ios-core.yml` で macOS ランナーの Xcode を使い、共有コアと Compose アプリのシミュレータ用・実機用フレームワークをリンクする。
+- **iOS ビルドと匿名性のメモ (`docs/ios-build.md`)**: Xcode の CLI 導入方法、匿名で続けられる範囲、配布時の制約。
+- Gradle の設定キャッシュを有効化。変更なしの `jvmTest` が約 18 秒から約 1 秒になった。
+- テストを拡張（JVM 62 件、Wasm 40 件が合格）。
+
+### Changed
+
+- `Course.weekday` / `period` を nullable にし、週次パターンを持たない科目を表現できるようにした。
+- `AttendanceRecord` に `sessionId` を追加。
+- `UserData` を schemaVersion 2 に上げ、学期・授業回・学事・課題・成績・同期リンクを追加。
+- `UserDataCodec` は日付・時刻・状態を検証し、科目を消した孤児の授業回・課題・出席を落とす。
+- 端末同期用の墓標 `deletedAtMillis` を科目・授業回・学事・出席に追加。
+- **角丸・面・塗りのトークン化（UI 監査 F3）**: `Radius` を control 10 / card 16 / sheet 28 / pill 50% の 4 段に絞り、`AppShapes` を唯一の Shape の出どころにした。`MaterialTheme.shapes` も同じ 4 段に揃え、画面の `RoundedCornerShape(n.dp)` 直値をなくした。`AppCard` は既定で 1dp の線を持つ面にし、科目色の重ねは `tintOf`（明 16% / 暗 24%）だけにした。主ボタンはピルから control の角丸に変更。
+- **タイポグラフィのロール化（UI 監査 F2）**: 画面の `fontSize` 直書きを `MaterialTheme.typography` の 6 ロール（titleLarge 20 / titleMedium 16 / bodyLarge 15 / bodyMedium 14 / bodySmall 12 / labelSmall 11）に置き換えた。太字は `SemiBold` までにし、時刻・単位数・GPA・日付は `tabular()` で等幅にした。`design/Typography.kt` を追加。
+- **アプリバーと画面骨格の統一（UI 監査 F1）**: アプリバーを `AppTopBar`（下位画面）と `TabHeader`（タブ画面）の 2 種に絞った。`TabHeader` は高さ 56dp（横 44dp）、左 40dp スロット、中央は幅に対して幾何学的に中央、右は 40dp の倍数に揃えた。カレンダーの独自ヘッダー、More・PDF の混在を解消し、未使用の `ScreenHeader` / `AppTopBarContent` を削除した。ホームの設定アイコンは削除し、「その他」と時間割の歯車に集約した（項目 5）。
+- **余白・密度・横画面（UI 監査 F5）**: `LocalCompactLayout`（高さ 480dp 未満）を追加し、ヘッダー 44dp・下部余白 72dp・下部ナビ 48dp（ラベル無し）へまとめて切り替えるようにした。画面下の余白は 96dp（ナビ 80 + 16）に統一し、画面ごとの 88/110/150dp を `screenBottomPadding` に寄せた。
+- **遷移と戻るの階層（UI 監査 F4）**: 戻るを 3 段（シート → 詳細 → タブのルートでは消費しない）に整理し、履歴はタブ切替だけ `pushState`、詳細は `replaceState` にした。Web は `popstate` を購読して URL から画面を復元する。下位画面の切替はフェードで繋ぎ、シート用の `ModalBackHandler` を追加した。
+- **TODO の表記と導線（UI 監査 11・14・17・18）**: 4 言語の表記を `TODO` に統一した。件数は全タブに出す（0 のときは出さない）。検索欄をタブの下へ移し、白面 + 1dp 線 + 44dp にして開いたら自動フォーカスする。一覧の末尾に「TODO を追加」の行を置いた。
+- **時間割の読みやすさ（UI 監査 25・26・28・29）**: 左列の時刻とコマ番号を縦中央に揃え、現在コマのドットが高さを変えないようにした。曜日見出しから今日の日付を外し、`clip` と `border` を同じ角丸に揃えた。教室名はセル下端の全幅バーにして中央寄せにした。合計単位数の帯に暫定 GPA と GPA 画面への導線を足した。
+- **ホームの導線（UI 監査 5・6・8）**: ホームの設定アイコンを削除し、上部は `OpenYASKE` の見出しだけにした。GPA 行を削除して時間割の単位数バーへ移した。ヒーローの次の授業と今日の課題・学事の行を押せるようにした。
+- **カレンダーと PDF（UI 監査 31・36・40）**: 重複していたカレンダーの FAB を削除し、日詳細のボタンを「この日に予定を追加」にした。PDF は説明文を削除して「圧縮」の見出しにし、モードを目標容量の昇順（1MB / 2MB / 3MB / 5MB / 10MB / 元のまま）に並べ替えた。科目シートの内部キー `course_attendance_today` と授業回種別の enum 名を 4 言語の文言に置き換えた。
+- **時間割の追加経路と学期（UI 監査 21・22・27）**: 空きコマの中央に薄い＋を置き、押したコマの曜日・時限は固定表示にして二度入力させない。右上の＋を削除し、下部の行を「時間割外の科目を追加」に変えた（`CourseKind.EXTRA` で週次パターンを持たない科目を作る）。学期メニューの末尾に「学期を追加」を置き、年度・前後期/通年・開始終了日から `api.saveTerm` する画面を追加した。時間割セルの科目名に `LineBreak.Paragraph` を適用した。
+- **カレンダーの帯と設定導線（UI 監査 30・32）**: 日セルのドットを、予定名が入る高さ 16dp の帯（最大 3 本 + `+n`）に戻し、携帯でも `availableHeight` から行の高さを決めるようにした。歯車は全体設定の「カレンダー」節へ移動し、表示の ON/OFF は日詳細シートから開くようにした。
+- **TODO の編集・削除と締切入力（UI 監査 12・16）**: 行タップで `TaskEditorSheet` を開き、題・科目（ドロップダウン）・期限（`DateField` + `TimeField`）を編集できるようにした。行末のメニューから編集と削除ができ、削除は確認ダイアログを挟む。`design/DateFields.kt` を追加。
+- **ホームの横画面と遊び心（UI 監査 4・9）**: 横画面（高さ 480dp 未満）では「今日」と「今後」を 2 列に並べた。ヒーローは 1 日の授業の進み具合をリングで示し、授業中は面の色が `primaryContainer` から `primary` に変わる。日付は `headlineLarge` で大きく置いた。
+- **シラバス検索の絞り込みと重さ（UI 監査 34・35）**: 曜日・コマ・課程（昼間/夜間/修士/博士）で絞れるようにし、検索は 200ms のデバウンスに変えた。`SyllabusCatalog` に bigram の転置索引を作って候補を絞り、科目コードも索引に入れた。1 文字は科目コードの一致だけを見る。学期は表記ゆれを正規化して比較する。
+- **時間割外の科目（UI 監査 23）**: `ScheduleService` の「時間割外」を、どのセルにも入らなかった科目に変えた。設定で隠した曜日・時限の科目もここに出るので、合計単位数だけが増えて見えなくなることがない。グリッド下に節を常設し、追加行と理由の 1 行を添えた。
+- **起動画面（UI 監査 1）**: Web の `#boot` にロゴと 2dp の不定プログレスを置き、フェード後にノードごと削除する。Compose 側はシラバスの読み込みが終わるまで、今日のカードと同じ 28dp 角丸のスケルトンを出す。
+- **TODO 一覧の面をそろえる（UI 監査 13）**: 期限別のまとまりをそれぞれ `AppCard` に畳み、行の白を面の上に載せた。一覧が画面端まで白く伸びる状態をやめ、区切りはカード内の 1dp の線に統一した。
+- **検索結果の行から開く（UI 監査 6）**: シラバスの結果行を押すと `SyllabusSheet` が開き、科目コード・教員・曜日・コマ・教室・学期・課程を確認してから履修に追加できるようにした。
+- **Android の起動画面（UI 監査 1）**: `androidx.core:core-splashscreen` を入れ、`Theme.SplashScreen` に地色とランチャーアイコンを設定した。`installSplashScreen()` で最初のフレームまで表示し、スケルトン（Compose 側）へ渡す。
+- **授業前のローカル通知（UI 監査 2・判断はローカルのみ）**: `WorkManager` の 15 分間隔 Worker が端末内の DB を見て、開始が近い授業を `NotificationManagerCompat` で通知する。同じ授業回は 1 回だけ、`quietDuringClass` が有効なら授業中は出さない。Android 13 以降は `POST_NOTIFICATIONS` を起動時に求める。サーバも Push も使わない。
+- **ホームのダッシュボード化**: 日付と天気（取得元が決まるまで「準備中」の 1 行）、今日の時間割の横スクロール、今日の課題・学事、3 つの数字タイル、学内リンク、便利ツールの順に組み直した。横画面と幅 900dp 以上では「今日」と「今後」を 2 列にする。天気は推測値を出さない。
+- **カレンダーの月セレクタ**: ヘッダーを `TabHeader` にし、月のピルから `DatePickerDialog` で日付へジャンプする。前月・翌月の矢印を廃止し、「今日」のテキストボタンと全体設定への歯車を右に置いた。
+- **TODO と科目の編集**: TODO は行タップで `TaskEditorSheet`（題・科目・期限・優先度・繰り返し・メモ・削除）。科目は鉛筆から `CourseEditorSheet`（名前・教室・教員・コード・単位数・色・学期・種別・メモ・URL・シラバス・登録解除）。科目選択は検索付きのシートに変えた。
+- **繰り返しの保存**: `CourseTask.repeat` を追加し、SQLDelight を schema 2 に上げた（`1.sqm` で `repeat_pattern` を追加）。完了にすると次回分を未完了で作る。
+- **ハッシュルーティング**: Web の URL を `#/timetable` 形式にし、`?demo=1` などのクエリはハッシュより先に読む。`popstate` で URL から画面を復元する。
+- **PWA**: `manifest.webmanifest`、`sw.js`（キャッシュのみ）、192/512 のアイコンを追加し、`index.html` で登録した。起動画面は `#compose-root` の最初の要素で消すようにして、8 秒待ちをやめた。
+- **アクセントの色相化**: `accentHue`（0..359）と `accentStyle`（COLOR / MONOCHROME）に整理し、プリセット 9 色と色相スライダーにした。`onPrimary` はコントラスト比から白黒を選び、地と面の色相もアクセントに寄せる。
+- **ホームの情報量を戻す**: 3 つの数字タイル（今日 / 今週 / 合計単位）、今日の課題・学事、今後の課題を加えた。天気と運行は取得元が無いので節ごと出さない。ダミーデータ投入の導線を外した。
+- **出席の扱い**: 授業回が無い科目（時間割外）は今日の日付で出席を記録する。警告は「欠席 / (出席 + 欠席 + 遅刻×重み + 公欠×重み) が 1/3 以上」に変え、`absenceWarnRatio`（0.1〜0.5、既定 0.333）で設定できる。科目詳細に「欠席 n / 上限 m」を出す。
+- **カレンダーの予定・TODO 編集**: 日パネルと日詳細シートの行、選択日のチップから、TODO 編集シートと予定編集シート（タイトル / 日付 / 時刻 / 終日 / 場所 / メモ / 削除）を開けるようにした。予定に `location` を追加（schema 3）。
+- **追加と編集の統一**: 科目は `CourseEditorSheet` に寄せ、上部の「シラバスから探す」で科目名・コード・教員・教室・曜日・時限を埋める。予定は `SchoolEventEditorSheet` で新規も編集も行う。TODO は `TaskEditorSheet` のみ。
+- **時間割の背景画像**: Web は media.js と IndexedDB、Android は Photo Picker と filesDir、iOS は Documents に保存する。長辺 1600px・JPEG 80% に縮小し、グリッドの背後に `ContentScale.Crop` とスクリムを敷く。セルは 不透明 / すりガラス（55%） / 半透明（30%） / 透明（枠線のみ）の 4 段で、ヘッダーのメニューと設定の両方から切り替える。空きコマは常に枠線＋薄い＋だけ。
+- **シラバスから科目を作る**: 追加シートの「シラバスから探す」に文言を付け、コマから開いたときは曜日・時限で絞る（解除可）。選ぶと科目コード・教員・教室・曜日・時限・URL を保存する。結果行に曜日・時限・教員を出す。
+- **TODO の「見る」と「直す」**: ホーム・カレンダー・科目詳細からは `TaskDetailSheet`（完了トグル・期限・優先度・繰り返し・メモ・編集）を開く。科目なしの TODO を作れ、紐づけも外せる（`CourseTask.courseId` を NULL 可にし、schema 4 へ移行）。科目詳細の課題行からも詳細を開く。
+- **ホームのリンク集**: 学内リンクと学修リンクを 2 列グリッドで戻した。アイコンは色付きの角丸タイル。
+- **データの入出力**: 設定のデータ節に JSON の読み込み（貼り付け・上書き確認）と全データ削除（二段確認）を追加。`BackupService.clearAll` と `CoreApi.clearAllData` を足した。
+- **通知**: 既定を「授業開始 10 分前」にし、課題の締切前日 20:00 の知らせを追加。設定で分数（5/10/15/30）と課題リマインダーの ON/OFF を選べる。
+- **ハプティクス**: `tapFeedback` / `selectFeedback` を expect/actual で追加し、タブ切替・主要ボタン・FAB・TODO の完了・空きコマ・シートを閉じたときにだけ出した。Web は空、Android は `performHapticFeedback`、iOS は `UIImpactFeedbackGenerator` を使い回す。
+- **アクセントカラー（UI 監査 38）**: `AppSettings.accent` を追加し、プリセット 8 色と RGB スライダー（グラデーションのトラック）から 1 色を選べるようにした。`primary` / `primaryContainer` / `on-*` / `sectionBar` に加え、地・面・線の色相もアクセントから導出するので、ライト・ダーク・ピュアブラックのどれでも破綻しない。ホームのヘッダーは左にアプリアイコンとアプリ名、右に設定への歯車を置いた。
+
+## [Unreleased] - 2026-11-02
+
+### Added
+
+- **オフライン運用と QR 転送の設計メモ (`docs/offline-and-qr-transfer.md`)**:
+  - 現実的なデータ量で JSON / zstd / 転送専用バイナリのサイズを実測。
+  - 1 学期分の時間割 + 出席は 882 B（zstd 292 B）で 1 枚の QR に収まる。
+  - 2 年分の全項目でも 2.9 KB まで圧縮でき、L 1 枚または M 2 枚の範囲。
+  - `INTERNET` を宣言しない offline flavor の成立条件を整理。
+- **Kotlin Multiplatform の共有コア (`kmp/shared`)**:
+  - `Course` / `Todo` / `CalendarEvent` / `AttendanceRecord` / `GpaEntry` / `AcademicYear` / `UserData` を Kotlin で定義。
+  - 出席率（`AttendanceCalculator`）、GPA（`GpaCalculator`）、時間割の重複・範囲検証（`TimetableValidator`）を実装。
+  - バックアップ JSON の読み書き（`UserDataCodec`）。壊れたレコードだけを落とし、重複を統合し、範囲外の値を補正する。
+  - シラバス TSV のパーサ（`SyllabusTsvParser`）。APK 版が落としていた「月1, 月2」の複数コマを、コマごとに 1 件へ展開する。
+  - JVM / Wasm(Node) / Android の 3 ターゲットでビルドとテストを確認（24 テスト × 2 ターゲット）。
+- **ドキュメント**: `docs/uec-apk-analysis.md`（APK 解析と通知・ウィジェットの深掘り）、`docs/kmp-migration.md`（移行計画）。
+- **unslop スキル**を `~/.agents/skills/unslop` に導入（UI 監査用）。
+
+### Changed
+
+- **Svelte 版を `legacy/svelte` ブランチで凍結**。`master` の本線を KMP に切り替えた。
+- `AGENTS.md` のプロジェクト概要を KMP 本線に更新。
+- APK 解析ドキュメントと退避ディレクトリを UEC 表記に改名し、現行ドキュメントから旧称を除去した。
+
+### Removed
+
+- ルート直下の解析用 APK（`base.apk`、`uec-universal.apk`、split APK）をリポジトリ外の
+  `/data/artifacts/uec-apk-2026-11-02/` へ退避。
+- 重複画像 `OpenYASKE.png`、`app-icon.png.bak`、私物スクリーンショット `20260727_134053.jpg` を削除。
+  （凍結ブランチには残っている）
+
 ## [0.1.0] - 2026-08-02
 
 ### Added

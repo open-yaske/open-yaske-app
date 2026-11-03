@@ -21,7 +21,7 @@ OpenYASKE は「モジュラー機能配置アーキテクチャ」を採用し�
 
 ### 手順 1: Feature の定義を追加
 
-[src/lib/features.ts](file:///data/open-nexus/src/lib/features.ts) の `FEATURES` 配列に、新規機能の定義を追加します。
+[src/lib/features.ts](src/lib/features.ts) の `FEATURES` 配列に、新規機能の定義を追加します。
 
 ```ts
 export const FEATURES: Feature[] = [
@@ -44,7 +44,7 @@ export const FEATURES: Feature[] = [
 
 ### 手順 3: メニューや設定への表示
 
-必要に応じて、[src/lib/components/SideNav.svelte](file:///data/open-nexus/src/lib/components/SideNav.svelte) や下部バーなどに表示されるアイコン・ナビゲーションの調整を行います。
+必要に応じて、[src/lib/components/SideNav.svelte](src/lib/components/SideNav.svelte) や下部バーなどに表示されるアイコン・ナビゲーションの調整を行います。
 
 ---
 
@@ -56,10 +56,10 @@ export const FEATURES: Feature[] = [
 
 以下の4つのメッセージファイルすべてに、全く同じキーを追加します。
 
-1. [messages/ja.json](file:///data/open-nexus/messages/ja.json) (ベース言語・日本語)
-2. [messages/en.json](file:///data/open-nexus/messages/en.json) (英語)
-3. [messages/ko.json](file:///data/open-nexus/messages/ko.json) (韓国語)
-4. [messages/zh.json](file:///data/open-nexus/messages/zh.json) (中国語 - 簡体字)
+1. [messages/ja.json](messages/ja.json) (ベース言語・日本語)
+2. [messages/en.json](messages/en.json) (英語)
+3. [messages/ko.json](messages/ko.json) (韓国語)
+4. [messages/zh.json](messages/zh.json) (中国語 - 簡体字)
 
 > [!IMPORTANT]
 > すべての言語ファイルでキーの過不足がないよう完全に一致させてください。
@@ -94,11 +94,11 @@ console.log(m.hello({ name: 'ユーザー' }));
 
 ### 手順 1: 型定義の更新
 
-[src/lib/types.ts](file:///data/open-nexus/src/lib/types.ts) に、保存するデータの TypeScript 型を追加・修正します。
+[src/lib/types.ts](src/lib/types.ts) に、保存するデータの TypeScript 型を追加・修正します。
 
 ### 手順 2: RemoteStorage クライアントでの宣言
 
-[src/lib/remotestorage.ts](file:///data/open-nexus/src/lib/remotestorage.ts) 内で、新規データパスのタイプおよびメソッド（`rsGet`, `rsSet` 等）のラッパーを定義・宣言します。
+[src/lib/remotestorage.ts](src/lib/remotestorage.ts) 内で、新規データパスのタイプおよびメソッド（`rsGet`, `rsSet` 等）のラッパーを定義・宣言します。
 
 ```ts
 // 起動時の declareType への追加
@@ -121,7 +121,7 @@ client.declareType('my-data', {
 - **重いライブラリの動的インポート化**:
   PDF出力 (`jspdf`) や数式描画 (`katex`)、図表描画 (`mermaid`) などの重いモジュールは、ページの初期ロード時に静的インポートせず、ユーザーがその機能を呼び出すタイミングで `await import('module')` を使って動的インポートしてください。
 - **祝日データの内製化**:
-  祝日計算など、自前で計算可能な軽量ロジックで代替できる場合は、巨大な多国籍データベースを持つ外部パッケージを安易にインストールせず、[src/lib/holidays.ts](file:///data/open-nexus/src/lib/holidays.ts) のような内製計算モジュールを活用してください。
+  祝日計算など、自前で計算可能な軽量ロジックで代替できる場合は、巨大な多国籍データベースを持つ外部パッケージを安易にインストールせず、[src/lib/holidays.ts](src/lib/holidays.ts) のような内製計算モジュールを活用してください。
 
 ---
 

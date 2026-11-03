@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenYASKE</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#EFF1FA" />
+    <style>
+        :root {
+            --boot-background: #EFF1FA;
+            --boot-foreground: #263F73;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --boot-background: #111317;
+                --boot-foreground: #EFF1FA;
+            }
+        }
+        html, body { margin: 0; height: 100%; background: var(--boot-background); }
+        #compose-root { width: 100%; height: 100%; }
+        /* 起動画面は自前の不透明な背景を持つ。canvas が下に出ても透けない。 */
+        #boot {
+            position: fixed; inset: 0; z-index: 10;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            background: var(--boot-background);
+            color: var(--boot-foreground);
+            transition: opacity 240ms ease;
+        }
+        #boot .boot-logo { width: 48px; height: 48px; }
+        #boot .boot-track {
+            width: 120px; height: 2px; overflow: hidden; border-radius: 1px;
+            background: currentColor; opacity: 0.18;
+        }
+        #boot .boot-bar {
+            width: 40%; height: 100%; background: currentColor;
+            animation: bootslide 1.1s ease-in-out infinite;
+        }
+        @keyframes bootslide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(250%); }
+        }
+        /* 背景ごと消す。文字だけ先に消えることがない。 */
+        #boot.done { opacity: 0; pointer-events: none; }
+        @media (prefers-reduced-motion: reduce) {
+            #boot { transition: none; }
+            #boot .boot-bar { animation: none; width: 100%; }
+        }
+        .fallback {
+            display: flex; height: 100%; align-items: center; justify-content: center;
+            font-family: sans-serif; color: #333; padding: 24px; text-align: center;
+        }
+    </style>
+    <script src="media.js"></script>
+    <script>
+        // 最初に表示する言語のフォントだけを先に取りに行く。
+        // Compose のリソース読み込みより前に開始するので、豆腐の時間が短くなる。
+        (function () {
+            var lang = (navigator.language || 'ja').toLowerCase();
+            var font = lang.indexOf('zh') === 0 ? 'noto_sans_sc_ui'
+                : lang.indexOf('ko') === 0 ? 'noto_sans_kr_ui'
+                : 'noto_sans_jp_ui';
+            var link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'fetch';
+            link.crossOrigin = 'anonymous';
+            link.href = 'composeResources/org.openyaske.app.resources/font/' + font + '.ttf';
+            document.head.appendChild(link);
+        })();
+    </script>
+</head>
+<body>
+<div id="compose-root"></div>
+<div id="boot" aria-hidden="true">
+    <img class="boot-logo" src="favicon.svg" alt="" />
+    <div class="boot-track"><div class="boot-bar"></div></div>
+</div>
+<script>
+    (function () {
+        var root = document.getElementById('compose-root');
+        var boot = document.getElementById('boot');
+        var supported = false;
+        try {
+            supported = !!document.createElement('canvas').getContext('webgl2');
+        } catch (e) {
+            supported = false;
+        }
+
+        // 背景ごとフェードしてから、ノードを DOM から外す。
+        var hideBoot = function () {
+            if (!boot || boot.classList.contains('done')) return;
+            boot.classList.add('done');
+            boot.addEventListener('transitionend', function () {
+                if (boot.parentNode) boot.remove();
+            }, { once: true });
+            setTimeout(function () {
+                if (boot.parentNode) boot.remove();
+            }, 600);
+        };
+
+        if (supported) {
+            var script = document.createElement('script');
+            script.src = 'composeApp.js';
+            // Compose は shadow DOM の中に描くので canvas では判定できない。
+            // #compose-root に最初の要素が入った時点を「描き始めた」とみなす。
+            script.onload = function () {
+                var frames = 0;
+                var check = function () {
+                    if (root.firstElementChild) {
+                        hideBoot();
+                        return true;
+                    }
+                    return false;
+                };
+                var tick = function () {
+                    frames += 1;
+                    if (check() || frames > 180) return;
+                    requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+                var observer = new MutationObserver(function () {
+                    if (check()) observer.disconnect();
+                });
+                observer.observe(root, { childList: true, subtree: true });
+                // 何かあっても 3 秒で必ず退避する。
+                setTimeout(hideBoot, 3000);
+            };
+            document.body.appendChild(script);
+
+            // オフライン再訪用のキャッシュ。Push は使わない。
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('sw.js').catch(function () {});
+                });
+            }
+        } else {
+            if (boot && boot.parentNode) boot.remove();
+            root.innerHTML = '<div class="fallback">このブラウザでは WebGL2 が利用できないため、画面を表示できません。デスクトップの Chrome / Firefox / Safari で開いてください。</div>';
+        }
+    })();
+</script>
+</body>
+</html>

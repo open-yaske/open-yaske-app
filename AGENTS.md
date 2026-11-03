@@ -2,13 +2,28 @@
 
 ## Project Overview
 
-時間割アプリ「OpenYASKE」。SvelteKit + CapacitorでWeb/モバイルクロスプラットフォーム。  
-**コアコンセプト**: Local-First + Offline-First + AIフレンドリーな公開データ。
+時間割アプリ「OpenYASKE」。**現在の本線は Kotlin Multiplatform（`kmp/`）**。
+SvelteKit + Capacitor 版は `legacy/svelte` ブランチで凍結しており、`master` では参照用に残している。
 
+- **共有コア**: `kmp/shared`（モデル・検証・出席/GPA/時間割の計算）。Android / Wasm / JVM でビルド確認済み
+- **UI（予定）**: Compose Multiplatform で Android / iOS / Wasm を共通化
 - **公開データ**: GitHub上のMarkdown（科目情報）→ CI/CDでJSON生成 → CDN配信
-- **個人データ**: RemoteStorage.js（ユーザー履修、カレンダー、TODO）
-- **モバイル**: Capacitor（Android/iOS） + オフライン対応必須
-- **将来像**: BYOK対応エージェントで履修計画提案
+- **個人データ**: KMP 側は JSON エクスポート + ローカル永続化。同期方式は未決
+- **iOS**: Kotlin/Native の Apple ターゲットは macOS でのみビルド可能
+
+### KMP の開発コマンド
+
+```bash
+cd kmp
+./gradlew :shared:jvmTest                       # 共有コアのテスト
+./gradlew :shared:wasmJsNodeTest                # Wasm のテスト
+./gradlew :shared:assembleDebug                 # Android AAR
+./gradlew :composeApp:assembleDebug             # Android APK
+./gradlew :composeApp:wasmJsBrowserDistribution # Wasm 配布物
+./gradlew :syllabusTool:run                     # TSV → CBOR
+```
+
+詳細は `docs/kmp-migration.md`、画面構成は `docs/ui-structure.md`、本家の全画面は `docs/original-ui-inventory.md`、設計レビューは `docs/architecture-review.md`、見た目の仕様は `docs/visual-spec.md`、データは `docs/syllabus-data.md`、画面 API は `docs/core-api.md`、DB 設計は `docs/database-schema.md`、iOS は `docs/ios-build.md`、APK 解析は `docs/uec-apk-analysis.md`。
 
 ## 多言語対応（i18n）
 
@@ -37,7 +52,7 @@
 - **エラーハンドリングの徹底（安定性向上）**:
   - 非同期処理やAPIコール、IndexedDB/RemoteStorageアクセスを行う関数では、必ず `try-catch` を導入し、例外発生時にもUIがローディング表示のまま固まらないようにエラー状態の設定と例外処理を行ってください。
 - **プロジェクト名称の統一**:
-  - 旧称（`nexus` や `opennexus`）は使用禁止です。すべてのコード、設定、変数名において `OpenYASKE`（または `open-yaske`）で統一してください。
+  - 旧称（過去のプロジェクト名）は使用禁止です。すべてのコード、設定、変数名において `OpenYASKE`（または `open-yaske`）で統一してください。
 - **テストコードの追加・更新義務**:
   - ロジックの追加や修正を行う際は、必ず対応する単体テスト（`spec.ts`）を作成・更新し、`pnpm run test:unit` が正常にパスすることを確認してください。
 

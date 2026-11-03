@@ -1,0 +1,39 @@
+CREATE TABLE external_sync_links (
+    id TEXT NOT NULL PRIMARY KEY,
+    local_type TEXT NOT NULL CHECK (local_type IN ('session', 'event', 'task')),
+    local_id TEXT NOT NULL,
+    provider TEXT NOT NULL CHECK (provider IN ('calendar', 'reminders')),
+    external_id TEXT NOT NULL,
+    container_id TEXT,
+    direction TEXT NOT NULL CHECK (direction IN ('to_device', 'from_device', 'both')),
+    last_synced_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER
+);
+
+CREATE UNIQUE INDEX ux_sync_local
+    ON external_sync_links(provider, local_type, local_id);
+CREATE UNIQUE INDEX ux_sync_external
+    ON external_sync_links(provider, external_id);
+
+selectSyncLinks:
+SELECT * FROM external_sync_links WHERE deleted_at_ms IS NULL;
+
+selectSyncLinkByLocal:
+SELECT * FROM external_sync_links
+WHERE provider = ? AND local_type = ? AND local_id = ?;
+
+selectSyncLinkByExternal:
+SELECT * FROM external_sync_links
+WHERE provider = ? AND external_id = ?;
+
+upsertSyncLink:
+INSERT OR REPLACE INTO external_sync_links(
+    id, local_type, local_id, provider, external_id, container_id, direction,
+    last_synced_at_ms, deleted_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteSyncLink:
+UPDATE external_sync_links SET deleted_at_ms = ?, last_synced_at_ms = ? WHERE id = ?;
+
+deleteAllSyncLinks:
+DELETE FROM external_sync_links;

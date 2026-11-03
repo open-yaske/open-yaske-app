@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose の描画が始まるまでを担当する。影もバーも出さない。 -->
+    <style name="Theme.OpenYaske" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+
+    <!-- Android 12 以降のスプラッシュ。アイコンはランチャーと同じものを使う。 -->
+    <style name="Theme.OpenYaske.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.OpenYaske</item>
+    </style>
+</resources>

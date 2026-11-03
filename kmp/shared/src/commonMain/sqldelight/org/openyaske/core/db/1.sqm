@@ -1,0 +1,2 @@
+-- スキーマ 1 -> 2: 課題の繰り返し（なし・毎日・毎週・隔週・毎月）。
+ALTER TABLE course_tasks ADD COLUMN repeat_pattern TEXT;

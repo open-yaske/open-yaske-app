@@ -1,0 +1,105 @@
+CREATE TABLE course_sessions (
+    id TEXT NOT NULL PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    date TEXT NOT NULL CHECK (date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    start_period INTEGER CHECK (start_period BETWEEN 1 AND 7),
+    period_count INTEGER NOT NULL DEFAULT 1 CHECK (period_count BETWEEN 1 AND 3),
+    start_time TEXT CHECK (start_time IS NULL OR start_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    end_time TEXT CHECK (end_time IS NULL OR end_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+    room TEXT,
+    kind TEXT NOT NULL CHECK (kind IN ('regular', 'intensive', 'makeup', 'exam', 'extra', 'partner')),
+    status TEXT NOT NULL CHECK (status IN ('scheduled', 'cancelled', 'moved')),
+    note TEXT,
+    replaces_session_id TEXT REFERENCES course_sessions(id) ON DELETE SET NULL,
+    created_at_ms INTEGER NOT NULL,
+    updated_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER,
+    CHECK (start_period IS NOT NULL OR start_time IS NOT NULL)
+);
+
+CREATE INDEX ix_sessions_date ON course_sessions(date) WHERE deleted_at_ms IS NULL;
+CREATE INDEX ix_sessions_course_date ON course_sessions(course_id, date) WHERE deleted_at_ms IS NULL;
+CREATE UNIQUE INDEX ux_sessions_slot ON course_sessions(course_id, date, COALESCE(start_period, 0), COALESCE(start_time, ''), kind) WHERE deleted_at_ms IS NULL;
+
+selectSessionsBetween:
+SELECT * FROM course_sessions
+WHERE date BETWEEN ? AND ? AND deleted_at_ms IS NULL
+ORDER BY date, start_period, start_time;
+
+selectSessionsByCourse:
+SELECT * FROM course_sessions
+WHERE course_id = ? AND deleted_at_ms IS NULL
+ORDER BY date, start_period, start_time;
+
+selectSessionById:
+SELECT * FROM course_sessions WHERE id = ?;
+
+insertSession:
+INSERT OR IGNORE INTO course_sessions(
+    id, course_id, date, start_period, period_count, start_time, end_time, room,
+    kind, status, note, replaces_session_id, created_at_ms, updated_at_ms, deleted_at_ms
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateSession:
+UPDATE course_sessions SET
+    course_id = ?,
+    date = ?,
+    start_period = ?,
+    period_count = ?,
+    start_time = ?,
+    end_time = ?,
+    room = ?,
+    kind = ?,
+    status = ?,
+    note = ?,
+    replaces_session_id = ?,
+    updated_at_ms = ?,
+    deleted_at_ms = ?
+WHERE id = ?;
+
+softDeleteSession:
+UPDATE course_sessions SET deleted_at_ms = ?, updated_at_ms = ? WHERE id = ?;
+
+CREATE TABLE attendance_records (
+    id TEXT NOT NULL PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    session_id TEXT REFERENCES course_sessions(id) ON DELETE SET NULL,
+    date TEXT NOT NULL CHECK (date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    status TEXT NOT NULL CHECK (status IN ('present', 'absent', 'late', 'excused', 'cancelled')),
+    recorded_at_ms INTEGER NOT NULL,
+    deleted_at_ms INTEGER
+);
+
+CREATE UNIQUE INDEX ux_attendance_session
+    ON attendance_records(session_id) WHERE session_id IS NOT NULL;
+CREATE UNIQUE INDEX ux_attendance_day
+    ON attendance_records(course_id, date) WHERE session_id IS NULL;
+CREATE INDEX ix_attendance_course
+    ON attendance_records(course_id) WHERE deleted_at_ms IS NULL;
+
+selectAttendanceByCourse:
+SELECT * FROM attendance_records
+WHERE course_id = ? AND deleted_at_ms IS NULL
+ORDER BY date;
+
+selectAttendanceBySession:
+SELECT * FROM attendance_records WHERE session_id = ? AND deleted_at_ms IS NULL;
+
+upsertAttendance:
+INSERT OR REPLACE INTO attendance_records(id, course_id, session_id, date, status, recorded_at_ms, deleted_at_ms)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+softDeleteAttendance:
+UPDATE attendance_records SET deleted_at_ms = ? WHERE id = ?;
+
+selectAllSessions:
+SELECT * FROM course_sessions ORDER BY date, start_period, start_time;
+
+selectAllAttendance:
+SELECT * FROM attendance_records ORDER BY date;
+
+deleteAllAttendance:
+DELETE FROM attendance_records;
+
+deleteAllSessions:
+DELETE FROM course_sessions;
