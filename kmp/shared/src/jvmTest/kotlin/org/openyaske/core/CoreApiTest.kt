@@ -79,7 +79,32 @@ class CoreApiTest {
         assertEquals(saved.id, timetable.cells.values.single().course.id)
         assertEquals(2, timetable.totalCredits)
         assertTrue(timetable.issues.isEmpty())
-        assertEquals(1, api.courseDetail(saved.id).sessions.size)
+        // 保存時に学期ぶんの授業回が展開される。4/6 の回が含まれていればよい。
+        val sessions = api.courseDetail(saved.id).sessions
+        assertTrue(sessions.size >= 8, "sessions=${sessions.size}")
+        assertTrue(sessions.any { it.date == "2026-04-06" && it.startPeriod == 1 })
+    }
+
+    @Test
+    fun courseSavedWithoutTermGetsWeeklySessions() {
+        val api = newApi()
+        api.saveTerm(semester())
+
+        // 画面の追加経路と同じく、termId を渡さずに曜日・時限だけ指定して保存する。
+        val saved = api.saveCourse(course(termId = ""))
+
+        val sessions = api.courseDetail(saved.id).sessions
+        assertTrue(sessions.size >= 8, "1 学期分の授業回が要る: ${sessions.size}")
+        assertEquals(
+            sessions.size,
+            sessions.map { it.date }.distinct().size,
+            "同じ日に潰れている: ${sessions.map { it.date }}"
+        )
+        assertTrue(
+            sessions.all { org.openyaske.core.validation.IsoDate.dayOfWeekIso(it.date) == Weekday.MON.isoNumber },
+            "月曜以外に生成されている: ${sessions.map { it.date }}"
+        )
+        assertEquals("2026-04-06", sessions.first().date)
     }
 
     @Test
@@ -180,10 +205,13 @@ class CoreApiTest {
             SchoolEvent(id = "", title = "健康診断", kind = SchoolEventKind.ACADEMIC, date = "2026-04-06")
         )
 
-        assertEquals(2, api.agenda("2026-04-06", "2026-04-06").size)
+        // 授業回も同日にあるので、課題と学事だけを数える。
+        fun nonClassCount() = api.agenda("2026-04-06", "2026-04-06")
+            .count { it.item !is org.openyaske.core.logic.AgendaItem.Class }
+        assertEquals(2, nonClassCount())
 
         api.setTaskStatus(task.id, TaskStatus.DONE)
-        assertEquals(1, api.agenda("2026-04-06", "2026-04-06").size)
+        assertEquals(1, nonClassCount())
     }
 
     @Test
@@ -270,7 +298,8 @@ class CoreApiTest {
 
         assertEquals(1, restoredApi.state.value.terms.size)
         assertEquals(1, restoredApi.state.value.courses.size)
-        assertEquals(1, restoredApi.state.value.sessions.size)
+        // 学期ぶんの授業回が書き出し・読み込みで保たれる。
+        assertTrue(restoredApi.state.value.sessions.size >= 8)
         assertEquals(1, restoredApi.state.value.courseTasks.size)
     }
 

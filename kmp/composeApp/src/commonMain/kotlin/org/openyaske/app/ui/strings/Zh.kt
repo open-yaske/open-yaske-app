@@ -287,4 +287,9 @@ internal val ZH: Map<String, String> = mapOf(
     "home_links_campus" to "校内链接",
     "home_links_study" to "学习链接",
     "settings_task_reminder" to "截止前一天提醒（20:00）",
+    "syllabus_no_year" to "%d年度没有匹配",
+    "syllabus_widen_year" to "扩大年度",
+    "syllabus_no_slot" to "该星期和节次没有匹配",
+    "syllabus_clear_slot" to "取消星期和节次筛选",
+    "syllabus_no_result" to "没有匹配",
 )

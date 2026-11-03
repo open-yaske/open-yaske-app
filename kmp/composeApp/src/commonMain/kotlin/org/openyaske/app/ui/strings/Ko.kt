@@ -287,4 +287,9 @@ internal val KO: Map<String, String> = mapOf(
     "home_links_campus" to "교내 링크",
     "home_links_study" to "학습 링크",
     "settings_task_reminder" to "마감 전날 알림 (20:00)",
+    "syllabus_no_year" to "%d학년도에 해당 없음",
+    "syllabus_widen_year" to "연도 넓히기",
+    "syllabus_no_slot" to "이 요일·교시에 해당 없음",
+    "syllabus_clear_slot" to "요일·교시 필터 해제",
+    "syllabus_no_result" to "해당 없음",
 )

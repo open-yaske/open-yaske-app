@@ -287,4 +287,9 @@ internal val EN: Map<String, String> = mapOf(
     "home_links_campus" to "Campus links",
     "home_links_study" to "Study links",
     "settings_task_reminder" to "Remind the day before a deadline (20:00)",
+    "syllabus_no_year" to "No matches in %d",
+    "syllabus_widen_year" to "Search all years",
+    "syllabus_no_slot" to "No matches on this day and period",
+    "syllabus_clear_slot" to "Clear day and period",
+    "syllabus_no_result" to "No matches",
 )

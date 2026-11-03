@@ -287,4 +287,9 @@ internal val JA: Map<String, String> = mapOf(
     "home_links_campus" to "学内リンク",
     "home_links_study" to "学修リンク",
     "settings_task_reminder" to "課題の締切前日に知らせる（20:00）",
+    "syllabus_no_year" to "%d年度に該当がありません",
+    "syllabus_widen_year" to "年度を広げる",
+    "syllabus_no_slot" to "この曜日・時限に該当がありません",
+    "syllabus_clear_slot" to "曜日・時限の絞り込みを外す",
+    "syllabus_no_result" to "該当がありません",
 )

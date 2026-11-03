@@ -95,8 +95,8 @@ fun CourseEditorSheet(
     var kind by remember {
         mutableStateOf(if (unscheduled) CourseKind.EXTRA else course?.kind ?: CourseKind.REGULAR)
     }
-    var weekday by remember { mutableStateOf(initialWeekday ?: course?.weekday) }
-    var period by remember { mutableStateOf(initialPeriod ?: course?.period) }
+    var weekday by remember { mutableStateOf(initialWeekday ?: course?.weekday ?: Weekday.MON) }
+    var period by remember { mutableStateOf(initialPeriod ?: course?.period ?: 1) }
     var memo by remember { mutableStateOf(course?.memo ?: "") }
     var url by remember { mutableStateOf(course?.url ?: "") }
     var showSyllabus by remember { mutableStateOf(false) }
@@ -137,6 +137,7 @@ fun CourseEditorSheet(
             if (isNew && showSyllabus) {
                 SyllabusInlineSearch(
                     api = api,
+                    termYear = terms.firstOrNull { it.id == termId }?.year,
                     initialWeekday = initialWeekday,
                     initialPeriod = initialPeriod,
                     onPick = { entry ->
@@ -232,7 +233,35 @@ fun CourseEditorSheet(
                 }
             }
 
-            if (weekday != null || period != null) {
+            if (isNew && initialWeekday == null && kind == CourseKind.REGULAR) {
+                Text(t["search_weekday"], style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(Space.xs)
+                ) {
+                    Weekday.entries.take(6).forEach { day ->
+                        FilterPill(
+                            text = t["day_${day.isoNumber}"],
+                            onClick = { weekday = day },
+                            selected = weekday == day
+                        )
+                    }
+                }
+                Text(t["search_period"], style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(Space.xs)
+                ) {
+                    (1..7).forEach { p ->
+                        FilterPill(
+                            text = "$p" + t["search_period_suffix"],
+                            onClick = { period = p },
+                            selected = period == p
+                        )
+                    }
+                }
+            }
+            if (!isNew && (weekday != null || period != null)) {
                 Row(
                     modifier = Modifier
                         .clip(AppShapes.pill)
@@ -374,6 +403,7 @@ fun CourseEditorSheet(
 @Composable
 private fun SyllabusInlineSearch(
     api: CoreApi,
+    termYear: Int?,
     initialWeekday: Weekday?,
     initialPeriod: Int?,
     onPick: (SyllabusEntry) -> Unit,
@@ -381,26 +411,45 @@ private fun SyllabusInlineSearch(
 ) {
     val t = LocalUiStrings.current
     val colors = LocalAppColors.current
+    val thisYear = remember { todayIso().substring(0, 4).toIntOrNull() ?: 2026 }
     var query by remember { mutableStateOf("") }
-    var hits by remember { mutableStateOf<List<SyllabusSearchHit>>(emptyList()) }
-    // コマから開いたときは、その曜日・時限で絞った状態から始める。
+    var year by remember { mutableStateOf<Int?>(termYear ?: thisYear) }
+    var semester by remember { mutableStateOf<String?>(null) }
     var filterSlot by remember { mutableStateOf(initialWeekday != null && initialPeriod != null) }
-    val filtered = remember(hits, filterSlot, initialWeekday, initialPeriod) {
-        if (!filterSlot) hits
-        else hits.filter { hit ->
-            (initialWeekday == null || hit.entry.weekday == initialWeekday) &&
-                (initialPeriod == null || hit.entry.period == initialPeriod)
-        }
-    }
+    var hits by remember { mutableStateOf<List<SyllabusSearchHit>>(emptyList()) }
+    var yearMenu by remember { mutableStateOf(false) }
+    var semesterMenu by remember { mutableStateOf(false) }
 
-    LaunchedEffect(query) {
+    LaunchedEffect(query, year, filterSlot) {
         if (query.isBlank()) {
             hits = emptyList()
             return@LaunchedEffect
         }
         delay(200)
-        hits = runCatching { api.searchSyllabus(query, limit = 20) }.getOrDefault(emptyList())
+        hits = runCatching {
+            api.searchSyllabus(
+                query = query,
+                year = year,
+                weekday = if (filterSlot) initialWeekday else null,
+                period = if (filterSlot) initialPeriod else null,
+                limit = 40
+            )
+        }.getOrDefault(emptyList())
     }
+
+    val results = remember(hits, semester) {
+        if (semester == null) hits
+        else hits.filter { hit ->
+            listOfNotNull(hit.entry.semester, hit.entry.semester1, hit.entry.semester2)
+                .any { it.contains(semester!!) }
+        }
+    }
+    val activeFilters = listOfNotNull(
+        year?.toString(),
+        semester,
+        if (filterSlot && initialWeekday != null) t["day_${initialWeekday.isoNumber}"] else null,
+        if (filterSlot && initialPeriod != null) "$initialPeriod" + t["search_period_suffix"] else null
+    )
 
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         OutlinedTextField(
@@ -410,20 +459,93 @@ private fun SyllabusInlineSearch(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        if (initialWeekday != null && initialPeriod != null) {
-            FilterPill(
-                text = listOfNotNull(
-                    t["day_${initialWeekday.isoNumber}"],
-                    "$initialPeriod" + t["search_period_suffix"]
-                ).joinToString(" "),
-                onClick = { filterSlot = !filterSlot },
-                selected = filterSlot,
-                trailing = if (filterSlot) org.openyaske.app.ui.design.AppIcons.collapse else null
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(Space.xs)
+        ) {
+            Box {
+                FilterPill(
+                    text = year?.toString() ?: t["search_all_years"],
+                    onClick = { yearMenu = true },
+                    trailing = org.openyaske.app.ui.design.AppIcons.dropdown,
+                    selected = year != null
+                )
+                DropdownMenu(expanded = yearMenu, onDismissRequest = { yearMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text(t["search_all_years"]) },
+                        onClick = { year = null; yearMenu = false }
+                    )
+                    ((thisYear - 2)..(thisYear + 1)).reversed().forEach { value ->
+                        DropdownMenuItem(
+                            text = { Text("$value") },
+                            onClick = { year = value; yearMenu = false }
+                        )
+                    }
+                }
+            }
+            Box {
+                FilterPill(
+                    text = semester ?: t["search_all_terms"],
+                    onClick = { semesterMenu = true },
+                    trailing = org.openyaske.app.ui.design.AppIcons.dropdown,
+                    selected = semester != null
+                )
+                DropdownMenu(expanded = semesterMenu, onDismissRequest = { semesterMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text(t["search_all_terms"]) },
+                        onClick = { semester = null; semesterMenu = false }
+                    )
+                    listOf("前学期", "後学期", "通年").forEach { value ->
+                        DropdownMenuItem(
+                            text = { Text(value) },
+                            onClick = { semester = value; semesterMenu = false }
+                        )
+                    }
+                }
+            }
+            if (initialWeekday != null && initialPeriod != null) {
+                FilterPill(
+                    text = listOfNotNull(
+                        t["day_${initialWeekday.isoNumber}"],
+                        "$initialPeriod" + t["search_period_suffix"]
+                    ).joinToString(" "),
+                    onClick = { filterSlot = !filterSlot },
+                    selected = filterSlot,
+                    trailing = if (filterSlot) org.openyaske.app.ui.design.AppIcons.collapse else null
+                )
+            }
+        }
+        if (activeFilters.isNotEmpty()) {
+            Text(
+                text = activeFilters.joinToString(" / "),
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.textSecondary
             )
         }
+        if (query.isNotBlank() && results.isEmpty()) {
+            Column {
+                Text(
+                    text = when {
+                        year != null -> t["syllabus_no_year"].replace("%d", "$year")
+                        filterSlot -> t["syllabus_no_slot"]
+                        else -> t["syllabus_no_result"]
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.textSecondary
+                )
+                when {
+                    year != null -> TextButton(onClick = { year = null }) {
+                        Text(t["syllabus_widen_year"])
+                    }
+                    filterSlot -> TextButton(onClick = { filterSlot = false }) {
+                        Text(t["syllabus_clear_slot"])
+                    }
+                }
+            }
+        }
         LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp)) {
-            items(filtered.size) { index ->
-                val entry = filtered[index].entry
+            items(results.size) { index ->
+                val entry = results[index].entry
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
