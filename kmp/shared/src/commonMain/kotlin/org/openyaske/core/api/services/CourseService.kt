@@ -35,14 +35,35 @@ class CourseService internal constructor(private val store: CoreStore) {
         store.snapshot.terms.maxByOrNull { it.startDate }?.id
 
     /**
+     * 学期が 1 つも無いときに、今日から既定の学期を作る。
+     * 4〜9 月は今年の前学期、10〜3 月は後学期（1〜3 月は前年の後学期）。
+     */
+    private fun ensureDefaultTerm(today: String): Term {
+        val year = today.substring(0, 4).toInt()
+        val month = today.substring(5, 7).toInt()
+        val term = if (month in 4..9) {
+            Term.semester(year, Semester.SPRING, "$year-04-01", "$year-09-30")
+        } else {
+            val startYear = if (month >= 10) year else year - 1
+            Term.semester(
+                startYear,
+                Semester.FALL,
+                "$startYear-10-01",
+                "${startYear + 1}-03-31"
+            )
+        }
+        return saveTerm(term)
+    }
+
+    /**
      * 週次パターンから授業回を展開する。
      *
      * 既にある回は触らない（休講・振替を上書きしない）。
      * 曜日・時限を変えたときに古い回が残らないよう、生成対象外の通常回だけ論理削除する。
      */
-    private fun regenerateSessions(course: Course) {
-        val termId = course.termId ?: return
-        val term = store.snapshot.terms.firstOrNull { it.id == termId } ?: return
+    internal fun regenerateSessions(course: Course): Int {
+        val termId = course.termId ?: return 0
+        val term = store.snapshot.terms.firstOrNull { it.id == termId } ?: return 0
         val generated = SessionGenerator.generate(course, term)
         val existing = store.snapshot.sessions.filter {
             it.courseId == course.id &&
@@ -60,19 +81,24 @@ class CourseService internal constructor(private val store: CoreStore) {
             store.repository.softDeleteSession(it.id, store.clock())
         }
         // 同じスロットに既に回があれば、ID が違っても足さない。
-        generated.filter {
+        val added = generated.filter {
             slotOf(it.date, it.startPeriod, it.startTime, it.kind) !in existingSlots
-        }.forEach {
-            store.repository.saveSession(it)
         }
+        added.forEach { store.repository.saveSession(it) }
+        // 呼び出し側が「何件生成したか」を検知できるように件数を返す。
+        return added.size
     }
 
-    fun saveCourse(course: Course): Course {
+    fun saveCourse(course: Course, today: String? = null): Course {
         val existing = store.snapshot.courses.firstOrNull { it.id == course.id }
         val now = store.clock()
+        // 学期が 1 つも無いまま科目だけ増えると授業回が作れない。今日から既定の学期を作る。
+        val resolvedTermId = course.termId?.takeIf { it.isNotBlank() }
+            ?: defaultTermId()
+            ?: today?.let { ensureDefaultTerm(it).id }
         val prepared = store.normalizeCourse(
             course.copy(
-                termId = course.termId?.takeIf { it.isNotBlank() } ?: defaultTermId(),
+                termId = resolvedTermId,
                 id = course.id.ifBlank { store.ids.newId() },
                 createdAtMillis = when {
                     course.createdAtMillis != 0L -> course.createdAtMillis
@@ -86,6 +112,14 @@ class CourseService internal constructor(private val store: CoreStore) {
         regenerateSessions(prepared)
         store.notifyChanged()
         return prepared
+    }
+
+    /** 画面やテストから、生成件数を確かめられるようにする。 */
+    fun rebuildSessions(courseId: String): Int {
+        val course = store.requireCourse(courseId)
+        val count = regenerateSessions(course)
+        store.notifyChanged()
+        return count
     }
 
     fun deleteCourse(courseId: String) {

@@ -419,7 +419,7 @@ private fun semesterMatches(entry: SyllabusEntry, filter: String): Boolean {
 
 private fun addFromSyllabus(api: CoreApi, entry: SyllabusEntry, termId: String?) {
     api.saveCourse(
-        Course(
+        course = Course(
             id = "",
             name = entry.title,
             code = entry.code,
@@ -440,6 +440,7 @@ private fun addFromSyllabus(api: CoreApi, entry: SyllabusEntry, termId: String?)
                         ((a shl 24) or (r shl 16) or (g shl 8) or b).toUInt().toString(16).padStart(8, '0')
                     }
             }"
-        )
+        ),
+        today = todayIso()
     )
 }

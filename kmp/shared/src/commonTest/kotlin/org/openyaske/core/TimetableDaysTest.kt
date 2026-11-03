@@ -10,7 +10,11 @@ class TimetableDaysTest {
     fun hidesDaysRemovedInSettings() {
         val used = listOf(Weekday.MON, Weekday.TUE, Weekday.SAT)
         val visible = listOf(Weekday.MON, Weekday.TUE, Weekday.WED, Weekday.THU, Weekday.FRI)
-        assertEquals(listOf(Weekday.MON, Weekday.TUE), TimetableDays.resolve(used, visible))
+        // 授業が無い曜日も列として残す（1 日だけに潰さない）。
+        assertEquals(
+            listOf(Weekday.MON, Weekday.TUE, Weekday.WED, Weekday.THU, Weekday.FRI),
+            TimetableDays.resolve(used, visible)
+        )
     }
 
     @Test
@@ -24,6 +28,6 @@ class TimetableDaysTest {
     fun keepsOrderAndDropsDuplicates() {
         val used = listOf(Weekday.FRI, Weekday.MON, Weekday.FRI)
         val visible = Weekday.entries
-        assertEquals(listOf(Weekday.MON, Weekday.FRI), TimetableDays.resolve(used, visible))
+        assertEquals(Weekday.entries, TimetableDays.resolve(used, visible))
     }
 }

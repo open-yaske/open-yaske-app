@@ -1,6 +1,7 @@
 package org.openyaske.core
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import org.openyaske.core.validation.IsoDate
 import org.openyaske.core.api.CoreApi
 import org.openyaske.core.api.CoreException
 import org.openyaske.core.api.ThemeMode
@@ -105,6 +106,65 @@ class CoreApiTest {
             "月曜以外に生成されている: ${sessions.map { it.date }}"
         )
         assertEquals("2026-04-06", sessions.first().date)
+    }
+
+    @Test
+    fun courseWithoutAnyTermCreatesDefaultTermAndSessions() {
+        val api = newApi()
+        // 学期を 1 つも作らずに科目を追加する。
+        val saved = api.saveCourse(course(termId = ""), today = "2026-04-15")
+
+        val terms = api.state.value.terms
+        assertEquals(1, terms.size)
+        assertEquals(2026, terms.single().year)
+
+        val sessions = api.courseDetail(saved.id).sessions
+        assertTrue(sessions.size >= 20, "前学期ぶんの回が要る: ${sessions.size}")
+        assertEquals(sessions.size, sessions.map { it.date }.distinct().size)
+        assertTrue(sessions.all { IsoDate.dayOfWeekIso(it.date) == Weekday.MON.isoNumber })
+        assertEquals("2026-04-06", sessions.first().date)
+    }
+
+    @Test
+    fun oneDayTermGeneratesSingleSession() {
+        val api = newApi()
+        val term = api.saveTerm(
+            Term.semester(2026, Semester.SPRING, "2026-04-06", "2026-04-06")
+        )
+        val saved = api.saveCourse(course(term.id))
+
+        val sessions = api.courseDetail(saved.id).sessions
+        assertEquals(1, sessions.size)
+        assertEquals("2026-04-06", sessions.single().date)
+    }
+
+    @Test
+    fun savedCourseAppearsInTimetableAndAgenda() {
+        val api = newApi()
+        val saved = api.saveCourse(course(termId = ""), today = "2026-04-15")
+        val termId = saved.termId
+
+        val timetable = api.timetable(termId)
+        assertTrue(
+            timetable.cells.values.any { it.course.id == saved.id },
+            "時間割のセルに科目が無い"
+        )
+        val agenda = api.agenda("2026-04-06", "2026-04-06")
+        assertTrue(
+            agenda.any {
+                it.item is org.openyaske.core.logic.AgendaItem.Class &&
+                    it.item.course.id == saved.id
+            },
+            "アジェンダに授業が無い"
+        )
+    }
+
+    @Test
+    fun invertedTermIsRejected() {
+        val api = newApi()
+        assertFailsWith<CoreException> {
+            api.saveTerm(Term.semester(2026, Semester.SPRING, "2026-05-01", "2026-04-01"))
+        }
     }
 
     @Test

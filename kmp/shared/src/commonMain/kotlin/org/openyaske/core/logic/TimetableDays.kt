@@ -5,14 +5,12 @@ import org.openyaske.core.model.Weekday
 /**
  * 時間割に出す曜日を決める。
  *
- * 授業がある曜日でも、設定で隠していれば出さない。
- * 授業が 1 つも無いときは設定の曜日をそのまま並べる。
+ * 設定で表示にした曜日をそのまま並べる。授業がある曜日だけに絞ると、
+ * 1 コマ登録しただけで「1 週間が 1 日」に見えてしまうため。
+ * `used` は呼び出し側との互換のために残している。
  */
 object TimetableDays {
-    fun resolve(used: List<Weekday>, visible: List<Weekday>): List<Weekday> {
-        val shown = visible.toSet()
-        val filtered = used.filter { it in shown }.distinct().sortedBy { it.isoNumber }
-        if (filtered.isNotEmpty()) return filtered
-        return visible.distinct().sortedBy { it.isoNumber }
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun resolve(used: List<Weekday>, visible: List<Weekday>): List<Weekday> =
+        visible.distinct().sortedBy { it.isoNumber }
 }

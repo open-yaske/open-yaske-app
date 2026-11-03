@@ -261,7 +261,7 @@ fun CourseEditorSheet(
                     }
                 }
             }
-            if (!isNew && (weekday != null || period != null)) {
+            if ((initialWeekday != null || !isNew) && weekday != null && period != null) {
                 Row(
                     modifier = Modifier
                         .clip(AppShapes.pill)
@@ -366,7 +366,8 @@ fun CourseEditorSheet(
                                     period = if (extra) null else period,
                                     memo = memo.ifBlank { null },
                                     url = url.ifBlank { null }
-                                )
+                                ),
+                                today = todayIso()
                             )
                             onDone()
                         } catch (e: CoreException) {
