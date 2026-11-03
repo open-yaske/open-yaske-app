@@ -65,6 +65,25 @@ jobs:
           name: composeApp-debug.apk
           path: kmp/composeApp/build/outputs/apk/debug/composeApp-debug.apk
 
+      - name: Assemble release
+        if: ${{ secrets.SIGNING_KEY != '' }}
+        working-directory: kmp
+        run: ./gradlew :composeApp:assembleRelease --console=plain
+
+      - name: Sign release APK
+        if: ${{ secrets.SIGNING_KEY != '' }}
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > release.jks
+          BUILD_TOOLS_DIR=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -n 1)
+          UNSIGNED=$(ls kmp/composeApp/build/outputs/apk/release/*-unsigned.apk | head -1)
+          "$BUILD_TOOLS_DIR/apksigner" sign             --ks release.jks             --ks-key-alias "${{ secrets.KEY_ALIAS }}"             --ks-pass pass:"${{ secrets.KEYSTORE_PASSWORD }}"             --key-pass pass:"${{ secrets.KEY_PASSWORD }}"             --out kmp/composeApp/build/outputs/apk/release/open-yaske-release.apk             "$UNSIGNED"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ secrets.SIGNING_KEY != '' }}
+        with:
+          name: open-yaske-release.apk
+          path: kmp/composeApp/build/outputs/apk/release/open-yaske-release.apk
+
   deploy:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     needs: wasm
