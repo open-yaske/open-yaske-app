@@ -4,6 +4,7 @@ import org.openyaske.core.api.CoreException
 import org.openyaske.core.data.CoreRepository
 import org.openyaske.core.model.*
 import org.openyaske.core.validation.IsoDate
+import org.openyaske.core.logic.AcademicCalendar
 import org.openyaske.core.logic.PeriodTimes
 import org.openyaske.core.logic.SessionGenerator
 
@@ -22,37 +23,38 @@ class CourseService internal constructor(private val store: CoreStore) {
             }
         )
         store.repository.saveTerm(prepared)
-        store.notifyChanged()
-        // 学期を後から入れた場合に備え、その学期の科目の授業回を展開する。
-        store.snapshot.courses
+        // 学期の範囲が変わったら、その学期の科目の授業回を作り直す。
+        // スナップショットの反映を待たずに済むよう、DB から読み直した値を使う。
+        val current = store.repository.loadAll()
+        current.courses
             .filter { it.termId == prepared.id && it.deletedAtMillis == null }
-            .forEach { regenerateSessions(it) }
+            .forEach { regenerateSessions(it, prepared, current.sessions) }
+        store.notifyChanged()
         return prepared
     }
 
-    /** 学期を指定しなかったときは、いちばん新しい学期にぶら下げる。 */
-    private fun defaultTermId(): String? =
-        store.snapshot.terms.maxByOrNull { it.startDate }?.id
-
     /**
-     * 学期が 1 つも無いときに、今日から既定の学期を作る。
-     * 4〜9 月は今年の前学期、10〜3 月は後学期（1〜3 月は前年の後学期）。
+     * 既定の学期を選ぶ。
+     *
+     * (a) 今日を含む学期 → (b) 今日以降で最も近い学期 → (c) その学年の前学期。
+     * 「開始日がいちばん新しい学期」を選ぶと、11 月に前期のつもりの科目が
+     * 後学期へ入ってしまうため、この順に変えた。
      */
-    private fun ensureDefaultTerm(today: String): Term {
-        val year = today.substring(0, 4).toInt()
-        val month = today.substring(5, 7).toInt()
-        val term = if (month in 4..9) {
-            Term.semester(year, Semester.SPRING, "$year-04-01", "$year-09-30")
-        } else {
-            val startYear = if (month >= 10) year else year - 1
-            Term.semester(
-                startYear,
-                Semester.FALL,
-                "$startYear-10-01",
-                "${startYear + 1}-03-31"
-            )
-        }
-        return saveTerm(term)
+    internal fun resolveTerm(today: String, terms: List<Term>): Term? {
+        terms.firstOrNull { today >= it.startDate && today <= it.endDate }?.let { return it }
+        terms.filter { it.startDate > today }.minByOrNull { it.startDate }?.let { return it }
+        val academicYear = AcademicCalendar.academicYearOf(today)
+        terms.firstOrNull { it.year == academicYear && it.season == Semester.SPRING }
+            ?.let { return it }
+        // 学年暦に無い年度は日付を作らない。学期画面で入力を促す。
+        return AcademicCalendar.term(academicYear, Semester.SPRING)
+    }
+
+    /** 既定の学期の ID。無ければ作って保存する。 */
+    fun resolveTermId(today: String): String? {
+        val term = resolveTerm(today, store.snapshot.terms) ?: return null
+        if (store.snapshot.terms.none { it.id == term.id }) saveTerm(term)
+        return term.id
     }
 
     /**
@@ -61,11 +63,16 @@ class CourseService internal constructor(private val store: CoreStore) {
      * 既にある回は触らない（休講・振替を上書きしない）。
      * 曜日・時限を変えたときに古い回が残らないよう、生成対象外の通常回だけ論理削除する。
      */
-    internal fun regenerateSessions(course: Course): Int {
+    internal fun regenerateSessions(
+        course: Course,
+        termOverride: Term? = null,
+        sessionsOverride: List<CourseSession>? = null
+    ): Int {
         val termId = course.termId ?: return 0
-        val term = store.snapshot.terms.firstOrNull { it.id == termId } ?: return 0
+        val term = termOverride ?: store.snapshot.terms.firstOrNull { it.id == termId } ?: return 0
         val generated = SessionGenerator.generate(course, term)
-        val existing = store.snapshot.sessions.filter {
+        val source = sessionsOverride ?: store.snapshot.sessions
+        val existing = source.filter {
             it.courseId == course.id &&
                 it.deletedAtMillis == null &&
                 it.kind == SessionKind.REGULAR
@@ -94,8 +101,9 @@ class CourseService internal constructor(private val store: CoreStore) {
         val now = store.clock()
         // 学期が 1 つも無いまま科目だけ増えると授業回が作れない。今日から既定の学期を作る。
         val resolvedTermId = course.termId?.takeIf { it.isNotBlank() }
-            ?: defaultTermId()
-            ?: today?.let { ensureDefaultTerm(it).id }
+            ?: today?.let { date -> resolveTermId(date) }
+            // today を渡さない古い呼び出しは、従来どおり最新の学期に寄せる。
+            ?: store.snapshot.terms.maxByOrNull { it.startDate }?.id
         val prepared = store.normalizeCourse(
             course.copy(
                 termId = resolvedTermId,
@@ -120,6 +128,14 @@ class CourseService internal constructor(private val store: CoreStore) {
         val count = regenerateSessions(course)
         store.notifyChanged()
         return count
+    }
+
+    /** 学期を削除する。その学期の科目が残っているときは拒否する。 */
+    fun deleteTerm(termId: String) {
+        val used = store.snapshot.courses.any { it.termId == termId && it.deletedAtMillis == null }
+        if (used) throw CoreException("term is in use by courses")
+        store.repository.deleteTerm(termId)
+        store.notifyChanged()
     }
 
     fun deleteCourse(courseId: String) {

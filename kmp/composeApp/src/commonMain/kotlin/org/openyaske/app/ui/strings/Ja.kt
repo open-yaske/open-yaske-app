@@ -292,4 +292,9 @@ internal val JA: Map<String, String> = mapOf(
     "syllabus_no_slot" to "この曜日・時限に該当がありません",
     "syllabus_clear_slot" to "曜日・時限の絞り込みを外す",
     "syllabus_no_result" to "該当がありません",
+    "term_required_hint" to "学期がありません。学期画面で開始日と終了日を登録してください",
+    "term_manage" to "学期",
+    "term_edit" to "学期を編集",
+    "term_empty" to "学期がまだありません",
+    "term_delete_confirm" to "この学期を削除しますか（科目が残っていると削除できません）",
 )

@@ -176,8 +176,14 @@ class CoreApi(
 
     fun saveTerm(term: Term): Term = courseService.saveTerm(term)
 
+    fun deleteTerm(termId: String) = courseService.deleteTerm(termId)
+
     fun saveCourse(course: Course, today: String? = null): Course =
         courseService.saveCourse(course, today)
+
+    /** 今日から見た既定の学期 ID（無ければ作る）。 */
+    fun resolveTermId(today: String): String? =
+        courseService.resolveTermId(today)
 
     /** その科目の授業回を作り直し、追加した件数を返す。 */
     fun rebuildSessions(courseId: String): Int =

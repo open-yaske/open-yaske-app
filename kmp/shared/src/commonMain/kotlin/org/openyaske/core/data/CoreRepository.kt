@@ -23,6 +23,8 @@ interface CoreRepository {
     fun saveSettingsJson(json: String, schemaVersion: Int, nowMillis: Long)
 
     fun saveTerm(term: Term)
+
+    fun deleteTerm(id: String)
     fun saveCourse(course: Course)
     fun saveSession(session: CourseSession)
     fun saveAttendance(record: AttendanceRecord)

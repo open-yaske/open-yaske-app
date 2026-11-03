@@ -86,17 +86,27 @@ fun TimetableScreen(
     onCourse: (String) -> Unit,
     onSettings: () -> Unit,
     onGpa: () -> Unit,
+    onManageTerms: () -> Unit,
     bottomInset: Boolean = true
 ) {
     val data by api.state.collectAsState()
     val settings by api.settings.collectAsState()
     val t = LocalUiStrings.current
     val colors = LocalAppColors.current
-    var selectedTermId by remember(data.terms) { mutableStateOf(data.terms.lastOrNull()?.id) }
+    // 既定は「今日を含む学期 → 今日以降で最も近い学期 → 最新」。開始日が一番遅い学期を無条件に選ばない。
+    var selectedTermId by remember(data.terms) {
+        mutableStateOf(
+            run {
+                val today = todayIso()
+                data.terms.firstOrNull { today >= it.startDate && today <= it.endDate }?.id
+                    ?: data.terms.filter { it.startDate > today }.minByOrNull { it.startDate }?.id
+                    ?: data.terms.lastOrNull()?.id
+            }
+        )
+    }
     var showAdd by remember { mutableStateOf(false) }
     var newSlot by remember { mutableStateOf<Pair<Weekday, Int>?>(null) }
     var termMenu by remember { mutableStateOf(false) }
-    var showTermEditor by remember { mutableStateOf(false) }
     var background by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
     var backgroundVersion by remember { mutableIntStateOf(0) }
     var menuOpen by remember { mutableStateOf(false) }
@@ -175,10 +185,10 @@ fun TimetableScreen(
                         }
                         androidx.compose.material3.HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text(t["term_add"]) },
+                            text = { Text(t["term_manage"]) },
                             onClick = {
                                 termMenu = false
-                                showTermEditor = true
+                                onManageTerms()
                             }
                         )
                     }
@@ -343,10 +353,6 @@ fun TimetableScreen(
         }
     }
 
-    if (showTermEditor) {
-        TermEditorDialog(api) { showTermEditor = false }
-    }
-
     if (showAdd) {
         CourseEditorSheet(
             api = api,
@@ -442,110 +448,6 @@ private fun AddCourseRow(label: String, onClick: () -> Unit) {
     }
 }
 
-/** 学期を追加する。通年は `TermKind.FULL_YEAR` で作る。 */
-@Composable
-private fun TermEditorDialog(api: CoreApi, onDismiss: () -> Unit) {
-    val t = LocalUiStrings.current
-    val colors = LocalAppColors.current
-    val yearNow = remember { todayIso().substring(0, 4).toInt() }
-    var year by remember { mutableStateOf(yearNow.toString()) }
-    var season by remember { mutableStateOf(SpringFall.SPRING) }
-    var fullYear by remember { mutableStateOf(false) }
-    var start by remember { mutableStateOf("$yearNow-04-06") }
-    var end by remember { mutableStateOf("$yearNow-07-20") }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(t["term_add"]) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
-                OutlinedTextField(
-                    value = year,
-                    onValueChange = { year = it.filter { ch -> ch.isDigit() }.take(4) },
-                    label = { Text(t["term_year"]) },
-                    singleLine = true
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
-                    FilterPill(
-                        text = t["term_spring"],
-                        onClick = { fullYear = false; season = SpringFall.SPRING },
-                        selected = !fullYear && season == SpringFall.SPRING
-                    )
-                    FilterPill(
-                        text = t["term_fall"],
-                        onClick = { fullYear = false; season = SpringFall.FALL },
-                        selected = !fullYear && season == SpringFall.FALL
-                    )
-                    FilterPill(
-                        text = t["term_full_year"],
-                        onClick = { fullYear = true },
-                        selected = fullYear
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(t["term_start"], style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
-                    DateField(
-                        label = t["term_start"],
-                        value = start,
-                        onChange = { start = it ?: start },
-                        modifier = Modifier.weight(1f).padding(start = Space.sm),
-                        allowClear = false
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(t["term_end"], style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
-                    DateField(
-                        label = t["term_end"],
-                        value = end,
-                        onChange = { end = it ?: end },
-                        modifier = Modifier.weight(1f).padding(start = Space.sm),
-                        allowClear = false
-                    )
-                }
-                error?.let {
-                    Text(it, color = colors.danger, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val y = year.toIntOrNull()
-                    if (y == null) {
-                        error = t["term_year"]
-                        return@TextButton
-                    }
-                    try {
-                        val term = if (fullYear) {
-                            org.openyaske.core.model.Term(
-                                id = "$y-year",
-                                year = y,
-                                kind = org.openyaske.core.model.TermKind.FULL_YEAR,
-                                season = null,
-                                startDate = start,
-                                endDate = end
-                            )
-                        } else {
-                            org.openyaske.core.model.Term.semester(y, season, start, end)
-                        }
-                        api.saveTerm(term)
-                        onDismiss()
-                    } catch (e: CoreException) {
-                        error = e.message
-                    } catch (e: IllegalArgumentException) {
-                        error = e.message
-                    }
-                }
-            ) { Text(t["common_save"]) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(t["close"]) }
-        }
-    )
-}
-
-private typealias SpringFall = org.openyaske.core.model.Semester
 
 private fun Color.toArgbHex(): String {
     val a = (alpha * 255).toInt()

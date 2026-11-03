@@ -85,6 +85,7 @@ fun SearchScreen(
 
     val added = remember(data) { data.courses.mapNotNull { it.syllabusId }.toSet() }
     val latestTerm = remember(data) { data.terms.lastOrNull() }
+    val defaultTermId = remember(data) { api.resolveTermId(todayIso()) }
     // 入力のたびに全件を走査しないよう、200ms 待ってから検索する。
     LaunchedEffect(query, year, semester, weekday, period, program, count) {
         if (query.isBlank()) {
@@ -374,7 +375,7 @@ fun SearchScreen(
                             PrimaryButton(
                                 text = t["search_add"],
                                 onClick = {
-                                    addFromSyllabus(api, entry, latestTerm?.id)
+                                    addFromSyllabus(api, entry, defaultTermId ?: latestTerm?.id)
                                 },
                                 height = 36.dp
                             )
@@ -392,7 +393,7 @@ fun SearchScreen(
             entry = entry,
             added = entry.id in added,
             onAdd = {
-                addFromSyllabus(api, entry, latestTerm?.id)
+                addFromSyllabus(api, entry, defaultTermId ?: latestTerm?.id)
                 selectedEntry = null
             },
             onDismiss = { selectedEntry = null }

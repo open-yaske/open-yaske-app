@@ -38,6 +38,10 @@ class InMemoryRepository(
         current.copy(terms = current.terms.upsertBy(term.id, term) { it.id })
     }
 
+    override fun deleteTerm(id: String) = update { current ->
+        current.copy(terms = current.terms.filterNot { it.id == id })
+    }
+
     override fun saveCourse(course: Course) = update { current ->
         current.copy(courses = current.courses.upsertBy(course.id, course) { it.id })
     }

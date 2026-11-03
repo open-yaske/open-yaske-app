@@ -292,4 +292,9 @@ internal val ZH: Map<String, String> = mapOf(
     "syllabus_no_slot" to "该星期和节次没有匹配",
     "syllabus_clear_slot" to "取消星期和节次筛选",
     "syllabus_no_result" to "没有匹配",
+    "term_required_hint" to "没有学期。请在学期页面填写开始和结束日期",
+    "term_manage" to "学期",
+    "term_edit" to "编辑学期",
+    "term_empty" to "还没有学期",
+    "term_delete_confirm" to "删除这个学期吗（有科目时无法删除）",
 )

@@ -292,4 +292,9 @@ internal val EN: Map<String, String> = mapOf(
     "syllabus_no_slot" to "No matches on this day and period",
     "syllabus_clear_slot" to "Clear day and period",
     "syllabus_no_result" to "No matches",
+    "term_required_hint" to "No term yet. Set start and end dates on the Terms screen",
+    "term_manage" to "Terms",
+    "term_edit" to "Edit term",
+    "term_empty" to "No terms yet",
+    "term_delete_confirm" to "Delete this term? Courses must not use it",
 )

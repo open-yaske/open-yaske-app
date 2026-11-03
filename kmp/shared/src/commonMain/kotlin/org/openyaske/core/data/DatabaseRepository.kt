@@ -97,6 +97,10 @@ class DatabaseRepository(private val database: OpenYaskeDatabase) : CoreReposito
         }
     }
 
+    override fun deleteTerm(id: String) {
+        database.coreQueries.deleteTerm(id)
+    }
+
     override fun saveCourse(course: Course) {
         database.transaction {
             database.coreQueries.insertCourse(

@@ -46,6 +46,7 @@ import org.openyaske.app.ui.replaceWebPath
 import org.openyaske.app.ui.SearchScreen
 import org.openyaske.app.ui.SettingsScreen
 import org.openyaske.app.ui.TasksScreen
+import org.openyaske.app.ui.TermScreen
 import org.openyaske.app.ui.TimetableScreen
 import org.openyaske.app.ui.design.AppNavigationBar
 import org.openyaske.app.ui.design.SideRail
@@ -130,6 +131,7 @@ fun App(api: CoreApi) {
             var showSearch by remember { mutableStateOf(startPath?.startsWith("/search") == true) }
             var showLicenses by remember { mutableStateOf(startPath?.startsWith("/licenses") == true) }
             var showPdf by remember { mutableStateOf(startPath?.startsWith("/pdf") == true) }
+            var showTerms by remember { mutableStateOf(startPath?.startsWith("/terms") == true) }
             var selectedCourse by remember { mutableStateOf(courseIdFromPath(startPath)) }
             var lastPath by remember { mutableStateOf<String?>(null) }
             var backNavigation by remember { mutableStateOf(false) }
@@ -139,6 +141,7 @@ fun App(api: CoreApi) {
                 showSearch -> "/search"
                 showLicenses -> "/licenses"
                 showPdf -> "/pdf"
+                showTerms -> "/terms"
                 showSettings -> "/settings"
                 showGpa -> "/gpa"
                 else -> pathOf(destination)
@@ -162,6 +165,7 @@ fun App(api: CoreApi) {
                 showSearch = target?.startsWith("/search") == true
                 showLicenses = target?.startsWith("/licenses") == true
                 showPdf = target?.startsWith("/pdf") == true
+                showTerms = target?.startsWith("/terms") == true
                 showSettings = target?.startsWith("/settings") == true
                 showGpa = target?.startsWith("/gpa") == true
                 destination = destinationFromPath(target)
@@ -175,7 +179,7 @@ fun App(api: CoreApi) {
 
             // 戻るは 3 段。シート/ダイアログ → 詳細 → （タブのルートでは消費しない）。
             val canGoBack = selectedCourse != null || showSettings || showGpa || showSearch ||
-                showLicenses || showPdf
+                showLicenses || showPdf || showTerms
             fun goBack() {
                 backNavigation = true
                 when {
@@ -183,6 +187,7 @@ fun App(api: CoreApi) {
                     showSearch -> showSearch = false
                     showLicenses -> showLicenses = false
                     showPdf -> showPdf = false
+                    showTerms -> showTerms = false
                     showSettings -> showSettings = false
                     showGpa -> showGpa = false
                 }
@@ -196,6 +201,7 @@ fun App(api: CoreApi) {
                 showSearch -> "search"
                 showLicenses -> "licenses"
                 showPdf -> "pdf"
+                showTerms -> "terms"
                 showSettings -> "settings"
                 showGpa -> "gpa"
                 else -> "main"
@@ -223,6 +229,7 @@ fun App(api: CoreApi) {
                     )
                     "licenses" -> LicensesScreen { goBack() }
                     "pdf" -> PdfScreen { goBack() }
+                    "terms" -> TermScreen(api) { goBack() }
                     "settings" -> SettingsScreen(
                         api = api,
                         onClose = { goBack() },
@@ -245,6 +252,7 @@ fun App(api: CoreApi) {
                         onSearch = { showSearch = true },
                         onLicenses = { showLicenses = true },
                         onPdf = { showPdf = true },
+                        onManageTerms = { showTerms = true },
                         onCourse = { selectedCourse = it }
                     )
                 }
@@ -329,6 +337,7 @@ private fun MainScaffold(
     onSearch: () -> Unit,
     onLicenses: () -> Unit,
     onPdf: () -> Unit,
+    onManageTerms: () -> Unit,
     onCourse: (String) -> Unit
 ) {
     val colors = org.openyaske.app.ui.design.LocalAppColors.current
@@ -349,6 +358,7 @@ private fun MainScaffold(
                     onSearch = onSearch,
                     onLicenses = onLicenses,
                     onPdf = onPdf,
+                    onManageTerms = onManageTerms,
                     onCourse = onCourse,
                     bottomInset = !wide
                 )
@@ -381,6 +391,7 @@ private fun ScreenContent(
     onSearch: () -> Unit,
     onLicenses: () -> Unit,
     onPdf: () -> Unit,
+    onManageTerms: () -> Unit,
     onCourse: (String) -> Unit,
     bottomInset: Boolean
 ) {
@@ -409,7 +420,14 @@ private fun ScreenContent(
                     bottomInset = bottomInset
                 )
                 Destination.TASKS -> TasksScreen(api, onCourse, onSettings, bottomInset)
-                Destination.TIMETABLE -> TimetableScreen(api, onCourse, onSettings, onGpa, bottomInset)
+                Destination.TIMETABLE -> TimetableScreen(
+                    api = api,
+                    onCourse = onCourse,
+                    onSettings = onSettings,
+                    onGpa = onGpa,
+                    onManageTerms = onManageTerms,
+                    bottomInset = bottomInset
+                )
                 Destination.CALENDAR -> CalendarScreen(api, onCourse, onCalendarSettings, bottomInset)
                 Destination.MORE -> MoreScreen(
                     api = api,

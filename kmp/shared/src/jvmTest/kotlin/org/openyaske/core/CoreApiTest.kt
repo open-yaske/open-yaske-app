@@ -119,10 +119,12 @@ class CoreApiTest {
         assertEquals(2026, terms.single().year)
 
         val sessions = api.courseDetail(saved.id).sessions
-        assertTrue(sessions.size >= 20, "前学期ぶんの回が要る: ${sessions.size}")
+        assertTrue(sessions.size >= 10, "前学期ぶんの回が要る: ${sessions.size}")
         assertEquals(sessions.size, sessions.map { it.date }.distinct().size)
         assertTrue(sessions.all { IsoDate.dayOfWeekIso(it.date) == Weekday.MON.isoNumber })
-        assertEquals("2026-04-06", sessions.first().date)
+        // 2026 年度の前学期は 4/8 開始なので、最初の月曜は 4/13。
+        assertEquals("2026-04-13", sessions.first().date)
+        assertTrue(sessions.all { it.date >= "2026-04-08" && it.date <= "2026-07-29" })
     }
 
     @Test
@@ -149,7 +151,7 @@ class CoreApiTest {
             timetable.cells.values.any { it.course.id == saved.id },
             "時間割のセルに科目が無い"
         )
-        val agenda = api.agenda("2026-04-06", "2026-04-06")
+        val agenda = api.agenda("2026-04-13", "2026-04-13")
         assertTrue(
             agenda.any {
                 it.item is org.openyaske.core.logic.AgendaItem.Class &&
@@ -157,6 +159,63 @@ class CoreApiTest {
             },
             "アジェンダに授業が無い"
         )
+    }
+
+    @Test
+    fun springCourseDoesNotGenerateFallSessions() {
+        val api = newApi()
+        val spring = api.saveTerm(
+            Term.semester(2026, Semester.SPRING, "2026-04-08", "2026-07-29")
+        )
+        val saved = api.saveCourse(course(spring.id))
+
+        val dates = api.courseDetail(saved.id).sessions.map { it.date }
+        assertTrue(dates.isNotEmpty())
+        assertTrue(dates.all { it >= "2026-04-08" && it <= "2026-07-29" }, "前学期の外: $dates")
+        assertEquals(0, dates.count { it >= "2026-10-01" })
+    }
+
+    @Test
+    fun novemberCourseUsesTermContainingToday() {
+        val api = newApi()
+        api.saveTerm(Term.semester(2026, Semester.SPRING, "2026-04-08", "2026-07-29"))
+        val fall = api.saveTerm(
+            Term.semester(2026, Semester.FALL, "2026-10-01", "2027-02-05")
+        )
+
+        // 11 月は後学期の期間内。開始日が一番遅い学期ではなく、今日を含む学期を選ぶ。
+        val saved = api.saveCourse(course(termId = ""), today = "2026-11-04")
+        assertEquals(fall.id, saved.termId)
+
+        val dates = api.courseDetail(saved.id).sessions.map { it.date }
+        assertTrue(dates.isNotEmpty())
+        assertTrue(dates.all { it >= "2026-10-01" && it <= "2027-02-05" })
+    }
+
+    @Test
+    fun novemberCourseWithOnlySpringDoesNotInventFall() {
+        val api = newApi()
+        val spring = api.saveTerm(
+            Term.semester(2026, Semester.SPRING, "2026-04-08", "2026-07-29")
+        )
+        val saved = api.saveCourse(course(termId = ""), today = "2026-11-04")
+        assertEquals(spring.id, saved.termId)
+    }
+
+    @Test
+    fun changingTermDatesRegeneratesAndDropsOutOfRange() {
+        val api = newApi()
+        val term = api.saveTerm(
+            Term.semester(2026, Semester.SPRING, "2026-04-08", "2026-07-29")
+        )
+        val saved = api.saveCourse(course(term.id))
+        assertTrue(api.courseDetail(saved.id).sessions.any { it.date > "2026-06-30" })
+
+        // 終了日を 5/31 に縮める。
+        api.saveTerm(term.copy(endDate = "2026-05-31"))
+        val dates = api.courseDetail(saved.id).sessions.map { it.date }
+        assertTrue(dates.isNotEmpty())
+        assertTrue(dates.all { it <= "2026-05-31" }, "範囲外が残っている: $dates")
     }
 
     @Test

@@ -100,6 +100,10 @@ fun CourseEditorSheet(
     var memo by remember { mutableStateOf(course?.memo ?: "") }
     var url by remember { mutableStateOf(course?.url ?: "") }
     var showSyllabus by remember { mutableStateOf(false) }
+    // 学期が決まっていないときは、今日から見た既定の学期を入れておく。
+    LaunchedEffect(Unit) {
+        if (termId == null) termId = api.resolveTermId(todayIso())
+    }
     var termMenu by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -214,6 +218,13 @@ fun CourseEditorSheet(
             }
 
             Text(t["timetable_term"], style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+            if (terms.isEmpty()) {
+                Text(
+                    text = t["term_required_hint"],
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.danger
+                )
+            }
             Box {
                 FilterPill(
                     text = selectedTerm?.let { termLabel(it, t["lang"]) } ?: t["timetable_term"],

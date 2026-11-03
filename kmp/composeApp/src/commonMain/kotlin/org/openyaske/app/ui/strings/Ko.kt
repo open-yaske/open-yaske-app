@@ -292,4 +292,9 @@ internal val KO: Map<String, String> = mapOf(
     "syllabus_no_slot" to "이 요일·교시에 해당 없음",
     "syllabus_clear_slot" to "요일·교시 필터 해제",
     "syllabus_no_result" to "해당 없음",
+    "term_required_hint" to "학기가 없습니다. 학기 화면에서 시작일과 종료일을 입력하세요",
+    "term_manage" to "학기",
+    "term_edit" to "학기 편집",
+    "term_empty" to "학기가 없습니다",
+    "term_delete_confirm" to "이 학기를 삭제할까요 (과목이 있으면 삭제할 수 없습니다)",
 )
