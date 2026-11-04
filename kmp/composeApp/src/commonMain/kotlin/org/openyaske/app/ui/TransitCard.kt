@@ -2,7 +2,6 @@ package org.openyaske.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,22 +30,19 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.openyaske.app.ui.design.AppIcons
 import org.openyaske.app.ui.design.AppShapes
-import org.openyaske.app.ui.design.FilterPill
 import org.openyaske.app.ui.design.LocalAppColors
 import org.openyaske.app.ui.design.Space
 import org.openyaske.app.ui.design.tabular
 import org.openyaske.core.api.AppSettings
-import org.openyaske.core.api.CoreApi
 import org.openyaske.core.api.TransitBoard
 import org.openyaske.core.api.TransitDeparture
 
 /**
  * 乗換カード。次の 3 便を、発車までの残り秒つきで出す。
- * 方面と種別は絞り込みチップで切り替え、設定に保存する。
+ * 方面と種別の絞り込みは設定画面で決める（カードには置かない）。
  */
 @Composable
 internal fun TransitCard(
-    api: CoreApi,
     settings: AppSettings,
     board: TransitBoard,
     stationName: String?,
@@ -106,75 +101,36 @@ internal fun TransitCard(
                 DepartureRow(
                     departure = row.departure,
                     remaining = row.remaining,
-                    english = content.english
+                    english = content.english,
+                    // 方面で絞っていると行の先頭は全部同じ駅になる。種別を主役に据える。
+                    typeFirst = settings.transitDirection != null
                 )
             }
         }
-        if (content.destinations.size > 1) {
-            FilterRow(
-                label = t["transit_destination"],
-                chips = content.destinations,
-                selected = settings.transitDirection,
-                onSelect = { key ->
-                    api.updateSettings {
-                        it.copy(transitDirection = if (it.transitDirection == key) null else key)
-                    }
-                }
-            )
-        }
-        if (content.types.size > 1) {
-            FilterRow(
-                label = t["transit_type"],
-                chips = content.types,
-                selected = settings.transitType,
-                onSelect = { key ->
-                    api.updateSettings {
-                        it.copy(transitType = if (it.transitType == key) null else key)
-                    }
-                }
-            )
-        }
     }
 }
 
 @Composable
-private fun FilterRow(
-    label: String,
-    chips: List<TransitChip>,
-    selected: String?,
-    onSelect: (String) -> Unit
+private fun DepartureRow(
+    departure: TransitDeparture,
+    remaining: Int,
+    english: Boolean,
+    typeFirst: Boolean
 ) {
-    val colors = LocalAppColors.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Space.xs)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.textSecondary
-        )
-        chips.forEach { chip ->
-            FilterPill(
-                text = chip.text,
-                onClick = { onSelect(chip.key) },
-                selected = selected == chip.key
-            )
-        }
-    }
-}
-
-@Composable
-private fun DepartureRow(departure: TransitDeparture, remaining: Int, english: Boolean) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
     val lineColor = remember(departure.color) {
         parseLineColor(departure.color) ?: colors.primary
     }
     val type = departure.headsign.serviceType?.label(english)
+    val destination = departure.headsign.destination.label(english)
+    // 種別を先に出すときも 2 行のまま。行の高さと右端の桁を揃える。
+    val primary = if (typeFirst && type != null) type else destination
+    val secondary = if (typeFirst && type != null) {
+        destination.takeIf { it != type }
+    } else {
+        type
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,16 +151,16 @@ private fun DepartureRow(departure: TransitDeparture, remaining: Int, english: B
                 .padding(start = Space.sm)
         ) {
             Text(
-                text = departure.headsign.destination.label(english),
+                text = primary,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = colors.text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (type != null) {
+            if (secondary != null) {
                 Text(
-                    text = type,
+                    text = secondary,
                     style = MaterialTheme.typography.labelSmall,
                     color = colors.textSecondary,
                     maxLines = 1,

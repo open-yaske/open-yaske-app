@@ -84,6 +84,8 @@ data class AppSettings(
     val accentStyle: AccentStyle = AccentStyle.COLOR,
     /** 時間割セルの透過モード。null は「背景ありならすりガラス、なしなら不透明」。 */
     val timetableCellMode: CellSurfaceMode? = null,
+    /** ホームに乗換カードを出すか。 */
+    val transitVisible: Boolean = true,
     /** 登録した駅（複数可）。 */
     val transitStations: List<TransitStation> = emptyList(),
     /** ホームに出す駅。null なら先頭。 */

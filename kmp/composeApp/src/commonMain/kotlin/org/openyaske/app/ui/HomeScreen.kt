@@ -217,7 +217,6 @@ fun HomeScreen(
 
                 item {
                     WeatherTransitCards(
-                        api = api,
                         settings = settings,
                         wide = wide
                     )
