@@ -216,6 +216,14 @@ fun HomeScreen(
                 }
 
                 item {
+                    WeatherTransitCards(
+                        api = api,
+                        settings = settings,
+                        wide = wide
+                    )
+                }
+
+                item {
                     StatRow(
                         todayCount = todaySessions.size,
                         weekCount = weekCount,
@@ -587,6 +595,8 @@ private fun HomeLinks() {
         LinkGrid(study, colors.primary, uriHandler)
         SectionBar(t["home_links_study"])
         LinkGrid(others, colors.info, uriHandler)
+        SectionBar(t["home_links_all"])
+        CampusLinksSection()
     }
 }
 

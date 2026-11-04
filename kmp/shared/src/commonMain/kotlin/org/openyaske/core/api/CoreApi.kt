@@ -181,6 +181,15 @@ class CoreApi(
     fun saveCourse(course: Course, today: String? = null): Course =
         courseService.saveCourse(course, today)
 
+    fun listSyllabus(
+        year: Int? = null,
+        weekday: org.openyaske.core.model.Weekday? = null,
+        period: Int? = null,
+        programType: String? = null,
+        limit: Int = 40
+    ): List<SyllabusEntry> =
+        syllabusService.listSyllabus(year, weekday, period, programType, limit)
+
     /** 今日から見た既定の学期 ID（無ければ作る）。 */
     fun resolveTermId(today: String): String? =
         courseService.resolveTermId(today)

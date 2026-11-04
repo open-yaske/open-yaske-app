@@ -4,6 +4,9 @@
     <!-- 授業前のローカル通知。サーバも Push も使わない。 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- 天気と乗換案内の取得（HTTPS）。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="OpenYASKE"
         android:icon="@mipmap/ic_launcher"

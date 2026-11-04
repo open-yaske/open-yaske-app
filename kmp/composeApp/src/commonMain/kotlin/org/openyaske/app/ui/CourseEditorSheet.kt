@@ -429,38 +429,54 @@ private fun SyllabusInlineSearch(
     var semester by remember { mutableStateOf<String?>(null) }
     var filterSlot by remember { mutableStateOf(initialWeekday != null && initialPeriod != null) }
     var hits by remember { mutableStateOf<List<SyllabusSearchHit>>(emptyList()) }
+    var listed by remember { mutableStateOf<List<SyllabusEntry>>(emptyList()) }
     var yearMenu by remember { mutableStateOf(false) }
     var semesterMenu by remember { mutableStateOf(false) }
+
+    val slot = if (filterSlot && initialWeekday != null && initialPeriod != null) {
+        initialWeekday to initialPeriod
+    } else {
+        null
+    }
 
     LaunchedEffect(query, year, filterSlot) {
         if (query.isBlank()) {
             hits = emptyList()
+            // キーワードが無くても、コマが決まっていればそのコマの科目を並べる。
+            listed = if (slot != null) {
+                runCatching { api.listSyllabus(year = year, weekday = slot.first, period = slot.second, limit = 40) }
+                    .getOrDefault(emptyList())
+            } else {
+                emptyList()
+            }
             return@LaunchedEffect
         }
         delay(200)
+        listed = emptyList()
         hits = runCatching {
             api.searchSyllabus(
                 query = query,
                 year = year,
-                weekday = if (filterSlot) initialWeekday else null,
-                period = if (filterSlot) initialPeriod else null,
+                weekday = slot?.first,
+                period = slot?.second,
                 limit = 40
             )
         }.getOrDefault(emptyList())
     }
 
-    val results = remember(hits, semester) {
-        if (semester == null) hits
-        else hits.filter { hit ->
-            listOfNotNull(hit.entry.semester, hit.entry.semester1, hit.entry.semester2)
+    val entries = remember(hits, listed, semester) {
+        val source = if (query.isBlank()) listed else hits.map { it.entry }
+        if (semester == null) source
+        else source.filter { entry ->
+            listOfNotNull(entry.semester, entry.semester1, entry.semester2)
                 .any { it.contains(semester!!) }
         }
     }
     val activeFilters = listOfNotNull(
         year?.toString(),
         semester,
-        if (filterSlot && initialWeekday != null) t["day_${initialWeekday.isoNumber}"] else null,
-        if (filterSlot && initialPeriod != null) "$initialPeriod" + t["search_period_suffix"] else null
+        if (slot != null) t["day_${slot.first.isoNumber}"] else null,
+        if (slot != null) "${slot.second}" + t["search_period_suffix"] else null
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
@@ -534,7 +550,14 @@ private fun SyllabusInlineSearch(
                 color = colors.textSecondary
             )
         }
-        if (query.isNotBlank() && results.isEmpty()) {
+        if (query.isBlank() && entries.isEmpty()) {
+            Text(
+                text = if (slot == null) t["syllabus_pick_slot"] else t["syllabus_no_slot"],
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary
+            )
+        }
+        if (query.isNotBlank() && entries.isEmpty()) {
             Column {
                 Text(
                     text = when {
@@ -556,8 +579,8 @@ private fun SyllabusInlineSearch(
             }
         }
         LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp)) {
-            items(results.size) { index ->
-                val entry = results[index].entry
+            items(entries.size) { index ->
+                val entry = entries[index]
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

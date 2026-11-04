@@ -1,5 +1,6 @@
 package org.openyaske.app.ui
 
+import org.openyaske.core.api.TransitStation
 import kotlinx.coroutines.launch
 import org.openyaske.app.ui.design.toAccentHex
 import androidx.compose.ui.draw.clip
@@ -25,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,6 +75,20 @@ fun SettingsScreen(
     var confirmImport by remember { mutableStateOf(false) }
     var clearStep by remember { mutableStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
+    var transitQuery by remember { mutableStateOf("") }
+    var transitResults by remember {
+        mutableStateOf<List<org.openyaske.core.api.TransitPlace>>(emptyList())
+    }
+    LaunchedEffect(transitQuery) {
+        if (transitQuery.isBlank()) {
+            transitResults = emptyList()
+            return@LaunchedEffect
+        }
+        kotlinx.coroutines.delay(300)
+        transitResults = runCatching {
+            org.openyaske.core.api.TransitClient.suggest(transitQuery)
+        }.getOrDefault(emptyList())
+    }
 
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -232,6 +248,98 @@ fun SettingsScreen(
                         HairLine(modifier = Modifier.padding(start = Space.md))
                         ToggleRow(t["settings_calendar_events"], settings.calendarShowEvents) {
                             api.updateSettings { s -> s.copy(calendarShowEvents = it) }
+                        }
+                    }
+                }
+            }
+
+            item { SectionBar(t["transit_title"]) }
+            item {
+                AppCard {
+                    Column(modifier = Modifier.padding(Space.md)) {
+                        if (settings.transitStations.isEmpty()) {
+                            Text(
+                                text = t["transit_add_hint"],
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.textSecondary
+                            )
+                        }
+                        settings.transitStations.forEach { station ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        api.updateSettings { it.copy(transitStationId = station.id) }
+                                    }
+                                    .padding(vertical = Space.sm),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = station.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (station.id == settings.transitStationId) colors.primary
+                                    else colors.text,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                if (station.id == settings.transitStationId) {
+                                    Text(
+                                        text = t["transit_active"],
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = colors.primary
+                                    )
+                                }
+                                TextButton(
+                                    onClick = {
+                                        api.updateSettings { current ->
+                                            current.copy(
+                                                transitStations = current.transitStations
+                                                    .filterNot { it.id == station.id },
+                                                transitStationId = if (current.transitStationId == station.id) null
+                                                else current.transitStationId
+                                            )
+                                        }
+                                    }
+                                ) { Text(t["common_delete"], color = colors.danger) }
+                            }
+                        }
+                        OutlinedTextField(
+                            value = transitQuery,
+                            onValueChange = { transitQuery = it },
+                            label = { Text(t["transit_search"]) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().padding(top = Space.sm)
+                        )
+                        transitResults.forEach { place ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        api.updateSettings { current ->
+                                            current.copy(
+                                                transitStations = current.transitStations + TransitStation(
+                                                    id = place.id,
+                                                    name = place.name
+                                                ),
+                                                transitStationId = place.id
+                                            )
+                                        }
+                                        transitQuery = ""
+                                    }
+                                    .padding(vertical = Space.sm),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = place.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.text,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = t["common_add"],
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = colors.primary
+                                )
+                            }
                         }
                     }
                 }

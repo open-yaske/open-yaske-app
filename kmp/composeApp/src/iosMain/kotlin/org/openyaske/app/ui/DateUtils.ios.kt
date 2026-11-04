@@ -19,3 +19,6 @@ actual fun todayIso(): String {
     formatter.locale = NSLocale(localeIdentifier = "en_US_POSIX")
     return formatter.stringFromDate(NSDate())
 }
+
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+actual fun nowMillis(): Long = platform.posix.time(null) * 1000L

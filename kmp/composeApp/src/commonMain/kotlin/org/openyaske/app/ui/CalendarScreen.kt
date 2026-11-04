@@ -2,6 +2,8 @@ package org.openyaske.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -92,6 +95,9 @@ fun CalendarScreen(
     var selected by remember { mutableStateOf(today) }
     var showDay by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var swipeTotal by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    val swipeState = androidx.compose.foundation.gestures.rememberDraggableState { delta -> swipeTotal += delta }
+    val swipeThreshold = with(androidx.compose.ui.platform.LocalDensity.current) { 72.dp.toPx() }
     var detailTask by remember { mutableStateOf<org.openyaske.core.model.CourseTask?>(null) }
     var editingTask by remember { mutableStateOf<org.openyaske.core.model.CourseTask?>(null) }
     var editingEvent by remember { mutableStateOf<SchoolEvent?>(null) }
@@ -107,13 +113,7 @@ fun CalendarScreen(
 
     val bars = remember(data, settings, holidayColor, examColor, academicColor, otherEventColor) {
         val map = mutableMapOf<String, MutableList<DayBar>>()
-        if (settings.calendarShowClasses) {
-            data.sessions.filter { it.deletedAtMillis == null }.forEach { session ->
-                val course = coursesById[session.courseId] ?: return@forEach
-                map.getOrPut(session.date) { mutableListOf() }
-                    .add(DayBar(course.name, parseCourseColor(course.color, colorIndex[course.id] ?: 0)))
-            }
-        }
+        // 学事・課題を先に積み、授業は後ろに回す。3 本しか出ない日でも学事が消えない。
         if (settings.calendarShowEvents) {
             data.schoolEvents.filter { it.deletedAtMillis == null }.forEach { event ->
                 map.getOrPut(event.date) { mutableListOf() }
@@ -138,6 +138,13 @@ fun CalendarScreen(
                     map.getOrPut(date) { mutableListOf() }
                         .add(DayBar(task.title, colors.warning))
                 }
+        }
+        if (settings.calendarShowClasses) {
+            data.sessions.filter { it.deletedAtMillis == null }.forEach { session ->
+                val course = coursesById[session.courseId] ?: return@forEach
+                map.getOrPut(session.date) { mutableListOf() }
+                    .add(DayBar(course.name, parseCourseColor(course.color, colorIndex[course.id] ?: 0)))
+            }
         }
         map
     }
@@ -198,7 +205,23 @@ fun CalendarScreen(
                     availableHeight = screenHeight -
                         (if (compact) org.openyaske.app.ui.design.Sizes.headerCompact else org.openyaske.app.ui.design.Sizes.headerHeight) -
                         26.dp - screenBottomPadding(bottomInset) - (if (!wide) 44.dp else 0.dp),
-                    modifier = Modifier.padding(horizontal = Space.md),
+                    modifier = Modifier
+                        .padding(horizontal = Space.md)
+                        // 横スワイプで前月・翌月へ。72dp 以上動いたら切り替える。
+                        .draggable(
+                            state = swipeState,
+                            orientation = androidx.compose.foundation.gestures.Orientation.Horizontal,
+                            onDragStarted = { swipeTotal = 0f },
+                            onDragStopped = {
+                                val threshold = swipeThreshold
+                                if (swipeTotal <= -threshold) {
+                                    if (month == 12) { month = 1; year += 1 } else month += 1
+                                } else if (swipeTotal >= threshold) {
+                                    if (month == 1) { month = 12; year -= 1 } else month -= 1
+                                }
+                                swipeTotal = 0f
+                            }
+                        ),
                     onSelect = { date ->
                         selected = date
                         if (!wide) showDay = true

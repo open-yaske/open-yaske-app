@@ -71,6 +71,27 @@ class SyllabusCatalog(entries: List<SyllabusEntry> = emptyList()) {
         ).take(limit.coerceIn(1, 200))
     }
 
+    /**
+     * キーワード無しで、年度・曜日・時限・課程から一覧する。
+     * コマから科目を追加するときに、そのコマの候補をそのまま出すために使う。
+     */
+    fun list(
+        year: Int? = null,
+        weekday: Weekday? = null,
+        period: Int? = null,
+        programType: String? = null,
+        limit: Int = 40
+    ): List<SyllabusEntry> = indexed
+        .asSequence()
+        .map { it.entry }
+        .filter { year == null || it.year == year }
+        .filter { weekday == null || it.weekday == weekday }
+        .filter { period == null || it.period == period }
+        .filter { programType == null || it.programType == programType }
+        .sortedWith(compareByDescending<SyllabusEntry> { it.year }.thenBy { it.title })
+        .take(limit.coerceIn(1, 200))
+        .toList()
+
     private fun score(query: String, queryBigrams: Set<String>, item: IndexedEntry): Int {
         val code = item.normalizedCode
         val title = item.normalizedTitle

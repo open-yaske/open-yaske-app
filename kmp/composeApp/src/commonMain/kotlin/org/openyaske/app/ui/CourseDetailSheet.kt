@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -78,6 +79,13 @@ fun CourseDetailSheet(api: CoreApi, courseId: String, onDismiss: () -> Unit) {
     var showEditor by remember { mutableStateOf(false) }
     var detailTask by remember { mutableStateOf<org.openyaske.core.model.CourseTask?>(null) }
     var editTask by remember { mutableStateOf<org.openyaske.core.model.CourseTask?>(null) }
+    var attendanceSession by remember { mutableStateOf<org.openyaske.core.model.CourseSession?>(null) }
+    var attendanceDate by remember { mutableStateOf<String?>(null) }
+    var showMakeup by remember { mutableStateOf(false) }
+    val attendanceState = remember(courseId, data) { api.attendance(courseId) }
+    val recordsBySession = remember(attendanceState.records) {
+        attendanceState.records.associateBy { it.sessionId }
+    }
 
     // 編集は同じ位置でシートを差し替える（詳細 → 編集 → 閉じる）。
     if (showEditor) {
@@ -244,10 +252,17 @@ fun CourseDetailSheet(api: CoreApi, courseId: String, onDismiss: () -> Unit) {
                             modifier = Modifier.padding(Space.md)
                         )
                     }
-                    detail.sessions.take(8).forEachIndexed { index, session ->
+                    detail.sessions.forEachIndexed { index, session ->
                         if (index > 0) HairLine(modifier = Modifier.padding(start = Space.md))
+                        val record = recordsBySession[session.id]
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = Space.md, vertical = 10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    attendanceSession = session
+                                    attendanceDate = null
+                                }
+                                .padding(horizontal = Space.md, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(session.date, style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
@@ -259,14 +274,50 @@ fun CourseDetailSheet(api: CoreApi, courseId: String, onDismiss: () -> Unit) {
                             )
                             Spacer(Modifier.weight(1f))
                             Text(
-                                text = when (session.status) {
-                                    SessionStatus.CANCELLED -> t["attendance_cancelled"]
-                                    SessionStatus.MOVED -> t["session_moved"]
-                                    SessionStatus.SCHEDULED -> t["session_kind_${session.kind.name.lowercase()}"]
-                                },
+                                text = record?.let { statusLabel(it.status, t) }
+                                    ?: when (session.status) {
+                                        SessionStatus.CANCELLED -> t["attendance_cancelled"]
+                                        SessionStatus.MOVED -> t["session_moved"]
+                                        SessionStatus.SCHEDULED -> t["session_kind_${session.kind.name.lowercase()}"]
+                                    },
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colors.textTertiary
+                                color = if (record != null) colors.primary else colors.textTertiary
                             )
+                            Disclosure()
+                        }
+                    }
+                }
+            }
+
+            TextButton(onClick = { showMakeup = true }) {
+                Text(t["makeup_add"])
+            }
+            val dateOnly = attendanceState.records.filter { it.sessionId == null }
+            if (dateOnly.isNotEmpty()) {
+                SectionBar(t["attendance_by_date"], modifier = Modifier.padding(top = Space.xs))
+                AppCard {
+                    Column {
+                        dateOnly.forEachIndexed { index, record ->
+                            if (index > 0) HairLine(modifier = Modifier.padding(start = Space.md))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        attendanceSession = null
+                                        attendanceDate = record.date
+                                    }
+                                    .padding(horizontal = Space.md, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(record.date, style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = statusLabel(record.status, t),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = colors.primary
+                                )
+                                Disclosure()
+                            }
                         }
                     }
                 }
@@ -326,6 +377,34 @@ fun CourseDetailSheet(api: CoreApi, courseId: String, onDismiss: () -> Unit) {
                 }
             )
         }
+    }
+
+    (attendanceSession ?: attendanceDate)?.let { target ->
+        AttendanceRecordSheet(
+            api = api,
+            courseId = detail.course.id,
+            session = attendanceSession,
+            date = attendanceDate,
+            current = attendanceSession?.let { recordsBySession[it.id]?.status }
+                ?: attendanceDate?.let { day -> attendanceState.records.firstOrNull { it.sessionId == null && it.date == day }?.status },
+            onDone = {
+                attendanceSession = null
+                attendanceDate = null
+            },
+            onDismiss = {
+                attendanceSession = null
+                attendanceDate = null
+            }
+        )
+    }
+
+    if (showMakeup) {
+        MakeupSessionSheet(
+            api = api,
+            courseId = detail.course.id,
+            onDone = { showMakeup = false },
+            onDismiss = { showMakeup = false }
+        )
     }
 
     detailTask?.let { task ->
@@ -405,4 +484,13 @@ private fun AttendanceAction(icon: ImageVector, label: String, color: Color, onC
             modifier = Modifier.padding(top = 4.dp)
         )
     }
+}
+
+/** 出席状態の表示名。 */
+private fun statusLabel(status: AttendanceStatus, t: UiStrings): String = when (status) {
+    AttendanceStatus.PRESENT -> t["attendance_present"]
+    AttendanceStatus.ABSENT -> t["attendance_absent"]
+    AttendanceStatus.LATE -> t["attendance_late"]
+    AttendanceStatus.EXCUSED -> t["attendance_excused"]
+    AttendanceStatus.CANCELLED -> t["attendance_cancelled"]
 }

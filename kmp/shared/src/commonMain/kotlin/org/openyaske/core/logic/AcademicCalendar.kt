@@ -71,11 +71,27 @@ object AcademicCalendar {
         )
     )
 
+    /**
+     * 表に無い年度は暫定の日程を返す（2027〜2050）。
+     * 大学の PDF が公開されたら [table] に足して上書きする。
+     * 暫定: 前学期 4/8〜7/29、後学期 10/1〜翌 2/5。
+     */
+    private const val PROVISIONAL_FROM = 2027
+    private const val PROVISIONAL_TO = 2050
+
+    fun isVerified(year: Int): Boolean = table.containsKey(year)
+
     fun dates(year: Int, season: Semester): SemesterDates? {
-        val entry = table[year] ?: return null
+        table[year]?.let { entry ->
+            return when (season) {
+                Semester.SPRING -> entry.spring
+                Semester.FALL -> entry.fall
+            }
+        }
+        if (year !in PROVISIONAL_FROM..PROVISIONAL_TO) return null
         return when (season) {
-            Semester.SPRING -> entry.spring
-            Semester.FALL -> entry.fall
+            Semester.SPRING -> SemesterDates("$year-04-08", "$year-07-29")
+            Semester.FALL -> SemesterDates("$year-10-01", "${year + 1}-02-05")
         }
     }
 

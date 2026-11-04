@@ -12,6 +12,15 @@ class SyllabusService internal constructor(private val store: CoreStore) {
         store.syllabusCount.value = store.catalog.size
     }
 
+    fun listSyllabus(
+        year: Int? = null,
+        weekday: org.openyaske.core.model.Weekday? = null,
+        period: Int? = null,
+        programType: String? = null,
+        limit: Int = 40
+    ): List<org.openyaske.core.model.SyllabusEntry> =
+        store.catalog.list(year, weekday, period, programType, limit)
+
     fun searchSyllabus(
         query: String,
         year: Int? = null,

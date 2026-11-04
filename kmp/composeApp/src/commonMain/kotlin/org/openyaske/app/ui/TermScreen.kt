@@ -97,11 +97,21 @@ fun TermScreen(api: CoreApi, onBack: () -> Unit) {
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = colors.text
                                         )
-                                        Text(
-                                            text = "${term.startDate} 〜 ${term.endDate}",
-                                            style = MaterialTheme.typography.labelSmall.tabular(),
-                                            color = colors.textSecondary
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "${term.startDate} 〜 ${term.endDate}",
+                                                style = MaterialTheme.typography.labelSmall.tabular(),
+                                                color = colors.textSecondary
+                                            )
+                                            if (!org.openyaske.core.logic.AcademicCalendar.isVerified(term.year)) {
+                                                Text(
+                                                    text = t["term_provisional"],
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = colors.warning,
+                                                    modifier = Modifier.padding(start = Space.sm)
+                                                )
+                                            }
+                                        }
                                     }
                                     Disclosure()
                                 }

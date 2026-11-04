@@ -1,5 +1,7 @@
 package org.openyaske.app.ui
 
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.LaunchedEffect
@@ -243,7 +245,34 @@ fun TimetableScreen(
             }
         )
 
-        Box(modifier = Modifier.widthIn(max = 1000.dp).fillMaxHeight()) {
+        var termSwipeTotal by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+        val termSwipeState = androidx.compose.foundation.gestures.rememberDraggableState { delta ->
+            termSwipeTotal += delta
+        }
+        val termSwipeThreshold = with(androidx.compose.ui.platform.LocalDensity.current) { 72.dp.toPx() }
+        val orderedTerms = remember(data.terms) { data.terms.sortedBy { it.startDate } }
+        Box(
+            modifier = Modifier
+                .widthIn(max = 1000.dp)
+                .fillMaxHeight()
+                // 横スワイプで学期を前後へ。学期は開始日順。
+                .draggable(
+                    state = termSwipeState,
+                    orientation = androidx.compose.foundation.gestures.Orientation.Horizontal,
+                    onDragStarted = { termSwipeTotal = 0f },
+                    onDragStopped = {
+                        val index = orderedTerms.indexOfFirst { it.id == selectedTermId }
+                        if (index >= 0) {
+                            if (termSwipeTotal <= -termSwipeThreshold && index < orderedTerms.lastIndex) {
+                                selectedTermId = orderedTerms[index + 1].id
+                            } else if (termSwipeTotal >= termSwipeThreshold && index > 0) {
+                                selectedTermId = orderedTerms[index - 1].id
+                            }
+                        }
+                        termSwipeTotal = 0f
+                    }
+                )
+        ) {
             background?.let { image ->
                 androidx.compose.foundation.Image(
                     bitmap = image,

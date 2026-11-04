@@ -46,7 +46,7 @@ class CourseService internal constructor(private val store: CoreStore) {
         val academicYear = AcademicCalendar.academicYearOf(today)
         terms.firstOrNull { it.year == academicYear && it.season == Semester.SPRING }
             ?.let { return it }
-        // 学年暦に無い年度は日付を作らない。学期画面で入力を促す。
+        // 2027〜2050 は暫定日程、それ以外の年度は日付を作らず学期画面で入力を促す。
         return AcademicCalendar.term(academicYear, Semester.SPRING)
     }
 

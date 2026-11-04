@@ -23,6 +23,10 @@ enum class CellSurfaceMode {
 }
 
 /** アクセントの作り方。MONOCHROME のときは色相を使わない。 */
+/** 乗換案内に登録した駅。 */
+@Serializable
+data class TransitStation(val id: String, val name: String)
+
 @Serializable
 enum class AccentStyle {
     COLOR,
@@ -79,7 +83,18 @@ data class AppSettings(
     /** アクセントの作り方（カラー / モノクロ）。 */
     val accentStyle: AccentStyle = AccentStyle.COLOR,
     /** 時間割セルの透過モード。null は「背景ありならすりガラス、なしなら不透明」。 */
-    val timetableCellMode: CellSurfaceMode? = null
+    val timetableCellMode: CellSurfaceMode? = null,
+    /** 登録した駅（複数可）。 */
+    val transitStations: List<TransitStation> = emptyList(),
+    /** ホームに出す駅。null なら先頭。 */
+    val transitStationId: String? = null,
+    /** 方面（行き先）の絞り込み。 */
+    val transitDirection: String? = null,
+    /** 路線の絞り込み。 */
+    val transitLine: String? = null,
+    /** 天気を取る地点（既定は調布キャンパス）。 */
+    val weatherLatitude: Double = 35.6256,
+    val weatherLongitude: Double = 139.4855
 ) {
     fun normalized(): AppSettings {
         val days = visibleWeekdays.distinct()
@@ -97,6 +112,14 @@ data class AppSettings(
         return copy(
             theme = theme,
             accentHue = ((accentHue % 360) + 360) % 360,
+            transitStations = transitStations
+                .filter { it.id.isNotBlank() && it.name.isNotBlank() }
+                .distinctBy { it.id },
+            transitStationId = transitStationId?.takeIf { id ->
+                transitStations.any { it.id == id }
+            } ?: transitStations.firstOrNull()?.id,
+            transitDirection = transitDirection?.takeIf { it.isNotBlank() },
+            transitLine = transitLine?.takeIf { it.isNotBlank() },
             locale = locale.ifBlank { "ja" },
             visibleWeekdays = days,
             maxPeriod = maxPeriod.coerceIn(1, 7),

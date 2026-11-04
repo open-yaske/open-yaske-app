@@ -6,3 +6,5 @@ actual fun nowMinutes(): Int {
     val time = java.time.LocalTime.now()
     return time.hour * 60 + time.minute
 }
+
+actual fun nowMillis(): Long = System.currentTimeMillis()

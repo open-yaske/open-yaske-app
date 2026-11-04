@@ -91,7 +91,11 @@ fun MonthGrid(
         else -> 96.dp
     }
     // 帯は文字が読める本数まで。4 本以上は +n にまとめる。
-    val maxBars = if (rowHeight >= 96.dp) 3 else 2
+    val maxBars = when {
+        rowHeight >= 118.dp -> 4
+        rowHeight >= 96.dp -> 3
+        else -> 2
+    }
     val prefix = "$year-${month.toString().padStart(2, '0')}"
 
     Column(modifier = modifier.fillMaxWidth()) {
