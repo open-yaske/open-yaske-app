@@ -45,6 +45,8 @@ kotlin {
 		}
 		androidMain.dependencies {
 			implementation("androidx.activity:activity-compose:1.12.4")
+			// 書類スキャン。Play services の Document Scanner を使う（カメラの自前起動はしない）。
+			implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
 			implementation("androidx.core:core-splashscreen:1.0.1")
 			implementation("androidx.work:work-runtime-ktx:2.9.1")
 		}

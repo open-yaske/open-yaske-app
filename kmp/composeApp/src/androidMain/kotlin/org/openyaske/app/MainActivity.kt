@@ -31,13 +31,19 @@ class MainActivity : ComponentActivity() {
                 openDatabase(AndroidDatabaseDriverFactory(applicationContext))
             )
         )
-        // 写真から PDF。1 回の選択で最大 12 枚まで受け取り、まとめて 1 つの PDF にする。
+        // 写真から PDF。1 回の選択で複数枚を受け取り、まとめて 1 つの PDF にする。
         val picker = registerForActivityResult(
             ActivityResultContracts.PickMultipleVisualMedia(AndroidPdfBridge.MAX_PAGES)
         ) { uris ->
             AndroidPdfBridge.onResult(uris)
         }
-        AndroidPdfBridge.attach(this, picker)
+        // 書類スキャン（ML Kit Document Scanner）。複数ページを連続で読み取る。
+        val scanner = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            AndroidPdfBridge.onScanResult(result.resultCode, result.data)
+        }
+        AndroidPdfBridge.attach(this, picker, scanner)
 
         // 時間割の背景画像。Photo Picker で 1 枚選び、縮小して filesDir に保存する。
         org.openyaske.app.ui.timetable.attachTimetableBackground(this)

@@ -1,5 +1,6 @@
 package org.openyaske.app.media
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -18,30 +20,101 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import org.openyaske.core.media.PdfBuilder
 import org.openyaske.core.media.PdfImage
 import org.openyaske.core.media.PdfPageSize
 
-/** Android の PDF 書き出し。Photo Picker の結果を受けて圧縮し、共有する。 */
+/**
+ * Android の PDF 書き出し。
+ *
+ * 2 つの入口を持つ。
+ * - 書類スキャン: ML Kit Document Scanner（Google Play services）。複数ページを連続で読み取り、
+ *   四隅の補正とフィルタをスキャナ側で行う。カメラを自前で起動するのではない。
+ * - 写真を選ぶ: Photo Picker。アルバムの画像をそのままページにする。
+ */
 object AndroidPdfBridge {
-    /** 一度に選べる枚数。Picker 側の上限（12）と揃える。 */
-    const val MAX_PAGES = 12
+    /** 一度に扱う枚数。スキャナと Picker で揃える。 */
+    const val MAX_PAGES = 24
 
     private var activity: ComponentActivity? = null
     private var launcher: ActivityResultLauncher<PickVisualMediaRequest>? = null
+    private var scanLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
 
     @Volatile
     private var state: PdfExportState = PdfExportState.Idle
 
+    private var pendingMode: PdfExportMode = PdfExportMode.STANDARD
+
     fun attach(
         activity: ComponentActivity,
-        launcher: ActivityResultLauncher<PickVisualMediaRequest>
+        launcher: ActivityResultLauncher<PickVisualMediaRequest>,
+        scanner: ActivityResultLauncher<IntentSenderRequest>
     ) {
         this.activity = activity
         this.launcher = launcher
+        this.scanLauncher = scanner
     }
 
     fun state(): PdfExportState = state
+
+    /** 端末の書類スキャナが使えるか（Google Play services が必要）。 */
+    fun scanSupported(): Boolean {
+        val activity = activity ?: return false
+        return GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
+    }
+
+    /** 書類スキャナを開く。読み取り結果は [onScanResult] に返る。 */
+    fun startScan(mode: PdfExportMode) {
+        val activity = activity ?: return
+        val scanner = scanLauncher
+        if (scanner == null) {
+            state = PdfExportState.Failed("scanner is not ready")
+            return
+        }
+        pendingMode = mode
+        state = PdfExportState.Working
+        val options = GmsDocumentScannerOptions.Builder()
+            // アルバムからの取り込みも許す（紙を撮り直さずに済む）。
+            .setGalleryImportAllowed(true)
+            .setPageLimit(MAX_PAGES)
+            .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
+            // FULL は四隅の補正・フィルタ・回転をユーザーが直せる。
+            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+            .build()
+        GmsDocumentScanning.getClient(options)
+            .getStartScanIntent(activity)
+            .addOnSuccessListener { intentSender ->
+                runCatching {
+                    scanner.launch(IntentSenderRequest.Builder(intentSender).build())
+                }.onFailure {
+                    state = PdfExportState.Failed(it.message ?: "scanner failed")
+                }
+            }
+            .addOnFailureListener { error ->
+                state = PdfExportState.Failed(error.message ?: "scanner failed")
+            }
+    }
+
+    /** 書類スキャナの結果。取り消しは Cancelled として扱う。 */
+    fun onScanResult(resultCode: Int, data: Intent?) {
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            state = PdfExportState.Cancelled
+            return
+        }
+        val result = GmsDocumentScanningResult.fromActivityResultIntent(data)
+        val uris = result?.pages?.mapNotNull { it.imageUri } ?: emptyList()
+        if (uris.isEmpty()) {
+            state = PdfExportState.Cancelled
+            return
+        }
+        build(pendingMode, uris)
+    }
 
     fun start(mode: PdfExportMode) {
         state = PdfExportState.Working
@@ -56,15 +129,17 @@ object AndroidPdfBridge {
         pendingMode = mode
     }
 
-    private var pendingMode: PdfExportMode = PdfExportMode.STANDARD
 
     fun onResult(uris: List<Uri>) {
-        val context = activity ?: return
-        val mode = pendingMode
         if (uris.isEmpty()) {
             state = PdfExportState.Cancelled
             return
         }
+        build(pendingMode, uris)
+    }
+
+    private fun build(mode: PdfExportMode, uris: List<Uri>) {
+        val context = activity ?: return
         CoroutineScope(Dispatchers.IO).launch {
             state = PdfExportState.Working
             runCatching {

@@ -78,3 +78,15 @@ Developer Program はさらに氏名・住所・規約同意が必要で、EU �
 - Xcode 26 系は Intel Mac での対応が不確実。Intel では 16.4 系を選ぶ
 - CI の macOS ランナーは Xcode がプリインストールされているため、Apple ID なしでリンクできる
 - 追加した `.github/workflows/ios-core.yml` はシミュレータ用と実機用のフレームワークをリンクし、成果物を保存する
+
+## PDF の書類スキャン
+
+`kmp/composeApp` の iOS 実装は VisionKit の `VNDocumentCameraViewController` を使う。
+これを載せたアプリの `Info.plist` には次のキーが要る。無いとスキャナを開いた時点で落ちる。
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>書類をスキャンして PDF にするためにカメラを使います。</string>
+```
+
+KMP 側のリポジトリには iOS アプリのシェルがまだ無い（フレームワークのみ）ので、シェルを作るときに一緒に入れる。

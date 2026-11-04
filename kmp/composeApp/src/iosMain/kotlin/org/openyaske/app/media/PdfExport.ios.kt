@@ -9,6 +9,7 @@ import kotlinx.cinterop.usePinned
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSData
+import platform.Foundation.NSError
 import platform.Foundation.NSURL
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.create
@@ -26,6 +27,9 @@ import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsEndImageContext
 import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
 import platform.UIKit.UIViewController
+import platform.VisionKit.VNDocumentCameraScan
+import platform.VisionKit.VNDocumentCameraViewController
+import platform.VisionKit.VNDocumentCameraViewControllerDelegateProtocol
 import platform.darwin.NSObject
 import kotlin.concurrent.Volatile
 import platform.darwin.dispatch_async
@@ -38,17 +42,35 @@ actual fun pdfExportSupported(): Boolean = true
 
 actual fun pdfExportState(): PdfExportState = IosPdf.state
 
-actual fun startPdfExport(mode: PdfExportMode) = IosPdf.start(mode)
+actual fun startPdfExport(mode: PdfExportMode) = IosPdf.pick(mode)
+
+actual fun pdfScanSupported(): Boolean = true
+
+actual fun startPdfScan(mode: PdfExportMode) = IosPdf.scan(mode)
 
 
-/** iOS の PDF 書き出し。PHPicker で選び、UIImage で縮小して共有する。 */
+/**
+ * iOS の PDF 書き出し。入口は 2 つ。
+ * - 書類スキャン: VisionKit の [VNDocumentCameraViewController]。複数ページを連続で読み取り、
+ *   四隅の補正をスキャナ側で行う。
+ * - 写真を選ぶ: PHPicker。
+ * どちらも UIImage で縮小してから 1 つの PDF にまとめ、共有シートを出す。
+ */
 private object IosPdf {
     @Volatile
     var state: PdfExportState = PdfExportState.Idle
 
     private var pendingMode: PdfExportMode = PdfExportMode.STANDARD
 
-    fun start(mode: PdfExportMode) {
+    fun scan(mode: PdfExportMode) {
+        pendingMode = mode
+        state = PdfExportState.Working
+        val controller = VNDocumentCameraViewController()
+        controller.delegate = ScanDelegate()
+        rootController()?.presentViewController(controller, animated = true, completion = null)
+    }
+
+    fun pick(mode: PdfExportMode) {
         pendingMode = mode
         state = PdfExportState.Working
         val configuration = PHPickerConfiguration().apply {
@@ -60,7 +82,7 @@ private object IosPdf {
         rootController()?.presentViewController(picker, animated = true, completion = null)
     }
 
-    fun receive(images: List<PickedBytes>) {
+    fun receive(images: List<UIImage>) {
         if (images.isEmpty()) {
             state = PdfExportState.Cancelled
             return
@@ -105,9 +127,7 @@ private object IosPdf {
         PdfExportMode.ORIGINAL -> Settings(100, 4096)
     }
 
-    private fun encode(source: PickedBytes, quality: Int, maxDimension: Int): PdfImage? {
-        val data = source.data
-        val image = UIImage(data = data)
+    private fun encode(image: UIImage, quality: Int, maxDimension: Int): PdfImage? {
         val width = image.size.useContents { width }
         val height = image.size.useContents { height }
         if (width <= 0.0 || height <= 0.0) return null
@@ -131,8 +151,6 @@ private object IosPdf {
     }
 }
 
-private class PickedBytes(val data: NSData)
-
 private class PickerDelegate : NSObject(), PHPickerViewControllerDelegateProtocol {
     override fun picker(picker: PHPickerViewController, didFinishPicking: List<*>) {
         picker.dismissViewControllerAnimated(true, completion = null)
@@ -141,17 +159,43 @@ private class PickerDelegate : NSObject(), PHPickerViewControllerDelegateProtoco
             IosPdf.state = PdfExportState.Cancelled
             return
         }
-        val collected = mutableListOf<PickedBytes>()
+        val collected = mutableListOf<UIImage>()
         var remaining = providers.size
         providers.forEach { provider ->
             provider.loadDataRepresentationForTypeIdentifier("public.image") { data, _ ->
-                if (data != null) collected.add(PickedBytes(data))
+                if (data != null) UIImage(data = data)?.let { collected.add(it) }
                 remaining -= 1
                 if (remaining == 0) {
                     IosPdf.receive(collected.toList())
                 }
             }
         }
+    }
+}
+
+/** VisionKit のスキャン結果を受け取る。 */
+private class ScanDelegate : NSObject(), VNDocumentCameraViewControllerDelegateProtocol {
+    override fun documentCameraViewController(
+        controller: VNDocumentCameraViewController,
+        didFinishWithScan: VNDocumentCameraScan
+    ) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+        val count = didFinishWithScan.pageCount.toInt()
+        val pages = (0 until count).map { didFinishWithScan.imageOfPageAtIndex(it.toULong()) }
+        IosPdf.receive(pages)
+    }
+
+    override fun documentCameraViewControllerDidCancel(controller: VNDocumentCameraViewController) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+        IosPdf.state = PdfExportState.Cancelled
+    }
+
+    override fun documentCameraViewController(
+        controller: VNDocumentCameraViewController,
+        didFailWithError: NSError
+    ) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+        IosPdf.state = PdfExportState.Failed(didFailWithError.localizedDescription)
     }
 }
 

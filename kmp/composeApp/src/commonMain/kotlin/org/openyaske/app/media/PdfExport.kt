@@ -34,3 +34,9 @@ expect fun pdfExportSupported(): Boolean
 expect fun startPdfExport(mode: PdfExportMode)
 
 expect fun pdfExportState(): PdfExportState
+
+/** 端末の書類スキャナ（複数ページ・自動補正）が使えるか。 */
+expect fun pdfScanSupported(): Boolean
+
+/** 書類スキャナを開き、読み取ったページから PDF を作る。 */
+expect fun startPdfScan(mode: PdfExportMode)

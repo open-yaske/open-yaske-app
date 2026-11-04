@@ -26,6 +26,11 @@ private fun exportExtreme(): Unit = js("window.AppMedia.exportExtreme()")
 private fun exportOriginal(): Unit = js("window.AppMedia.exportOriginal()")
 private fun exportStateJson(): String = js("window.AppMedia.state()")
 
+/** Web には端末の書類スキャナが無い。写真を選ぶ経路だけを出す。 */
+actual fun pdfScanSupported(): Boolean = false
+
+actual fun startPdfScan(mode: PdfExportMode) = Unit
+
 actual fun pdfExportState(): PdfExportState {
     val json: String = runCatching { exportStateJson() }.getOrElse { return PdfExportState.Idle }
     val status = json.substringAfter("\"status\":\"", "").substringBefore("\"")

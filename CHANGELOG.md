@@ -101,7 +101,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **PDF の自己テスト**:
   - `pdf-self-test.html` を追加。画面を使わずに PDF を組み立て、ヘッダ・EOF・ページ数を確認できる。
 - **PDF（Android）**:
-  - MainActivity に Photo Picker（`PickMultipleVisualMedia`、最大 12 枚）を登録し、選んだ画像を `Bitmap` で縮小・2 値化して `PdfBuilder` で PDF にまとめる。カメラは呼ばない。
+  - 書類スキャン（ML Kit Document Scanner、`play-services-mlkit-document-scanner`）を追加。複数ページを連続で読み取り、四隅の補正とフィルタはスキャナ側で行う。カメラを自前で起動しない。
+  - MainActivity に Photo Picker（`PickMultipleVisualMedia`、最大 24 枚）と `StartIntentSenderForResult`（スキャナ）を登録し、選んだ画像を `Bitmap` で縮小・2 値化して `PdfBuilder` で PDF にまとめる。
   - 目標容量を超えたら品質を下げて作り直す（最大 2 回）。
   - FileProvider 経由で共有。`res/xml/file_paths.xml` と provider を追加。
   - 書き出し中は M3E の `LoadingIndicator` を出す。
@@ -110,8 +111,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - 目標容量で 5 つのモード（極限 1MB / 軽量 2MB / 標準 5MB / 高画質 10MB / グレースケール 3MB）を用意。
   - 極限 1MB は 1000px + 2 値化 + 40%。文字は読めるが写真は潰れる。OCR の下ごしらえ向け。
   - 無圧縮は再エンコードしない（JPEG はそのまま）。
-  - 一度に最大 12 枚まで選べ、選んだ順に 1 枚ずつページになる。画面にその案内を出す。
-  - 「その他」の名称は「写真から PDF」とし、実体がカメラ撮影ではないことを示す（旧「撮影して PDF を作る」と `TakePicturePreview` は削除）。
+  - 画面の入口を「書類をスキャン」と「写真を選ぶ」の 2 つにした。スキャンは Android が ML Kit Document Scanner、iOS が VisionKit（`VNDocumentCameraViewController`）。Web はスキャナが無いため写真のみ。
+  - 一度に最大 24 枚まで扱い、選んだ順に 1 枚ずつページになる。画面にその案内を出す。
+  - 「その他」の名称は「PDF スキャン」に戻した。旧「撮影して PDF を作る」と `TakePicturePreview` は削除。
   - 目標を超えたら品質を下げて作り直す。Web は `media.js` で選択・縮小・PDF 組み立て・保存まで行う。
   - PDF の組み立ては共通コードの `PdfBuilder` も用意済み（Android / iOS で使う）。
 - **アプリアイコン**:
