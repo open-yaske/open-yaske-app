@@ -239,6 +239,9 @@ fun SettingsScreen(
             item { SectionBar(t["transit_title"]) }
             item { TransitSettingsSection(api, settings) }
 
+            item { SectionBar(t["weather_title"]) }
+            item { WeatherSettingsSection(api, settings) }
+
             item { SectionBar(t["settings_notifications"]) }
             item {
                 AppCard {

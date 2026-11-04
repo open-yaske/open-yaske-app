@@ -81,6 +81,7 @@ fun SearchScreen(
     var periodMenu by remember { mutableStateOf(false) }
     var programMenu by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<org.openyaske.core.api.SyllabusSearchHit>>(emptyList()) }
+    var searching by remember { mutableStateOf(false) }
     var selectedEntry by remember { mutableStateOf<SyllabusEntry?>(null) }
 
     val added = remember(data) { data.courses.mapNotNull { it.syllabusId }.toSet() }
@@ -90,8 +91,10 @@ fun SearchScreen(
     LaunchedEffect(query, year, semester, weekday, period, program, count) {
         if (query.isBlank()) {
             results = emptyList()
+            searching = false
             return@LaunchedEffect
         }
+        searching = true
         kotlinx.coroutines.delay(200)
         results = api.searchSyllabus(
             query = query,
@@ -101,6 +104,7 @@ fun SearchScreen(
             programType = program,
             limit = 40
         ).filter { hit -> semester == null || semesterMatches(hit.entry, semester!!) }
+        searching = false
     }
 
     Column(
@@ -308,6 +312,19 @@ fun SearchScreen(
                     }
                     if (index != data.courses.lastIndex) HairLine()
                 }
+            }
+
+            searching -> Row(
+                modifier = Modifier.padding(horizontal = Space.lg, vertical = Space.lg),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Space.xs)
+            ) {
+                androidx.compose.material3.LoadingIndicator(modifier = Modifier.size(16.dp))
+                Text(
+                    t["searching"],
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary
+                )
             }
 
             results.isEmpty() -> Text(

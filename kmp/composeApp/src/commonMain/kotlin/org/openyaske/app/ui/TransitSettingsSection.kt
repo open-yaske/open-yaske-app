@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import org.openyaske.app.ui.design.AppCard
 import org.openyaske.app.ui.design.FilterPill
 import org.openyaske.app.ui.design.HairLine
@@ -30,11 +33,12 @@ import org.openyaske.core.api.AppSettings
 import org.openyaske.core.api.CoreApi
 import org.openyaske.core.api.TransitBoard
 import org.openyaske.core.api.TransitClient
+import org.openyaske.core.api.TransitFilter
 import org.openyaske.core.api.TransitPlace
 import org.openyaske.core.api.TransitStation
 
 /**
- * 設定の乗換案内。駅（場所）、ホームに出すか、方面と種別の絞り込みをここで決める。
+ * 設定の乗換案内。駅（複数）、ホームに出すか、駅ごとの方面・種別をここで決める。
  * カード側には選択 UI を置かない。
  */
 @Composable
@@ -42,27 +46,38 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
     var query by remember { mutableStateOf("") }
+    var searching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<TransitPlace>>(emptyList()) }
-    var board by remember { mutableStateOf<TransitBoard?>(null) }
+    var boards by remember { mutableStateOf<Map<String, TransitBoard>>(emptyMap()) }
+    var loading by remember { mutableStateOf(false) }
     val english = !(settings.locale.startsWith("ja") || settings.locale.startsWith("zh"))
 
     LaunchedEffect(query) {
         if (query.isBlank()) {
             results = emptyList()
+            searching = false
             return@LaunchedEffect
         }
+        searching = true
         kotlinx.coroutines.delay(300)
         results = runCatching { TransitClient.suggest(query) }.getOrDefault(emptyList())
+        searching = false
     }
 
-    LaunchedEffect(settings.transitStationId) {
-        val stationId = settings.transitStationId
-        if (stationId == null) {
-            board = null
+    LaunchedEffect(settings.transitStationIds) {
+        val ids = settings.transitStationIds
+        if (ids.isEmpty()) {
+            boards = emptyMap()
+            loading = false
             return@LaunchedEffect
         }
-        board = TransitBoardLoader.cached(stationId)
-            ?: TransitBoardLoader.load(stationId)
+        loading = true
+        val loaded = ids.mapNotNull { id ->
+            val board = TransitBoardLoader.cached(id) ?: TransitBoardLoader.load(id)
+            board?.let { id to it }
+        }.toMap()
+        boards = loaded
+        loading = false
     }
 
     AppCard {
@@ -105,16 +120,16 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
                 )
             }
             settings.transitStations.forEach { station ->
+                val selected = station.id in settings.transitStationIds
                 StationRow(
                     station = station,
-                    selected = station.id == settings.transitStationId,
-                    onSelect = {
-                        // 駅を変えたら方面・種別の絞り込みは解除する。
-                        api.updateSettings {
-                            it.copy(
-                                transitStationId = station.id,
-                                transitDirection = null,
-                                transitType = null
+                    selected = selected,
+                    onToggle = {
+                        api.updateSettings { current ->
+                            val ids = current.transitStationIds
+                            current.copy(
+                                transitStationIds = if (station.id in ids) ids - station.id
+                                else ids + station.id
                             )
                         }
                     },
@@ -123,12 +138,26 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
                             current.copy(
                                 transitStations = current.transitStations
                                     .filterNot { it.id == station.id },
-                                transitStationId = if (current.transitStationId == station.id) null
-                                else current.transitStationId
+                                transitStationIds = current.transitStationIds - station.id,
+                                transitFilters = current.transitFilters - station.id
                             )
                         }
                     }
                 )
+                if (selected) {
+                    val board = boards[station.id]
+                    if (board == null) {
+                        if (loading) LoadingRow(t["loading"])
+                    } else {
+                        StationFilterBlock(
+                            api = api,
+                            stationId = station.id,
+                            board = board,
+                            filter = settings.transitFilters[station.id] ?: TransitFilter(),
+                            english = english
+                        )
+                    }
+                }
             }
 
             OutlinedTextField(
@@ -138,6 +167,9 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(top = Space.sm)
             )
+            if (searching) {
+                LoadingRow(t["searching"])
+            }
             results.forEach { place ->
                 Row(
                     modifier = Modifier
@@ -149,9 +181,7 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
                                         id = place.id,
                                         name = place.name
                                     ),
-                                    transitStationId = place.id,
-                                    transitDirection = null,
-                                    transitType = null
+                                    transitStationIds = current.transitStationIds + place.id
                                 )
                             }
                             query = ""
@@ -172,43 +202,77 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
                     )
                 }
             }
-
-            val current = board
-            if (current != null) {
-                val destinations = current.departures
-                    .map { it.headsign.destination }
-                    .distinctBy { it.ja }
-                    .sortedBy { it.ja }
-                    .map { it.label(english) to it.ja }
-                val types = current.departures
-                    .mapNotNull { it.headsign.serviceType }
-                    .distinctBy { it.ja }
-                    .sortedBy { it.ja }
-                    .map { it.label(english) to it.ja }
-
-                if (destinations.size > 1) {
-                    HairLine(modifier = Modifier.padding(vertical = Space.xs))
-                    ChoiceRow(
-                        label = t["transit_destination"],
-                        options = destinations,
-                        selected = settings.transitDirection,
-                        onSelect = { key ->
-                            api.updateSettings { it.copy(transitDirection = key) }
-                        }
-                    )
-                }
-                if (types.size > 1) {
-                    ChoiceRow(
-                        label = t["transit_type"],
-                        options = types,
-                        selected = settings.transitType,
-                        onSelect = { key ->
-                            api.updateSettings { it.copy(transitType = key) }
-                        }
-                    )
-                }
-            }
         }
+    }
+}
+
+/** 1 駅分の方面・種別。その駅のボードから選択肢を作る。 */
+@Composable
+private fun StationFilterBlock(
+    api: CoreApi,
+    stationId: String,
+    board: TransitBoard,
+    filter: TransitFilter,
+    english: Boolean
+) {
+    val t = LocalUiStrings.current
+    val destinations = board.departures
+        .map { it.headsign.destination }
+        .distinctBy { it.ja }
+        .sortedBy { it.ja }
+        .map { it.label(english) to it.ja }
+    val types = board.departures
+        .mapNotNull { it.headsign.serviceType }
+        .distinctBy { it.ja }
+        .sortedBy { it.ja }
+        .map { it.label(english) to it.ja }
+
+    fun update(next: TransitFilter) {
+        api.updateSettings { current ->
+            current.copy(transitFilters = current.transitFilters + (stationId to next))
+        }
+    }
+
+    if (destinations.size > 1) {
+        MultiChoiceRow(
+            label = t["transit_destination"],
+            options = destinations,
+            selected = filter.directions.toSet(),
+            onToggle = { key ->
+                val values = filter.directions
+                update(
+                    filter.copy(
+                        directions = if (key in values) values - key else values + key
+                    )
+                )
+            },
+            onClear = { update(filter.copy(directions = emptyList())) }
+        )
+    }
+    if (types.size > 1) {
+        ChoiceRow(
+            label = t["transit_type"],
+            options = types,
+            selected = filter.type,
+            onSelect = { key -> update(filter.copy(type = key)) }
+        )
+    }
+}
+
+@Composable
+private fun LoadingRow(text: String) {
+    val colors = LocalAppColors.current
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = Space.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.xs)
+    ) {
+        LoadingIndicator(modifier = Modifier.size(14.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.textSecondary
+        )
     }
 }
 
@@ -216,7 +280,7 @@ internal fun TransitSettingsSection(api: CoreApi, settings: AppSettings) {
 private fun StationRow(
     station: TransitStation,
     selected: Boolean,
-    onSelect: () -> Unit,
+    onToggle: () -> Unit,
     onDelete: () -> Unit
 ) {
     val colors = LocalAppColors.current
@@ -224,30 +288,69 @@ private fun StationRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onSelect)
+            .clickable(onClick = onToggle)
             .padding(vertical = Space.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // 複数選べることが分かるように、選択中はチェックを出す。
+        Text(
+            text = if (selected) "✓" else "○",
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (selected) colors.primary else colors.textTertiary
+        )
         Text(
             text = station.name,
             style = MaterialTheme.typography.bodyMedium,
             color = if (selected) colors.primary else colors.text,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).padding(start = Space.sm)
         )
-        if (selected) {
-            Text(
-                text = t["transit_active"],
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.primary
-            )
-        }
         TextButton(onClick = onDelete) {
             Text(t["common_delete"], color = colors.danger)
         }
     }
 }
 
-/** 「すべて」＋選択肢。選んでいるものをもう一度押すと解除する。 */
+/** 「すべて」＋複数選択。押すたびに追加・解除する。 */
+@Composable
+private fun MultiChoiceRow(
+    label: String,
+    options: List<Pair<String, String>>,
+    selected: Set<String>,
+    onToggle: (String) -> Unit,
+    onClear: () -> Unit
+) {
+    val colors = LocalAppColors.current
+    val t = LocalUiStrings.current
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = Space.xs)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.textSecondary
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(top = Space.xs),
+            horizontalArrangement = Arrangement.spacedBy(Space.xs)
+        ) {
+            FilterPill(
+                text = t["transit_filter_all"],
+                onClick = onClear,
+                selected = selected.isEmpty()
+            )
+            options.forEach { (text, key) ->
+                FilterPill(
+                    text = text,
+                    onClick = { onToggle(key) },
+                    selected = key in selected
+                )
+            }
+        }
+    }
+}
+
+/** 「すべて」＋単一選択。 */
 @Composable
 private fun ChoiceRow(
     label: String,

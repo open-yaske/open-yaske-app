@@ -77,7 +77,7 @@ class TransitParseTest {
             "(特急 Limited Express) 橋本 Hashimoto" to 44640,
             "(快速 Rapid) 本八幡 Motoyawata" to 44000
         )
-        val upcoming = TransitSelection.upcoming(board, nowSecond = 44500)
+        val upcoming = TransitSelection.upcoming(board.departures, nowSecond = 44500)
         assertEquals(listOf(44520, 44640), upcoming.map { it.departureSecs })
     }
 
@@ -90,12 +90,12 @@ class TransitParseTest {
         )
         assertEquals(
             listOf(44700),
-            TransitSelection.upcoming(board, 0, destination = "新宿", type = "特急")
+            TransitSelection.upcoming(board.departures, 0, destinations = setOf("新宿"), type = "特急")
                 .map { it.departureSecs }
         )
         assertEquals(
             listOf(44520, 44700),
-            TransitSelection.upcoming(board, 0, destination = "新宿").map { it.departureSecs }
+            TransitSelection.upcoming(board.departures, 0, destinations = setOf("新宿")).map { it.departureSecs }
         )
     }
 }

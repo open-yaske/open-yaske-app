@@ -432,6 +432,7 @@ private fun SyllabusInlineSearch(
     var listed by remember { mutableStateOf<List<SyllabusEntry>>(emptyList()) }
     var yearMenu by remember { mutableStateOf(false) }
     var semesterMenu by remember { mutableStateOf(false) }
+    var searching by remember { mutableStateOf(false) }
 
     val slot = if (filterSlot && initialWeekday != null && initialPeriod != null) {
         initialWeekday to initialPeriod
@@ -442,6 +443,7 @@ private fun SyllabusInlineSearch(
     LaunchedEffect(query, year, filterSlot) {
         if (query.isBlank()) {
             hits = emptyList()
+            searching = slot != null
             // キーワードが無くても、コマが決まっていればそのコマの科目を並べる。
             listed = if (slot != null) {
                 runCatching { api.listSyllabus(year = year, weekday = slot.first, period = slot.second, limit = 40) }
@@ -449,8 +451,10 @@ private fun SyllabusInlineSearch(
             } else {
                 emptyList()
             }
+            searching = false
             return@LaunchedEffect
         }
+        searching = true
         delay(200)
         listed = emptyList()
         hits = runCatching {
@@ -462,6 +466,7 @@ private fun SyllabusInlineSearch(
                 limit = 40
             )
         }.getOrDefault(emptyList())
+        searching = false
     }
 
     val entries = remember(hits, listed, semester) {
@@ -550,14 +555,21 @@ private fun SyllabusInlineSearch(
                 color = colors.textSecondary
             )
         }
-        if (query.isBlank() && entries.isEmpty()) {
+        if (searching) {
+            Text(
+                text = t["searching"],
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary
+            )
+        }
+        if (!searching && query.isBlank() && entries.isEmpty()) {
             Text(
                 text = if (slot == null) t["syllabus_pick_slot"] else t["syllabus_no_slot"],
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.textSecondary
             )
         }
-        if (query.isNotBlank() && entries.isEmpty()) {
+        if (!searching && query.isNotBlank() && entries.isEmpty()) {
             Column {
                 Text(
                     text = when {

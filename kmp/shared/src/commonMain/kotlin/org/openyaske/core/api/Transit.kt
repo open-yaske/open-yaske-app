@@ -118,17 +118,17 @@ object TransitClient {
 object TransitSelection {
     /**
      * まだ発車していない便を、発車が近い順に [limit] 件まで返す。
-     * [destination] と [type] は日本語側のキー（null は絞り込み無し）。
+     * [destinations] と [type] は日本語側のキー（空 / null は絞り込み無し）。
      */
     fun upcoming(
-        board: TransitBoard,
+        departures: Collection<TransitDeparture>,
         nowSecond: Int,
-        destination: String? = null,
+        destinations: Set<String> = emptySet(),
         type: String? = null,
         limit: Int = 3
-    ): List<TransitDeparture> = board.departures
+    ): List<TransitDeparture> = departures
         .filter { departure ->
-            (destination == null || departure.destinationKey == destination) &&
+            (destinations.isEmpty() || departure.destinationKey in destinations) &&
                 (type == null || departure.typeKey == type)
         }
         .filter { it.departureSecs - nowSecond >= 0 }

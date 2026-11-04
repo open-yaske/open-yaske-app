@@ -2,11 +2,12 @@ package org.openyaske.app.ui
 
 import org.openyaske.core.validation.IsoDate
 
-/** 残り秒。「5分32秒」「32秒」のように秒まで出す。 */
-internal fun remainingLabel(seconds: Int, t: UiStrings): String {
+/** 残り秒を「12:34」の分:秒で出す。等幅数字と組み合わせて桁を揃える。 */
+internal fun remainingLabel(seconds: Int): String {
     val value = seconds.coerceAtLeast(0)
-    if (value < 60) return "$value${t["transit_sec"]}"
-    return "${value / 60}${t["transit_min"]}${value % 60}${t["transit_sec"]}"
+    val minutes = value / 60
+    val rest = value % 60
+    return "$minutes:${rest.toString().padStart(2, '0')}"
 }
 
 /** 運行日 0 時からの経過秒。API の date は YYYYMMDD。 */

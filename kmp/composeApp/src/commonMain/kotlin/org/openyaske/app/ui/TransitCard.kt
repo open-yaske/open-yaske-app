@@ -38,37 +38,36 @@ import org.openyaske.core.api.TransitBoard
 import org.openyaske.core.api.TransitDeparture
 
 /**
- * 乗換カード。次の 3 便を、発車までの残り秒つきで出す。
+ * 乗換カード。複数駅の次の便をまとめ、発車までの残り秒つきで出す。
  * 方面と種別の絞り込みは設定画面で決める（カードには置かない）。
  */
 @Composable
 internal fun TransitCard(
     settings: AppSettings,
-    board: TransitBoard,
-    stationName: String?,
+    sources: List<TransitSource>,
     modifier: Modifier = Modifier
 ) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
     val english = !(settings.locale.startsWith("ja") || settings.locale.startsWith("zh"))
+    val date = sources.firstOrNull()?.board?.date ?: ""
 
     // 発車までの残りは 1 秒ごとに数え直す。API の date（運行日）を基準にする。
-    var nowSecond by remember(board.date) {
-        mutableIntStateOf(elapsedSecondOfServiceDay(board.date))
+    var nowSecond by remember(date) {
+        mutableIntStateOf(elapsedSecondOfServiceDay(date))
     }
-    LaunchedEffect(board.date) {
+    LaunchedEffect(date) {
         while (true) {
-            nowSecond = elapsedSecondOfServiceDay(board.date)
+            nowSecond = elapsedSecondOfServiceDay(date)
             delay(1_000)
         }
     }
 
-    val content = remember(board, nowSecond, settings.transitDirection, settings.transitType) {
+    val content = remember(sources, nowSecond, settings.transitFilters) {
         TransitPresentation.content(
-            board = board,
+            sources = sources,
             nowSecond = nowSecond,
-            destination = settings.transitDirection,
-            type = settings.transitType,
+            filters = settings.transitFilters,
             english = english
         )
     }
@@ -84,9 +83,11 @@ internal fun TransitCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(AppIcons.timetable, null, tint = colors.accent, modifier = Modifier.size(18.dp))
             Text(
-                text = stationName ?: t["transit_title"],
+                text = stationTitle(sources, t),
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.textSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = Space.xs)
             )
         }
@@ -102,8 +103,9 @@ internal fun TransitCard(
                     departure = row.departure,
                     remaining = row.remaining,
                     english = content.english,
-                    // 方面で絞っていると行の先頭は全部同じ駅になる。種別を主役に据える。
-                    typeFirst = settings.transitDirection != null
+                    stationName = row.stationName.takeIf { row.showStation },
+                    // 方面で絞っている駅は、行の先頭を種別にする。
+                    typeFirst = row.typeFirst
                 )
             }
         }
@@ -115,10 +117,10 @@ private fun DepartureRow(
     departure: TransitDeparture,
     remaining: Int,
     english: Boolean,
+    stationName: String?,
     typeFirst: Boolean
 ) {
     val colors = LocalAppColors.current
-    val t = LocalUiStrings.current
     val lineColor = remember(departure.color) {
         parseLineColor(departure.color) ?: colors.primary
     }
@@ -126,10 +128,15 @@ private fun DepartureRow(
     val destination = departure.headsign.destination.label(english)
     // 種別を先に出すときも 2 行のまま。行の高さと右端の桁を揃える。
     val primary = if (typeFirst && type != null) type else destination
-    val secondary = if (typeFirst && type != null) {
+    val other = if (typeFirst && type != null) {
         destination.takeIf { it != type }
     } else {
         type
+    }
+    val secondary = when {
+        // 方面で絞っているときは行先が全部同じなので、駅名だけを添える。
+        typeFirst && type != null -> stationName
+        else -> listOfNotNull(stationName, other).joinToString(" · ").ifBlank { null }
     }
     Row(
         modifier = Modifier
@@ -170,7 +177,7 @@ private fun DepartureRow(
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = remainingLabel(remaining, t),
+                text = remainingLabel(remaining),
                 style = MaterialTheme.typography.bodyMedium.tabular(),
                 fontWeight = FontWeight.SemiBold,
                 color = if (remaining < 180) colors.danger else colors.text
@@ -190,4 +197,14 @@ private fun parseLineColor(hex: String?): Color? {
     if (value.length != 6) return null
     val rgb = value.toLongOrNull(16) ?: return null
     return Color(0xFF000000L or rgb)
+}
+
+/** 複数駅を選んでいるときは駅名をまとめて出す。 */
+private fun stationTitle(sources: List<TransitSource>, t: UiStrings): String {
+    val names = sources.mapNotNull { it.stationName }.distinct()
+    return when {
+        names.isEmpty() -> t["transit_title"]
+        names.size <= 2 -> names.joinToString("・")
+        else -> names.take(2).joinToString("・") + " " + t["transit_more_stations"]
+    }
 }

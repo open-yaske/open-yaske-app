@@ -27,6 +27,13 @@ enum class CellSurfaceMode {
 @Serializable
 data class TransitStation(val id: String, val name: String)
 
+/** 駅ごとの絞り込み。 */
+@Serializable
+data class TransitFilter(
+    val directions: List<String> = emptyList(),
+    val type: String? = null
+)
+
 @Serializable
 enum class AccentStyle {
     COLOR,
@@ -88,15 +95,24 @@ data class AppSettings(
     val transitVisible: Boolean = true,
     /** 登録した駅（複数可）。 */
     val transitStations: List<TransitStation> = emptyList(),
-    /** ホームに出す駅。null なら先頭。 */
+    /** ホームに出す駅。複数選べる。 */
+    val transitStationIds: List<String> = emptyList(),
+    /** 旧形式の単一駅。読み込み時に [transitStationIds] へ畳む。 */
     val transitStationId: String? = null,
-    /** 方面（行き先）の絞り込み。日本語側の駅名で持つ。 */
+    /** 駅ごとの方面・種別の絞り込み。 */
+    val transitFilters: Map<String, TransitFilter> = emptyMap(),
+    /** 旧形式の方面（全体）。読み込み時に駅ごとへ畳む。 */
+    val transitDirections: List<String> = emptyList(),
+    /** 旧形式の単一方面。読み込み時に駅ごとへ畳む。 */
     val transitDirection: String? = null,
-    /** 種別（各駅停車・特急など）の絞り込み。日本語側で持つ。 */
+    /** 旧形式の種別（全体）。読み込み時に駅ごとへ畳む。 */
     val transitType: String? = null,
     /** 路線の絞り込み。 */
     val transitLine: String? = null,
-    /** 天気を取る地点（既定は調布キャンパス）。 */
+    /** ホームに天気カードを出すか。 */
+    val weatherVisible: Boolean = true,
+    /** 天気を取る地点の表示名。 */
+    val weatherPlaceName: String = "調布キャンパス",
     val weatherLatitude: Double = 35.6256,
     val weatherLongitude: Double = 139.4855
 ) {
@@ -113,18 +129,49 @@ data class AppSettings(
             excusedWeight = attendancePolicy.excusedWeight.coerceIn(0.0, 1.0),
             absenceWarnRatio = attendancePolicy.absenceWarnRatio.coerceIn(0.1, 0.5)
         )
+        val stations = transitStations
+            .filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            .distinctBy { it.id }
+        val stationIds = (transitStationIds + listOfNotNull(transitStationId))
+            .filter { id -> stations.any { it.id == id } }
+            .distinct()
+        val legacyDirections = (transitDirections + listOfNotNull(transitDirection))
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+        val legacyType = transitType?.takeIf { it.isNotBlank() }
+        val cleanedFilters = transitFilters
+            .filterKeys { key -> stations.any { it.id == key } }
+            .mapValues { (_, filter) ->
+                TransitFilter(
+                    directions = filter.directions
+                        .map { it.trim() }
+                        .filter { it.isNotBlank() }
+                        .distinct(),
+                    type = filter.type?.takeIf { it.isNotBlank() }
+                )
+            }
+            .filterValues { it.directions.isNotEmpty() || it.type != null }
+        // 旧形式の全体設定は、選択中の駅すべてに配る。
+        val filters = if (cleanedFilters.isEmpty() &&
+            (legacyDirections.isNotEmpty() || legacyType != null)
+        ) {
+            stationIds.associateWith { TransitFilter(legacyDirections, legacyType) }
+        } else {
+            cleanedFilters
+        }
         return copy(
             theme = theme,
             accentHue = ((accentHue % 360) + 360) % 360,
-            transitStations = transitStations
-                .filter { it.id.isNotBlank() && it.name.isNotBlank() }
-                .distinctBy { it.id },
-            transitStationId = transitStationId?.takeIf { id ->
-                transitStations.any { it.id == id }
-            } ?: transitStations.firstOrNull()?.id,
-            transitDirection = transitDirection?.takeIf { it.isNotBlank() },
-            transitType = transitType?.takeIf { it.isNotBlank() },
+            transitStations = stations,
+            transitStationIds = stationIds,
+            transitStationId = null,
+            transitFilters = filters,
+            transitDirections = emptyList(),
+            transitDirection = null,
+            transitType = null,
             transitLine = transitLine?.takeIf { it.isNotBlank() },
+            weatherPlaceName = weatherPlaceName.ifBlank { "調布キャンパス" },
             locale = locale.ifBlank { "ja" },
             visibleWeekdays = days,
             maxPeriod = maxPeriod.coerceIn(1, 7),

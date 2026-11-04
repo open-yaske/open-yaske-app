@@ -14,12 +14,16 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
 import org.openyaske.app.ui.design.Space
 import org.openyaske.core.api.AppSettings
-import org.openyaske.core.api.TransitBoard
 import org.openyaske.core.api.WeatherClient
 import org.openyaske.core.api.WeatherSnapshot
 
-/** 30 分キャッシュ（天気）。 */
-private data class CachedWeather(val at: Long, val value: WeatherSnapshot)
+/** 30 分キャッシュ（天気）。地点が変わったら使わない。 */
+private data class CachedWeather(
+    val at: Long,
+    val latitude: Double,
+    val longitude: Double,
+    val value: WeatherSnapshot
+)
 
 private var weatherCache: CachedWeather? = null
 
@@ -30,13 +34,9 @@ private var weatherCache: CachedWeather? = null
 @Composable
 fun WeatherTransitCards(settings: AppSettings, wide: Boolean) {
     val weather = rememberWeather(settings)
-    val board = rememberTransitBoard(settings.transitStationId, settings.transitVisible)
+    val transit = rememberTransit(settings)
 
-    if (weather == null && board == null) return
-
-    val stationName = settings.transitStations
-        .firstOrNull { it.id == settings.transitStationId }?.name
-        ?: settings.transitStations.firstOrNull()?.name
+    if (weather == null && transit.isEmpty()) return
 
     if (wide) {
         Row(
@@ -44,12 +44,16 @@ fun WeatherTransitCards(settings: AppSettings, wide: Boolean) {
             horizontalArrangement = Arrangement.spacedBy(Space.sm)
         ) {
             weather?.let { WeatherCard(it, Modifier.weight(1f)) }
-            board?.let { TransitCard(settings, it, stationName, Modifier.weight(1f)) }
+            if (transit.isNotEmpty()) {
+                TransitCard(settings, transit, Modifier.weight(1f))
+            }
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
             weather?.let { WeatherCard(it, Modifier.fillMaxWidth()) }
-            board?.let { TransitCard(settings, it, stationName, Modifier.fillMaxWidth()) }
+            if (transit.isNotEmpty()) {
+                TransitCard(settings, transit, Modifier.fillMaxWidth())
+            }
         }
     }
 }
@@ -59,45 +63,76 @@ fun WeatherTransitCards(settings: AppSettings, wide: Boolean) {
 private fun rememberWeather(settings: AppSettings): WeatherSnapshot? {
     var weather by remember { mutableStateOf<WeatherSnapshot?>(null) }
 
-    LaunchedEffect(settings.weatherLatitude, settings.weatherLongitude) {
+    LaunchedEffect(
+        settings.weatherVisible,
+        settings.weatherLatitude,
+        settings.weatherLongitude
+    ) {
+        if (!settings.weatherVisible) {
+            weather = null
+            return@LaunchedEffect
+        }
         val cached = weatherCache
-        if (cached != null && nowMillis() - cached.at < 30 * 60 * 1000L) {
+        val samePlace = cached != null &&
+            cached.latitude == settings.weatherLatitude &&
+            cached.longitude == settings.weatherLongitude
+        if (samePlace && nowMillis() - cached.at < 30 * 60 * 1000L) {
             weather = cached.value
             return@LaunchedEffect
         }
         val fetched = WeatherClient.fetch(settings.weatherLatitude, settings.weatherLongitude)
         if (fetched != null) {
-            weatherCache = CachedWeather(nowMillis(), fetched)
+            weatherCache = CachedWeather(
+                at = nowMillis(),
+                latitude = settings.weatherLatitude,
+                longitude = settings.weatherLongitude,
+                value = fetched
+            )
             weather = fetched
         }
     }
 
     // 表示直後にもう一度だけ取り直す（起動直後の失敗を引きずらない）。
-    LaunchedEffect(weather == null) {
-        if (weather == null && weatherCache == null) {
+    LaunchedEffect(settings.weatherVisible, weather == null) {
+        if (settings.weatherVisible && weather == null) {
             delay(5_000)
             weather = WeatherClient.fetch(settings.weatherLatitude, settings.weatherLongitude)
-                ?.also { weatherCache = CachedWeather(nowMillis(), it) }
+                ?.also {
+                    weatherCache = CachedWeather(
+                        at = nowMillis(),
+                        latitude = settings.weatherLatitude,
+                        longitude = settings.weatherLongitude,
+                        value = it
+                    )
+                }
         }
     }
 
     return weather
 }
 
-/** 乗換は 30 秒キャッシュ。駅を変えたらすぐ引き直す。 */
+/** 選んだ駅のボードをまとめる。30 秒キャッシュ。駅を変えたらすぐ引き直す。 */
 @Composable
-private fun rememberTransitBoard(stationId: String?, enabled: Boolean): TransitBoard? {
-    var board by remember { mutableStateOf<TransitBoard?>(null) }
+private fun rememberTransit(settings: AppSettings): List<TransitSource> {
+    var sources by remember { mutableStateOf<List<TransitSource>>(emptyList()) }
+    val selected = remember(settings.transitStations, settings.transitStationIds) {
+        val ids = settings.transitStationIds.toSet()
+        settings.transitStations.filter { it.id in ids }
+    }
 
-    LaunchedEffect(stationId, enabled) {
+    LaunchedEffect(selected, settings.transitVisible) {
         // 駅を変えた直後や非表示にした直後に、前の駅の発車を残さない。
-        board = null
-        if (stationId == null || !enabled) return@LaunchedEffect
+        sources = emptyList()
+        if (!settings.transitVisible || selected.isEmpty()) return@LaunchedEffect
         while (true) {
-            TransitBoardLoader.load(stationId)?.let { board = it }
+            sources = selected.mapNotNull { station ->
+                val board = TransitBoardLoader.load(station.id)
+                    ?: TransitBoardLoader.cached(station.id)
+                board?.let { TransitSource(station.id, station.name, it) }
+            }
             delay(5_000)
         }
     }
 
-    return board
+    return sources
 }

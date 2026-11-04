@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.openyaske.core.net.httpGetText
+import org.openyaske.core.net.urlEncodeQuery
 
 /** 現在の天気。数値はすべて取得できたものだけを入れる。 */
 data class WeatherSnapshot(
@@ -18,12 +19,64 @@ data class WeatherSnapshot(
 
 data class WeatherHour(val hour: Int, val temperature: Int, val precipitation: Int, val code: Int)
 
+/** 天気を取る地点。 */
+data class WeatherPlace(
+    val name: String,
+    val region: String?,
+    val country: String?,
+    val latitude: Double,
+    val longitude: Double,
+    val population: Long = 0L
+) {
+    /** 一覧に出す名前。地域が違えば添える。 */
+    fun displayName(english: Boolean): String {
+        val area = if (english) country else region ?: country
+        return if (area.isNullOrBlank() || area == name) name else "$name · $area"
+    }
+}
+
 /**
  * Open-Meteo（無認証）から現在の天気と 1 日の時間別予報を取る。
  * Svelte 版と同じ取得元。失敗したら null（画面はカードごと出さない）。
  */
 object WeatherClient {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+
+    /**
+     * 地点名から緯度経度を引く。Open-Meteo の geocoding（無認証）。
+     * 見つからなければ空。
+     */
+    suspend fun searchPlaces(query: String): List<WeatherPlace> {
+        val text = query.trim()
+        if (text.isBlank()) return emptyList()
+        val primary = requestPlaces(text)
+        // 漢字の地名は「横浜」だけでは横浜市が出ないことがある。「市」を足して引き直す。
+        val needsCity = text.any { it.code > 0x2E80 } &&
+            !text.endsWith("市") && !text.endsWith("町") && !text.endsWith("村")
+        val withCity = if (needsCity) requestPlaces(text + "市") else emptyList()
+        return (withCity + primary)
+            .distinctBy { "${it.name}/${it.region}/${it.latitude}/${it.longitude}" }
+            .sortedByDescending { it.population }
+            .take(8)
+    }
+
+    private suspend fun requestPlaces(query: String): List<WeatherPlace> {
+        val url = "https://geocoding-api.open-meteo.com/v1/search?name=${urlEncodeQuery(query)}" +
+            "&count=8&language=ja&format=json"
+        val text = httpGetText(url) ?: return emptyList()
+        val response = runCatching { json.decodeFromString<GeocodingResponse>(text) }.getOrNull()
+            ?: return emptyList()
+        return response.results.orEmpty().map {
+            WeatherPlace(
+                name = it.name,
+                region = it.admin1,
+                country = it.country,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                population = it.population
+            )
+        }
+    }
 
     suspend fun fetch(latitude: Double, longitude: Double): WeatherSnapshot? {
         val url = buildString {
@@ -59,6 +112,19 @@ object WeatherClient {
             hours = hours
         )
     }
+
+    @Serializable
+    private data class GeocodingResponse(val results: List<GeocodingPlace>? = null)
+
+    @Serializable
+    private data class GeocodingPlace(
+        val name: String = "",
+        val latitude: Double = 0.0,
+        val longitude: Double = 0.0,
+        val country: String? = null,
+        val admin1: String? = null,
+        val population: Long = 0L
+    )
 
     @Serializable
     private data class OpenMeteo(
