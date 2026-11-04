@@ -88,8 +88,10 @@ data class AppSettings(
     val transitStations: List<TransitStation> = emptyList(),
     /** ホームに出す駅。null なら先頭。 */
     val transitStationId: String? = null,
-    /** 方面（行き先）の絞り込み。 */
+    /** 方面（行き先）の絞り込み。日本語側の駅名で持つ。 */
     val transitDirection: String? = null,
+    /** 種別（各駅停車・特急など）の絞り込み。日本語側で持つ。 */
+    val transitType: String? = null,
     /** 路線の絞り込み。 */
     val transitLine: String? = null,
     /** 天気を取る地点（既定は調布キャンパス）。 */
@@ -119,6 +121,7 @@ data class AppSettings(
                 transitStations.any { it.id == id }
             } ?: transitStations.firstOrNull()?.id,
             transitDirection = transitDirection?.takeIf { it.isNotBlank() },
+            transitType = transitType?.takeIf { it.isNotBlank() },
             transitLine = transitLine?.takeIf { it.isNotBlank() },
             locale = locale.ifBlank { "ja" },
             visibleWeekdays = days,

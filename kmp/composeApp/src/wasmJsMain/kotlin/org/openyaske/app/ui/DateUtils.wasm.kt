@@ -12,3 +12,9 @@ actual fun todayIso(): String = js(
 private fun jsDateNow(): Double = js("Date.now()")
 
 actual fun nowMillis(): Long = jsDateNow().toLong()
+
+private fun jsSecondOfDay(): Int = js(
+    "(() => { const d = new Date(); return (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) | 0; })()"
+)
+
+actual fun nowSecondOfDay(): Int = jsSecondOfDay()

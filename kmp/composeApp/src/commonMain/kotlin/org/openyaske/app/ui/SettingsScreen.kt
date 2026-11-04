@@ -269,7 +269,14 @@ fun SettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        api.updateSettings { it.copy(transitStationId = station.id) }
+                                        // 駅を変えたら方面・種別の絞り込みは解除する。
+                                        api.updateSettings {
+                                            it.copy(
+                                                transitStationId = station.id,
+                                                transitDirection = null,
+                                                transitType = null
+                                            )
+                                        }
                                     }
                                     .padding(vertical = Space.sm),
                                 verticalAlignment = Alignment.CenterVertically
@@ -320,7 +327,9 @@ fun SettingsScreen(
                                                     id = place.id,
                                                     name = place.name
                                                 ),
-                                                transitStationId = place.id
+                                                transitStationId = place.id,
+                                                transitDirection = null,
+                                                transitType = null
                                             )
                                         }
                                         transitQuery = ""

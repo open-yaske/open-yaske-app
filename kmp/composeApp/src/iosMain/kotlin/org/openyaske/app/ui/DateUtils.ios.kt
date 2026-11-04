@@ -22,3 +22,16 @@ actual fun todayIso(): String {
 
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 actual fun nowMillis(): Long = platform.posix.time(null) * 1000L
+
+actual fun nowSecondOfDay(): Int {
+    val calendar = platform.Foundation.NSCalendar.currentCalendar
+    val components = calendar.components(
+        platform.Foundation.NSCalendarUnitHour or
+            platform.Foundation.NSCalendarUnitMinute or
+            platform.Foundation.NSCalendarUnitSecond,
+        fromDate = NSDate()
+    )
+    return components.hour.toInt() * 3600 +
+        components.minute.toInt() * 60 +
+        components.second.toInt()
+}

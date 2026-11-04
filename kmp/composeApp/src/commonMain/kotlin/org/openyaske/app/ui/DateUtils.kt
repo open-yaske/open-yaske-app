@@ -10,6 +10,9 @@ expect fun nowMinutes(): Int
 /** キャッシュの経過時間を見るための現在ミリ秒。 */
 expect fun nowMillis(): Long
 
+/** 端末のローカル時刻で 0 時からの秒。発車までの残り秒を出すのに使う。 */
+expect fun nowSecondOfDay(): Int
+
 /** 学期の表示名。label が空のときは年と学期から作る。 */
 fun termLabel(term: org.openyaske.core.model.Term, locale: String): String {
     if (term.label.isNotBlank()) return term.label
