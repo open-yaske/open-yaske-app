@@ -1,5 +1,6 @@
 package org.openyaske.app.ui
 
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -281,7 +282,13 @@ private fun GreetingHeader(today: String, onSearch: () -> Unit, onSettings: () -
     }
     val date = remember(today, t["lang"]) { longDateLabel(today, t["lang"]) }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            // タブ画面の TabHeader と同じく、ステータスバーの下から始める。
+            .statusBarsPadding(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = greeting,
