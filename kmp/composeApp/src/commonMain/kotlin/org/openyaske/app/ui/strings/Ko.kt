@@ -1,8 +1,6 @@
 package org.openyaske.app.ui.strings
 
 internal val KO: Map<String, String> = mapOf(
-    "pdf_capture" to "촬영해서 PDF 만들기",
-    "pdf_capture_unavailable" to "이 환경에서는 촬영할 수 없습니다",
     "pdf_mode_original" to "원본 그대로",
     "pdf_mode_original_hint" to "원본 화질 유지",
     "pdf_mode_extreme" to "1MB",
@@ -26,8 +24,8 @@ internal val KO: Map<String, String> = mapOf(
     "nav_more" to "더보기",
     "more_title" to "더보기",
     "more_search" to "강의계획서 검색",
-    "more_pdf" to "PDF 스캔",
-    "more_pdf_hint" to "사진을 하나의 PDF로",
+    "more_pdf" to "사진에서 PDF",
+    "more_pdf_hint" to "사진을 골라 하나의 PDF로",
     "more_tools" to "도구",
     "settings_grades" to "성적",
     "settings_grade_scheme" to "성적 표기",
@@ -174,6 +172,7 @@ internal val KO: Map<String, String> = mapOf(
     "session_kind_extra" to "시간표 외",
     "session_kind_partner" to "협력 대학",
     "pdf_compress" to "압축",
+    "pdf_multi_hint" to "한 번에 12장까지 선택할 수 있으며, 고른 순서대로 한 장씩 페이지가 됩니다.",
     "term_add" to "학기 추가",
     "term_year" to "연도",
     "term_spring" to "봄 학기",

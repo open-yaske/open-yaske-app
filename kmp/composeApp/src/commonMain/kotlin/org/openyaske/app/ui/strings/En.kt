@@ -1,8 +1,6 @@
 package org.openyaske.app.ui.strings
 
 internal val EN: Map<String, String> = mapOf(
-    "pdf_capture" to "Take a photo and build a PDF",
-    "pdf_capture_unavailable" to "Camera is not available here",
     "pdf_mode_original" to "Original",
     "pdf_mode_original_hint" to "keep original quality",
     "pdf_mode_extreme" to "1MB",
@@ -26,8 +24,8 @@ internal val EN: Map<String, String> = mapOf(
     "nav_more" to "More",
     "more_title" to "More",
     "more_search" to "Syllabus search",
-    "more_pdf" to "PDF scan",
-    "more_pdf_hint" to "Combine photos into one PDF",
+    "more_pdf" to "Photos to PDF",
+    "more_pdf_hint" to "Pick photos and merge them into one PDF",
     "more_tools" to "Tools",
     "settings_grades" to "Grades",
     "settings_grade_scheme" to "Grade notation",
@@ -174,6 +172,7 @@ internal val EN: Map<String, String> = mapOf(
     "session_kind_extra" to "Outside timetable",
     "session_kind_partner" to "Partner university",
     "pdf_compress" to "Compression",
+    "pdf_multi_hint" to "Pick up to 12 at once. They become pages in the order you select them.",
     "term_add" to "Add a term",
     "term_year" to "Year",
     "term_spring" to "Spring",

@@ -1,8 +1,6 @@
 package org.openyaske.app.ui.strings
 
 internal val ZH: Map<String, String> = mapOf(
-    "pdf_capture" to "拍摄并生成 PDF",
-    "pdf_capture_unavailable" to "此环境无法拍摄",
     "pdf_mode_original" to "保持原样",
     "pdf_mode_original_hint" to "保持原始画质",
     "pdf_mode_extreme" to "1MB",
@@ -26,8 +24,8 @@ internal val ZH: Map<String, String> = mapOf(
     "nav_more" to "更多",
     "more_title" to "更多",
     "more_search" to "教学大纲搜索",
-    "more_pdf" to "PDF 扫描",
-    "more_pdf_hint" to "把多张照片合成一个 PDF",
+    "more_pdf" to "照片转 PDF",
+    "more_pdf_hint" to "选择照片合成一个 PDF",
     "more_tools" to "工具",
     "settings_grades" to "成绩",
     "settings_grade_scheme" to "成绩表示",
@@ -174,6 +172,7 @@ internal val ZH: Map<String, String> = mapOf(
     "session_kind_extra" to "课表外",
     "session_kind_partner" to "合作大学",
     "pdf_compress" to "压缩",
+    "pdf_multi_hint" to "一次最多可选 12 张，按选择顺序每张生成一页。",
     "term_add" to "添加学期",
     "term_year" to "学年",
     "term_spring" to "春季",

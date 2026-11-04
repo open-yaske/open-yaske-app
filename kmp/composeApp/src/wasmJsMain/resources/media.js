@@ -11,13 +11,12 @@
     state.bytes = bytes || 0;
   }
 
-  function pickFiles(limit, camera) {
+  function pickFiles(limit) {
     return new Promise(function (resolve) {
       var input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
-      input.multiple = limit > 1 && !camera;
-      if (camera) { input.capture = "environment"; }
+      input.multiple = limit > 1;
       input.style.display = "none";
       document.body.appendChild(input);
       input.onchange = function () {
@@ -169,10 +168,10 @@
   }
 
   // 目標容量を超えたら品質を下げて作り直す（最大 2 回）。
-  function run(quality, maxDim, gray, targetMb, binary, raw, camera) {
+  function run(quality, maxDim, gray, targetMb, binary, raw) {
     var limit = targetMb * 1024 * 1024;
     setState("working", "写真を選んでください", 0);
-    pickFiles(camera ? 1 : 12, camera).then(function (files) {
+    pickFiles(12).then(function (files) {
       if (!files.length) { setState("cancelled", "取り消しました", 0); return; }
       setState("working", files.length + " 枚を処理しています", 0);
       return Promise.all(files.map(function (file) {
@@ -308,7 +307,7 @@
     },
     bgPick: function () {
       bgStatus = "picking";
-      pickFiles(1, false).then(function (files) {
+      pickFiles(1).then(function (files) {
         if (!files || !files.length) {
           bgStatus = "ready";
           return;
@@ -334,7 +333,6 @@
     exportHigh: function () { run(90, 2048, false, 10); },
     exportGray: function () { run(70, 1400, true, 3); },
     exportExtreme: function () { run(40, 1000, true, 1, true); },
-    exportOriginal: function () { run(100, 100000, false, 0, false, true); },
-    captureStandard: function () { run(78, 1600, false, 5, false, false, true); }
+    exportOriginal: function () { run(100, 100000, false, 0, false, true); }
   };
 })();

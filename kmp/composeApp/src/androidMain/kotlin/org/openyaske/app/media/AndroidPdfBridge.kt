@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -22,55 +24,21 @@ import org.openyaske.core.media.PdfPageSize
 
 /** Android の PDF 書き出し。Photo Picker の結果を受けて圧縮し、共有する。 */
 object AndroidPdfBridge {
+    /** 一度に選べる枚数。Picker 側の上限（12）と揃える。 */
+    const val MAX_PAGES = 12
+
     private var activity: ComponentActivity? = null
-    private var launcher: ActivityResultLauncher<String>? = null
-    private var captureLauncher: ActivityResultLauncher<Void?>? = null
+    private var launcher: ActivityResultLauncher<PickVisualMediaRequest>? = null
 
     @Volatile
     private var state: PdfExportState = PdfExportState.Idle
 
     fun attach(
         activity: ComponentActivity,
-        launcher: ActivityResultLauncher<String>,
-        capture: ActivityResultLauncher<Void?>
+        launcher: ActivityResultLauncher<PickVisualMediaRequest>
     ) {
         this.activity = activity
         this.launcher = launcher
-        this.captureLauncher = capture
-    }
-
-    fun startCapture(mode: PdfExportMode) {
-        pendingMode = mode
-        state = PdfExportState.Working
-        val capture = captureLauncher
-        if (capture == null) {
-            state = PdfExportState.Failed("camera is not ready")
-            return
-        }
-        capture.launch(null)
-    }
-
-    fun onCaptured(bitmap: Bitmap?) {
-        val context = activity ?: return
-        if (bitmap == null) {
-            state = PdfExportState.Cancelled
-            return
-        }
-        val mode = pendingMode
-        CoroutineScope(Dispatchers.IO).launch {
-            state = PdfExportState.Working
-            runCatching {
-                val settings = mode.settings()
-                val image = encodeBitmap(bitmap, settings)
-                val pdf = PdfBuilder.build(listOf(image), PdfPageSize.A4)
-                val file = File(context.cacheDir, "pdfs").apply { mkdirs() }.resolve("openyaske.pdf")
-                file.writeBytes(pdf)
-                state = PdfExportState.Done(pdf.size)
-                withContext(Dispatchers.Main) { share(context, file) }
-            }.onFailure { error ->
-                state = PdfExportState.Failed(error.message ?: "export failed")
-            }
-        }
     }
 
     fun state(): PdfExportState = state
@@ -82,7 +50,9 @@ object AndroidPdfBridge {
             state = PdfExportState.Failed("picker is not ready")
             return
         }
-        launcher.launch("image/*")
+        launcher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
         pendingMode = mode
     }
 
@@ -137,35 +107,9 @@ object AndroidPdfBridge {
     }
 
     private fun encode(context: Context, uris: List<Uri>, settings: Settings): List<PdfImage> =
-        uris.take(12).mapNotNull { uri ->
+        uris.take(MAX_PAGES).mapNotNull { uri ->
             runCatching { encodeOne(context, uri, settings) }.getOrNull()
         }
-
-    private fun encodeBitmap(bitmap: Bitmap, settings: Settings): PdfImage {
-        val longest = max(bitmap.width, bitmap.height)
-        val scale = min(1f, settings.maxDimension.toFloat() / longest)
-        val width = max(1, (bitmap.width * scale).toInt())
-        val height = max(1, (bitmap.height * scale).toInt())
-        val scaled = if (scale < 1f) Bitmap.createScaledBitmap(bitmap, width, height, true) else bitmap
-        if (settings.gray || settings.binary) {
-            val pixels = IntArray(width * height)
-            scaled.getPixels(pixels, 0, width, 0, 0, width, height)
-            for (index in pixels.indices) {
-                val color = pixels[index]
-                val r = (color shr 16) and 0xFF
-                val g = (color shr 8) and 0xFF
-                val b = color and 0xFF
-                var value = (r * 299 + g * 587 + b * 114) / 1000
-                if (settings.binary) value = if (value > 150) 255 else 0
-                pixels[index] = (0xFF shl 24) or (value shl 16) or (value shl 8) or value
-            }
-            scaled.setPixels(pixels, 0, width, 0, 0, width, height)
-        }
-        val out = ByteArrayOutputStream()
-        scaled.compress(Bitmap.CompressFormat.JPEG, settings.quality, out)
-        if (scaled !== bitmap) scaled.recycle()
-        return PdfImage(out.toByteArray(), width, height)
-    }
 
     private fun encodeOne(context: Context, uri: Uri, settings: Settings): PdfImage? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }

@@ -36,8 +36,6 @@ import org.openyaske.app.media.PdfExportMode
 import org.openyaske.app.media.PdfExportState
 import org.openyaske.app.media.pdfExportState
 import org.openyaske.app.media.pdfExportSupported
-import org.openyaske.app.media.pdfCaptureSupported
-import org.openyaske.app.media.startPdfCapture
 import org.openyaske.app.media.startPdfExport
 import org.openyaske.app.ui.design.AppCard
 import org.openyaske.app.ui.design.AppShapes
@@ -86,6 +84,13 @@ fun PdfScreen(onBack: () -> Unit) {
     ) {
         item {
             SectionBar(t["pdf_compress"])
+        }
+        item {
+            Text(
+                text = t["pdf_multi_hint"],
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary
+            )
         }
         item {
             AppCard {
@@ -150,27 +155,6 @@ fun PdfScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = if (supported) colors.onPrimary else colors.textTertiary
-                    )
-                }
-                val camera = remember { pdfCaptureSupported() }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(AppShapes.pill)
-                        .background(if (camera) colors.primaryContainer else colors.sunken)
-                        .clickable(enabled = camera) {
-                            org.openyaske.app.ui.design.tapFeedback()
-                            startPdfCapture(mode)
-                            state = pdfExportState()
-                        }
-                        .padding(vertical = 14.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (camera) t["pdf_capture"] else t["pdf_capture_unavailable"],
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (camera) colors.onPrimaryContainer else colors.textTertiary
                     )
                 }
             }

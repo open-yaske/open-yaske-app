@@ -1,9 +1,7 @@
 package org.openyaske.app.ui.strings
 
 internal val JA: Map<String, String> = mapOf(
-    "pdf_capture" to "撮影して PDF を作る",
-    "pdf_capture_unavailable" to "この環境では撮影できません",
-    "pdf_mode_original" to "元のまま",
+      "pdf_mode_original" to "元のまま",
     "pdf_mode_original_hint" to "元の画質のまま",
     "pdf_mode_extreme" to "1MB",
     "pdf_mode_extreme_hint" to "2値化・文字優先",
@@ -26,8 +24,8 @@ internal val JA: Map<String, String> = mapOf(
     "nav_more" to "その他",
     "more_title" to "その他",
     "more_search" to "シラバス検索",
-    "more_pdf" to "PDF スキャン",
-    "more_pdf_hint" to "写真をまとめて 1 つの PDF に",
+    "more_pdf" to "写真から PDF",
+    "more_pdf_hint" to "写真を選んで 1 つの PDF に",
     "more_tools" to "ツール",
     "settings_grades" to "成績",
     "settings_grade_scheme" to "成績の表記",
@@ -174,6 +172,7 @@ internal val JA: Map<String, String> = mapOf(
     "session_kind_extra" to "時間割外",
     "session_kind_partner" to "連携大学",
     "pdf_compress" to "圧縮",
+    "pdf_multi_hint" to "一度に 12 枚まで選べます。選んだ順に 1 枚ずつページになります。",
     "term_add" to "学期を追加",
     "term_year" to "年度",
     "term_spring" to "前学期",

@@ -24,13 +24,6 @@ private fun exportHigh(): Unit = js("window.AppMedia.exportHigh()")
 private fun exportGray(): Unit = js("window.AppMedia.exportGray()")
 private fun exportExtreme(): Unit = js("window.AppMedia.exportExtreme()")
 private fun exportOriginal(): Unit = js("window.AppMedia.exportOriginal()")
-private fun captureStandard(): Unit = js("window.AppMedia.captureStandard()")
-
-actual fun pdfCaptureSupported(): Boolean = true
-
-actual fun startPdfCapture(mode: PdfExportMode) {
-    runCatching { captureStandard() }
-}
 private fun exportStateJson(): String = js("window.AppMedia.state()")
 
 actual fun pdfExportState(): PdfExportState {

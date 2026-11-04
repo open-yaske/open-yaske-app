@@ -34,8 +34,3 @@ expect fun pdfExportSupported(): Boolean
 expect fun startPdfExport(mode: PdfExportMode)
 
 expect fun pdfExportState(): PdfExportState
-
-/** その場で撮影して 1 枚から作る。 */
-expect fun pdfCaptureSupported(): Boolean
-
-expect fun startPdfCapture(mode: PdfExportMode)

@@ -40,9 +40,6 @@ actual fun pdfExportState(): PdfExportState = IosPdf.state
 
 actual fun startPdfExport(mode: PdfExportMode) = IosPdf.start(mode)
 
-actual fun pdfCaptureSupported(): Boolean = false
-
-actual fun startPdfCapture(mode: PdfExportMode) = Unit
 
 /** iOS の PDF 書き出し。PHPicker で選び、UIImage で縮小して共有する。 */
 private object IosPdf {

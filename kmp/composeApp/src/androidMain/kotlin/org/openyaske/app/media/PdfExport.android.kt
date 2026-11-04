@@ -5,7 +5,3 @@ actual fun pdfExportSupported(): Boolean = true
 actual fun startPdfExport(mode: PdfExportMode) = AndroidPdfBridge.start(mode)
 
 actual fun pdfExportState(): PdfExportState = AndroidPdfBridge.state()
-
-actual fun pdfCaptureSupported(): Boolean = true
-
-actual fun startPdfCapture(mode: PdfExportMode) = AndroidPdfBridge.startCapture(mode)
