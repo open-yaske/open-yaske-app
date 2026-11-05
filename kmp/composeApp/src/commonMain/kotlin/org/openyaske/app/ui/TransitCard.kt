@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,7 +35,6 @@ import org.openyaske.app.ui.design.LocalAppColors
 import org.openyaske.app.ui.design.Space
 import org.openyaske.app.ui.design.tabular
 import org.openyaske.core.api.AppSettings
-import org.openyaske.core.api.TransitBoard
 import org.openyaske.core.api.TransitDeparture
 
 /**
@@ -103,9 +103,7 @@ internal fun TransitCard(
                     departure = row.departure,
                     remaining = row.remaining,
                     english = content.english,
-                    stationName = row.stationName.takeIf { row.showStation },
-                    // 方面で絞っている駅は、行の先頭を種別にする。
-                    typeFirst = row.typeFirst
+                    stationName = row.stationName.takeIf { row.showStation }
                 )
             }
         }
@@ -117,8 +115,7 @@ private fun DepartureRow(
     departure: TransitDeparture,
     remaining: Int,
     english: Boolean,
-    stationName: String?,
-    typeFirst: Boolean
+    stationName: String?
 ) {
     val colors = LocalAppColors.current
     val lineColor = remember(departure.color) {
@@ -126,18 +123,6 @@ private fun DepartureRow(
     }
     val type = departure.headsign.serviceType?.label(english)
     val destination = departure.headsign.destination.label(english)
-    // 種別を先に出すときも 2 行のまま。行の高さと右端の桁を揃える。
-    val primary = if (typeFirst && type != null) type else destination
-    val other = if (typeFirst && type != null) {
-        destination.takeIf { it != type }
-    } else {
-        type
-    }
-    val secondary = when {
-        // 方面で絞っているときは行先が全部同じなので、駅名だけを添える。
-        typeFirst && type != null -> stationName
-        else -> listOfNotNull(stationName, other).joinToString(" · ").ifBlank { null }
-    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,17 +142,31 @@ private fun DepartureRow(
                 .weight(1f)
                 .padding(start = Space.sm)
         ) {
-            Text(
-                text = primary,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = colors.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (secondary != null) {
+            // 種別と行き先は 1 行に並べる。種別は常に小さめ・副次色で、強調の仕方は変えない。
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (type != null) {
+                    Text(
+                        text = type,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.textSecondary,
+                        maxLines = 1
+                    )
+                    Spacer(Modifier.width(Space.xs))
+                }
                 Text(
-                    text = secondary,
+                    text = destination,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (stationName != null) {
+                Text(
+                    text = stationName,
                     style = MaterialTheme.typography.labelSmall,
                     color = colors.textSecondary,
                     maxLines = 1,

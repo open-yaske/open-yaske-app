@@ -17,9 +17,7 @@ internal data class TransitRow(
     val departure: TransitDeparture,
     val remaining: Int,
     val stationName: String?,
-    val showStation: Boolean,
-    /** 方面で絞っている駅か。行の先頭を種別にする。 */
-    val typeFirst: Boolean
+    val showStation: Boolean
 )
 
 /** 乗換カードに描く内容。 */
@@ -51,19 +49,18 @@ internal object TransitPresentation {
                     destinations = filter.directions.toSet(),
                     type = filter.type,
                     limit = if (multi) 2 else 3
-                ).map { Triple(source.stationName, it, filter.directions.isNotEmpty()) }
+                ).map { source.stationName to it }
             }
             .sortedBy { it.second.departureSecs }
             .take(if (multi) 6 else 3)
 
         return TransitContent(
-            rows = selected.map { (stationName, departure, typeFirst) ->
+            rows = selected.map { (stationName, departure) ->
                 TransitRow(
                     departure = departure,
                     remaining = departure.departureSecs - nowSecond,
                     stationName = stationName,
-                    showStation = multi,
-                    typeFirst = typeFirst
+                    showStation = multi
                 )
             },
             filtered = sources.any { source ->
