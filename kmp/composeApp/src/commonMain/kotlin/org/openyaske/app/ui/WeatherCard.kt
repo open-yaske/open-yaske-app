@@ -1,11 +1,12 @@
 package org.openyaske.app.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -16,75 +17,89 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.openyaske.app.ui.design.AppIcons
 import org.openyaske.app.ui.design.AppShapes
 import org.openyaske.app.ui.design.LocalAppColors
 import org.openyaske.app.ui.design.Space
 import org.openyaske.app.ui.design.tabular
+import org.openyaske.core.api.WeatherHour
 import org.openyaske.core.api.WeatherSnapshot
 
 /**
- * 天気カード。現在の気温と天気、3 時間ごとの気温と降水確率。
- * 取得できなかったときは呼び出し側がカードごと出さない。
+ * 天気カード。現在の気温と状態、これから 3 時間ごとの気温と降水確率。
+ * 状態はアイコンの形で示し、色だけで意味を持たせない。
  */
 @Composable
-internal fun WeatherCard(weather: WeatherSnapshot, modifier: Modifier = Modifier) {
+internal fun WeatherCard(
+    weather: WeatherSnapshot,
+    placeName: String?,
+    modifier: Modifier = Modifier
+) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
-    val label = weatherLabel(weather.code, t)
-    val points = remember(weather) {
-        val hours = weather.hours
-        if (hours.isEmpty()) emptyList()
-        else listOf(0, 3, 6, 9).mapNotNull { hours.getOrNull(it) }
-    }
+    val points = remember(weather) { nextHours(weather.hours) }
 
     Column(
         modifier = modifier
             .clip(AppShapes.card)
             .background(colors.surface)
-            .border(1.dp, colors.border, AppShapes.card)
-            .padding(Space.md),
-        verticalArrangement = Arrangement.spacedBy(Space.xs)
+            .padding(Space.lg),
+        verticalArrangement = Arrangement.spacedBy(Space.sm)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                if (weather.isDay) AppIcons.day else AppIcons.night,
-                contentDescription = null,
-                tint = if (weather.isDay) colors.warning else colors.accent,
-                modifier = Modifier.size(18.dp)
-            )
             Text(
                 text = t["weather_title"],
                 style = MaterialTheme.typography.labelSmall,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(start = Space.xs)
+                color = colors.textSecondary
             )
+            if (!placeName.isNullOrBlank()) {
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = placeName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.textTertiary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = "${weather.temperature}°",
-                style = MaterialTheme.typography.headlineMedium.tabular(),
-                color = colors.text
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = weatherIcon(weather.code, weather.isDay),
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(32.dp)
             )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(start = Space.sm, bottom = 4.dp)
-            )
+            Column(modifier = Modifier.padding(start = Space.md)) {
+                Text(
+                    text = "${weather.temperature}°",
+                    style = MaterialTheme.typography.headlineMedium.tabular(),
+                    color = colors.text
+                )
+                Text(
+                    text = weatherLabel(weather.code, t),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.textSecondary
+                )
+            }
         }
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = Space.xs),
             horizontalArrangement = Arrangement.spacedBy(Space.xs)
         ) {
-            points.forEach { hour ->
+            points.forEachIndexed { index, hour ->
                 Column(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        text = "${hour.hour}",
+                        text = if (index == 0) t["weather_now"] else "+${index * 3}h",
                         style = MaterialTheme.typography.labelSmall.tabular(),
                         color = colors.textSecondary
                     )
@@ -93,15 +108,38 @@ internal fun WeatherCard(weather: WeatherSnapshot, modifier: Modifier = Modifier
                         style = MaterialTheme.typography.bodySmall.tabular(),
                         color = colors.text
                     )
-                    Text(
-                        text = "${hour.precipitation}%",
-                        style = MaterialTheme.typography.labelSmall.tabular(),
-                        color = colors.info
-                    )
+                    if (hour.precipitation > 0) {
+                        Text(
+                            text = "${hour.precipitation}%",
+                            style = MaterialTheme.typography.labelSmall.tabular(),
+                            color = colors.info
+                        )
+                    } else {
+                        // 0% は書かない。行の高さだけ確保して桁を揃える。
+                        Spacer(Modifier.height(15.dp))
+                    }
                 }
             }
         }
     }
+}
+
+/** 今の時刻から 3 時間おきに 4 点。夜でも翌日へ続けて拾う。 */
+private fun nextHours(hours: List<WeatherHour>): List<WeatherHour> {
+    if (hours.isEmpty()) return emptyList()
+    val nowHour = nowMinutes() / 60
+    val start = hours.indexOfFirst { it.hour >= nowHour }.let { if (it < 0) 0 else it }
+    return (0 until 4).mapNotNull { index -> hours.getOrNull(start + index * 3) }
+}
+
+private fun weatherIcon(code: Int, isDay: Boolean): ImageVector = when (code) {
+    0, 1 -> if (isDay) AppIcons.day else AppIcons.night
+    2, 3, 45, 48 -> AppIcons.cloudy
+    in 51..57 -> AppIcons.drizzle
+    in 61..67, in 80..82 -> AppIcons.rain
+    in 71..77, in 85..86 -> AppIcons.snow
+    in 95..99 -> AppIcons.thunder
+    else -> AppIcons.cloudy
 }
 
 private fun weatherLabel(code: Int, t: UiStrings): String = when (code) {

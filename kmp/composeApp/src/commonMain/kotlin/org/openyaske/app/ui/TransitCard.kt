@@ -1,7 +1,6 @@
 package org.openyaske.app.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,7 +75,6 @@ internal fun TransitCard(
         modifier = modifier
             .clip(AppShapes.card)
             .background(colors.surface)
-            .border(1.dp, colors.border, AppShapes.card)
             .padding(Space.md),
         verticalArrangement = Arrangement.spacedBy(Space.xs)
     ) {

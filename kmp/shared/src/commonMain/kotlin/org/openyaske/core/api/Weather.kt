@@ -84,7 +84,7 @@ object WeatherClient {
             append("?latitude=$latitude&longitude=$longitude")
             append("&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day")
             append("&hourly=temperature_2m,weather_code,precipitation_probability")
-            append("&timezone=auto&forecast_days=1")
+            append("&timezone=auto&forecast_days=2")
         }
         val text = httpGetText(url) ?: return null
         return parse(text)

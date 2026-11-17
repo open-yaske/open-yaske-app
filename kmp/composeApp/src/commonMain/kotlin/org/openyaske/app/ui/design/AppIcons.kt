@@ -20,6 +20,11 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material.icons.filled.Umbrella
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Notifications
@@ -61,4 +66,11 @@ object AppIcons {
     /** 時刻から選ぶ空の絵。天気そのものではなく、朝昼夜の目印。 */
     val day: ImageVector = Icons.Filled.WbSunny
     val night: ImageVector = Icons.Filled.NightsStay
+
+    /** 天気の状態。色ではなく形で伝える。 */
+    val cloudy: ImageVector = Icons.Filled.Cloud
+    val rain: ImageVector = Icons.Filled.Umbrella
+    val drizzle: ImageVector = Icons.Filled.Grain
+    val snow: ImageVector = Icons.Filled.AcUnit
+    val thunder: ImageVector = Icons.Filled.Thunderstorm
 }

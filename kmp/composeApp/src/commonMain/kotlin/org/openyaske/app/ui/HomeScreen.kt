@@ -1,12 +1,9 @@
 package org.openyaske.app.ui
 
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -18,12 +15,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -66,7 +63,6 @@ import org.openyaske.app.ui.design.Space
 import org.openyaske.app.ui.design.parseCourseColor
 import org.openyaske.app.ui.design.screenBottomPadding
 import org.openyaske.app.ui.design.tabular
-import org.openyaske.app.ui.design.tintOf
 import org.openyaske.core.api.AppSettings
 import org.openyaske.core.api.CoreApi
 import org.openyaske.core.logic.PeriodTimes
@@ -207,18 +203,11 @@ fun HomeScreen(
                         session = displaySession,
                         course = displaySession?.let { coursesById[it.courseId] },
                         nextSession = displayNext,
+                        nextCourse = displayNext?.let { coursesById[it.courseId] },
                         daysLater = if (forced != null) hero.daysLater.takeIf { it > 0 } ?: 2 else hero.daysLater,
                         settings = settings,
-                        locale = settings.locale,
                         onTimetable = { onNavigate(Destination.TIMETABLE) },
                         onSettings = onSettings
-                    )
-                }
-
-                item {
-                    WeatherTransitCards(
-                        settings = settings,
-                        wide = wide
                     )
                 }
 
@@ -230,7 +219,14 @@ fun HomeScreen(
                     )
                 }
 
-                item { HomeLinks() }
+                item {
+                    WeatherTransitCards(
+                        settings = settings,
+                        wide = wide
+                    )
+                }
+
+                item { HomeLinks(wide) }
 
                 item {
                     TodayList(
@@ -304,7 +300,7 @@ private fun GreetingHeader(today: String, onSearch: () -> Unit, onSettings: () -
             )
             Text(
                 text = date,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge.tabular(),
                 color = colors.text
             )
         }
@@ -406,168 +402,144 @@ private fun Hero(
     session: CourseSession?,
     course: Course?,
     nextSession: CourseSession?,
+    nextCourse: Course?,
     daysLater: Int,
     settings: AppSettings,
-    locale: String,
     onTimetable: () -> Unit,
     onSettings: () -> Unit
 ) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
-    val strong = state == HeroState.IN_CLASS
-    val background by animateColorAsState(
-        targetValue = if (strong) colors.primary else colors.primaryContainer,
-        label = "heroBackground"
-    )
-    val onSurface = if (strong) colors.onPrimary else colors.onPrimaryContainer
-    val soft = if (strong) colors.onPrimary.copy(alpha = 0.8f) else colors.textSecondary
-    val today = remember { todayIso() }
+    // ヒーローは 1 枚だけ濃い面にして、ホームの焦点をここに置く。
+    // 暗いテーマでは明るい面が眩しくなるので、コンテナ色に落とす。
+    val background = if (colors.dark) colors.primaryContainer else colors.primary
+    val title = if (colors.dark) colors.onPrimaryContainer else colors.onPrimary
+    val soft = title.copy(alpha = 0.78f)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(AppShapes.hero)
             .background(background)
-            .padding(horizontal = Space.xl, vertical = Space.lg)
+            .padding(horizontal = Space.xl, vertical = Space.lg),
+        verticalArrangement = Arrangement.spacedBy(Space.xs)
     ) {
         when (state) {
             HeroState.BEFORE_CLASS -> {
                 Text(t["home_next_class_in"], style = MaterialTheme.typography.bodySmall, color = soft)
                 Text(
-                    text = if (minutes <= 1) t["home_soon"] else "$minutes" + t["home_minutes_suffix"],
+                    text = if (minutes <= 1) t["home_soon"]
+                    else "$minutes" + t["home_minutes_suffix"],
                     style = MaterialTheme.typography.headlineLarge.tabular(),
-                    color = onSurface
+                    color = title
                 )
-                session?.let {
-                    Text(
-                        text = heroSessionLine(it, course, settings, t),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                TextButton(onClick = onTimetable, contentPadding = PaddingValues(0.dp)) {
-                    Text(t["home_open_timetable"], color = onSurface)
-                }
+                session?.let { HeroCourse(it, course, settings, t, title, soft) }
+                HeroAction(t["home_open_timetable"], title, onTimetable)
             }
 
             HeroState.IN_CLASS -> {
-                Text(
-                    text = session?.let { heroSessionLine(it, course, settings, t) } ?: t["home_in_class"],
-                    style = MaterialTheme.typography.titleMedium,
-                    color = onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(t["home_in_class"], style = MaterialTheme.typography.bodySmall, color = soft)
+                Text(t["home_until_end"], style = MaterialTheme.typography.bodySmall, color = soft)
                 Text(
                     text = if (minutes <= 1) t["home_soon_end"]
-                    else t["home_until_end"] + " $minutes" + t["home_minutes_suffix"],
-                    style = MaterialTheme.typography.headlineMedium.tabular(),
-                    color = onSurface
+                    else "$minutes" + t["home_minutes_suffix"],
+                    style = MaterialTheme.typography.headlineLarge.tabular(),
+                    color = title
                 )
+                session?.let { HeroCourse(it, course, settings, t, title, soft) }
             }
 
             HeroState.DONE_TODAY -> {
                 Text(
                     text = t["home_done_today"],
-                    style = MaterialTheme.typography.titleMedium,
-                    color = onSurface
+                    style = MaterialTheme.typography.titleLarge,
+                    color = title
                 )
-                nextSession?.let {
-                    Text(
-                        text = nextLine(it, settings, today, locale, t),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = soft
-                    )
-                }
+                nextSession?.let { HeroCourse(it, nextCourse, settings, t, title, soft) }
             }
 
             HeroState.HOLIDAY -> {
-                nextSession?.let {
-                    Text(t["home_next_class_is"], style = MaterialTheme.typography.bodySmall, color = soft)
+                Text(t["home_next_class_is"], style = MaterialTheme.typography.bodySmall, color = soft)
+                if (daysLater > 0) {
                     Text(
-                        text = nextLine(it, settings, today, locale, t),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = onSurface
+                        text = "$daysLater" + t["home_days_later"],
+                        style = MaterialTheme.typography.headlineLarge.tabular(),
+                        color = title
                     )
-                    if (daysLater > 0) {
-                        Text(
-                            text = "$daysLater" + t["home_days_later"],
-                            style = MaterialTheme.typography.bodySmall,
-                            color = soft
-                        )
-                    }
                 }
+                nextSession?.let { HeroCourse(it, nextCourse, settings, t, title, soft) }
             }
 
             HeroState.OUT_OF_TERM -> {
-                Text(t["home_no_next"], style = MaterialTheme.typography.titleMedium, color = onSurface)
-                TextButton(onClick = onSettings, contentPadding = PaddingValues(0.dp)) {
-                    Text(t["home_open_settings"], color = onSurface)
-                }
+                Text(t["home_no_next"], style = MaterialTheme.typography.titleLarge, color = title)
+                HeroAction(t["home_open_settings"], title, onSettings)
             }
 
             HeroState.EMPTY_TIMETABLE -> {
-                Text(t["home_empty_timetable"], style = MaterialTheme.typography.titleMedium, color = onSurface)
-                TextButton(onClick = onTimetable, contentPadding = PaddingValues(0.dp)) {
-                    Text(t["add_course"], color = onSurface)
-                }
+                Text(t["home_empty_timetable"], style = MaterialTheme.typography.titleLarge, color = title)
+                HeroAction(t["add_course"], title, onTimetable)
             }
         }
+    }
+}
+
+/** ヒーロー内の科目。科目色の点、科目名、時限・時刻・教室。 */
+@Composable
+private fun HeroCourse(
+    session: CourseSession,
+    course: Course?,
+    settings: AppSettings,
+    t: UiStrings,
+    title: Color,
+    soft: Color
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = Space.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (course != null) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(parseCourseColor(course.color, 0))
+            )
+        }
+        Column(modifier = Modifier.weight(1f).padding(start = Space.sm)) {
+            Text(
+                text = course?.name ?: "—",
+                style = MaterialTheme.typography.titleMedium,
+                color = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = listOfNotNull(
+                    periodLabel(session, t).ifBlank { null },
+                    startMinutes(session, settings)?.let { shortTime(it) },
+                    session.room ?: course?.room
+                ).joinToString(" · "),
+                style = MaterialTheme.typography.bodySmall,
+                color = soft,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroAction(text: String, color: Color, onClick: () -> Unit) {
+    TextButton(onClick = onClick, contentPadding = PaddingValues(0.dp)) {
+        Text(text, color = color, style = MaterialTheme.typography.labelLarge)
     }
 }
 
 private fun periodLabel(session: CourseSession, t: UiStrings): String =
     session.startPeriod?.let { "$it" + t["search_period_suffix"] } ?: ""
 
-/** 「2限 情報基礎演習 · 西2-B101」。 */
-private fun heroSessionLine(
-    session: CourseSession,
-    course: Course?,
-    settings: AppSettings,
-    t: UiStrings
-): String = listOfNotNull(
-    periodLabel(session, t).ifBlank { null },
-    course?.name,
-    session.room ?: course?.room
-).joinToString(" · ")
-
-/** 「明日 1限 9:00〜」「11/5（水）1限」。 */
-private fun nextLine(
-    session: CourseSession,
-    settings: AppSettings,
-    today: String,
-    locale: String,
-    t: UiStrings
-): String {
-    val day = when (session.date) {
-        today -> t["tasks_today"]
-        IsoDate.plusDays(today, 1) -> t["home_tomorrow"]
-        else -> shortDateLabel(session.date, locale, t)
-    }
-    val start = startMinutes(session, settings)
-    val time = start?.let { shortTime(it) }
-    return listOfNotNull(day, periodLabel(session, t).ifBlank { null }, time)
-        .joinToString(" ")
-        .let { if (time == null) it else "$it〜" }
-}
-
 private fun shortTime(minutes: Int): String {
     val formatted = PeriodTimes.formatMinutes(minutes)
     return if (formatted.startsWith("0")) formatted.drop(1) else formatted
-}
-
-private fun shortDateLabel(date: String, locale: String, t: UiStrings): String {
-    val month = date.substring(5, 7).toIntOrNull() ?: 0
-    val day = date.substring(8).toIntOrNull() ?: 0
-    val weekday = IsoDate.dayOfWeekIso(date)
-    return if (locale.startsWith("ja")) {
-        "${month}/${day}（${t["day_$weekday"]}）"
-    } else {
-        "${month}/${day} ${t["day_$weekday"]}"
-    }
 }
 
 private fun longDateLabel(date: String, locale: String): String {
@@ -578,72 +550,77 @@ private fun longDateLabel(date: String, locale: String): String {
 
 /* ---------------- リンク集 ---------------- */
 
-/** 2 列グリッドのリンク。Svelte 版の Bento グリッドに合わせる。 */
+/**
+ * よく使うリンク。行ごとにカードを並べず、アイコンと名前だけにする。
+ * 広い画面では 8 個を 1 行に、狭い画面では学内・学修の 2 行に分ける。
+ */
 @Composable
-private fun HomeLinks() {
+private fun HomeLinks(wide: Boolean) {
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
     val uriHandler = LocalUriHandler.current
-    val study = remember { CampusLinkGroups.first().links.take(4) }
-    val others = remember {
-        CampusLinkGroups.drop(1).flatMap { it.links }.take(4)
-    }
+    val campus = remember { CampusLinkGroups.first().links.take(4) }
+    val study = remember { CampusLinkGroups.drop(1).flatMap { it.links }.take(4) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
-        SectionBar(t["home_links_campus"])
-        LinkGrid(study, colors.primary, uriHandler)
-        SectionBar(t["home_links_study"])
-        LinkGrid(others, colors.info, uriHandler)
+    Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+        if (wide) {
+            SectionBar(t["home_links_quick"])
+            QuickLinkRow(
+                items = campus.map { it to colors.primary } + study.map { it to colors.info },
+                uriHandler = uriHandler
+            )
+        } else {
+            SectionBar(t["home_links_campus"])
+            QuickLinkRow(
+                items = campus.map { it to colors.primary },
+                uriHandler = uriHandler
+            )
+            SectionBar(t["home_links_study"])
+            QuickLinkRow(
+                items = study.map { it to colors.info },
+                uriHandler = uriHandler
+            )
+        }
         SectionBar(t["home_links_all"])
         CampusLinksSection()
     }
 }
 
 @Composable
-private fun LinkGrid(
-    links: List<CampusLink>,
-    tint: Color,
+private fun QuickLinkRow(
+    items: List<Pair<CampusLink, Color>>,
     uriHandler: androidx.compose.ui.platform.UriHandler
 ) {
     val colors = LocalAppColors.current
-    Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
-        links.chunked(2).forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Space.sm)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Space.xs)
+    ) {
+        items.forEach { (link, tint) ->
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(AppShapes.control)
+                    .clickable { runCatching { uriHandler.openUri(link.url) } }
+                    .padding(horizontal = 2.dp, vertical = Space.sm),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Space.xs)
             ) {
-                row.forEach { link ->
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(AppShapes.card)
-                            .background(colors.surface)
-                            .border(1.dp, colors.border, AppShapes.card)
-                            .clickable { runCatching { uriHandler.openUri(link.url) } }
-                            .padding(horizontal = Space.md, vertical = Space.md),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(AppShapes.card)
-                                .background(tintOf(tint, !colors.dark)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(link.icon, null, tint = tint, modifier = Modifier.size(20.dp))
-                        }
-                        Text(
-                            text = link.title,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = colors.text,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f).padding(start = Space.sm)
-                        )
-                    }
-                }
-                if (row.size == 1) Spacer(Modifier.weight(1f))
+                Icon(
+                    link.icon,
+                    contentDescription = null,
+                    tint = tint,
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    text = link.title,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.textSecondary,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.heightIn(min = 30.dp)
+                )
             }
         }
     }
@@ -664,18 +641,18 @@ private fun TodayList(
     val t = LocalUiStrings.current
 
     Column {
-        SectionBar(t["home_today_timetable"])
+        SectionBar(t["home_today_timetable"]) {
+            CountLabel(sessions.size, t["home_count_sessions"])
+        }
         if (sessions.isEmpty()) {
-            AppCard {
-                Text(
-                    text = t["home_no_class"],
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary,
-                    modifier = Modifier.padding(horizontal = Space.lg, vertical = Space.md)
-                )
-            }
+            Text(
+                text = t["home_no_class"],
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary,
+                modifier = Modifier.padding(horizontal = Space.xs, vertical = Space.xs)
+            )
         } else {
-            AppCard {
+            AppCard(border = false) {
                 sessions.forEachIndexed { index, session ->
                     val course = coursesById[session.courseId]
                     if (index > 0) HairLine(modifier = Modifier.padding(start = Space.lg))
@@ -744,41 +721,56 @@ private fun TodayList(
 
 @Composable
 private fun StatRow(todayCount: Int, weekCount: Int, credits: Int) {
+    val colors = LocalAppColors.current
     val t = LocalUiStrings.current
+    // 3 枚のカードを並べず、1 本の帯にまとめる。数字だけを主役にする。
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Space.sm)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(AppShapes.card)
+            .background(colors.surfaceAlt),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        StatTile("$todayCount", t["home_stat_today"], Modifier.weight(1f))
-        StatTile("$weekCount", t["home_stat_week"], Modifier.weight(1f))
-        StatTile("$credits", t["home_stat_credits"], Modifier.weight(1f))
+        StatCell("$todayCount", t["home_stat_today"], Modifier.weight(1f))
+        StatDivider()
+        StatCell("$weekCount", t["home_stat_week"], Modifier.weight(1f))
+        StatDivider()
+        StatCell("$credits", t["home_stat_credits"], Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
+private fun StatCell(value: String, label: String, modifier: Modifier = Modifier) {
     val colors = LocalAppColors.current
     Column(
-        modifier = modifier
-            .clip(AppShapes.card)
-            .background(colors.surface)
-            .border(1.dp, colors.border, AppShapes.card)
-            .padding(horizontal = Space.md, vertical = Space.sm),
+        modifier = modifier.padding(vertical = Space.md),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineSmall.tabular(),
-            color = colors.primary
+            style = MaterialTheme.typography.titleLarge.tabular(),
+            color = colors.text
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = colors.textSecondary,
-            maxLines = 2,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+@Composable
+private fun StatDivider() {
+    val colors = LocalAppColors.current
+    Box(
+        modifier = Modifier
+            .width(1.dp)
+            .height(28.dp)
+            .background(colors.border)
+    )
 }
 
 @Composable
@@ -791,7 +783,7 @@ private fun TodayOtherItems(
     val t = LocalUiStrings.current
     Column {
         SectionBar(t["home_today_other"])
-        AppCard {
+        AppCard(border = false) {
             entries.forEachIndexed { index, entry ->
                 if (index > 0) HairLine(modifier = Modifier.padding(start = Space.lg))
                 val (title, subtitle) = when (val item = entry.item) {
@@ -853,18 +845,18 @@ private fun UpcomingSection(
     val colors = LocalAppColors.current
     val t = LocalUiStrings.current
     Column {
-        SectionBar(t["tasks_upcoming"])
+        SectionBar(t["tasks_upcoming"]) {
+            CountLabel(tasks.size, t["home_count_tasks"])
+        }
         if (tasks.isEmpty()) {
-            AppCard {
-                Text(
-                    text = t["home_no_task"],
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary,
-                    modifier = Modifier.padding(horizontal = Space.lg, vertical = Space.md)
-                )
-            }
+            Text(
+                text = t["home_no_task"],
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary,
+                modifier = Modifier.padding(horizontal = Space.xs, vertical = Space.xs)
+            )
         } else {
-            AppCard {
+            AppCard(border = false) {
                 tasks.forEachIndexed { index, task ->
                     if (index > 0) HairLine(modifier = Modifier.padding(start = Space.lg))
                     Row(
@@ -911,3 +903,12 @@ private fun UpcomingSection(
 }
 
 /* ---------------- 補助 ---------------- */
+
+@Composable
+private fun CountLabel(count: Int, suffix: String) {
+    Text(
+        text = "$count$suffix",
+        style = MaterialTheme.typography.labelSmall,
+        color = LocalAppColors.current.textTertiary
+    )
+}

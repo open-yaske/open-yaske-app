@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.openyaske.app.ui.design.Space
 import org.openyaske.core.api.AppSettings
@@ -39,18 +41,26 @@ fun WeatherTransitCards(settings: AppSettings, wide: Boolean) {
     if (weather == null && transit.isEmpty()) return
 
     if (wide) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Space.sm)
-        ) {
-            weather?.let { WeatherCard(it, Modifier.weight(1f)) }
-            if (transit.isNotEmpty()) {
+        // 2 枚そろうときだけ横に並べる。1 枚のときは広げず、読みやすい幅に留める。
+        if (weather != null && transit.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Space.sm)
+            ) {
+                WeatherCard(weather, settings.weatherPlaceName, Modifier.weight(1f))
                 TransitCard(settings, transit, Modifier.weight(1f))
+            }
+        } else {
+            weather?.let {
+                WeatherCard(it, settings.weatherPlaceName, Modifier.widthIn(max = 420.dp))
+            }
+            if (transit.isNotEmpty()) {
+                TransitCard(settings, transit, Modifier.widthIn(max = 420.dp))
             }
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
-            weather?.let { WeatherCard(it, Modifier.fillMaxWidth()) }
+            weather?.let { WeatherCard(it, settings.weatherPlaceName, Modifier.fillMaxWidth()) }
             if (transit.isNotEmpty()) {
                 TransitCard(settings, transit, Modifier.fillMaxWidth())
             }
