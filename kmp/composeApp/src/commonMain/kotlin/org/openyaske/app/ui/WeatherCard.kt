@@ -103,6 +103,13 @@ internal fun WeatherCard(
                         style = MaterialTheme.typography.labelSmall.tabular(),
                         color = colors.textSecondary
                     )
+                    // 各コマの天気。時刻から昼/夜だけ決め、形で状態を出す。
+                    Icon(
+                        imageVector = weatherIcon(hour.code, hour.hour in 6..17),
+                        contentDescription = weatherLabel(hour.code, t),
+                        tint = colors.textSecondary,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Text(
                         text = "${hour.temperature}°",
                         style = MaterialTheme.typography.bodySmall.tabular(),
